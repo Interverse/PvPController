@@ -1,0 +1,11 @@
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\PvPController.dll.config
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\PvPController.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\PvPController.pdb
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\Newtonsoft.Json.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\OTAPI.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\TerrariaServer.exe
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\TShockAPI.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\Newtonsoft.Json.xml
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\obj\Debug\PvPController.csprojResolveAssemblyReference.cache
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\obj\Debug\PvPController.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\obj\Debug\PvPController.pdb
