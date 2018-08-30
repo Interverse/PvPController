@@ -13,6 +13,7 @@ using Terraria.DataStructures;
 using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
+using System.Timers;
 
 namespace PvPController {
     [ApiVersion(2, 1)]
@@ -22,6 +23,7 @@ namespace PvPController {
         public static PvPPlayer[] pvpers = new PvPPlayer[Main.maxPlayers];
         public static PvPProjectile[] projectiles = new PvPProjectile[Main.maxProjectiles];
         public static PvPHandler pvpHandler = new PvPHandler();
+        public static Timer timer = new Timer(500) { Enabled = true };
         
         public override string Name => "PvP Controller";
         public override string Author => "Johuan";
@@ -43,6 +45,8 @@ namespace PvPController {
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
             GetDataHandlers.NewProjectile += OnNewProjectile;
+
+            timer.Elapsed += PvPTimerElapsed;
 
             PluginCommands.registerCommands();
         }
@@ -75,6 +79,13 @@ namespace PvPController {
 
         private void OnJoin(JoinEventArgs args) {
             pvpers[args.Who] = new PvPPlayer(args.Who);
+        }
+
+        private void PvPTimerElapsed(object sender, ElapsedEventArgs e) {
+            for (int x = 0; x < pvpers.Length; x++) {
+                if (pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip)
+                    PvPUtils.DisplayInterface(pvpers[x]);
+            }
         }
 
         //Stores newly created projectiles into a list along with its originated item

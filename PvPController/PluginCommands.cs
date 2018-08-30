@@ -34,6 +34,7 @@ namespace PvPController {
             PvPController.pvpers[args.Player.Index].seeTooltip = !PvPController.pvpers[args.Player.Index].seeTooltip;
 
             args.Player.SendSuccessMessage("Tooltips: " + PvPController.pvpers[args.Player.Index].seeTooltip);
+            PvPUtils.ClearInterface(PvPController.pvpers[args.Player.Index]);
         }
 
         private static void DamageMod(CommandArgs args) {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using PvPController.PvPVariables;
 using System;
+using System.Text;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -45,7 +46,30 @@ namespace PvPController.Utilities {
             return 0;
         }
 
-        public static bool isCrit(int percentage) {
+        public static void DisplayInterface(PvPPlayer player) {
+            string message = string.Join("\r\n",
+            LineBreaks(8),
+            "Weapon and Armor Stats",
+            new string('-', 40),
+            player.GetPlayerItem().name + ": " + player.GetPlayerItem().GetPvPDamage(player) + " damage",
+            "Defense: " + player.GetPlayerDefense(),
+            LineBreaks(50));
+            player.SendData(PacketTypes.Status, message);
+        }
+
+        public static void ClearInterface(PvPPlayer player) {
+            player.SendData(PacketTypes.Status, String.Empty);
+        }
+
+        public static string LineBreaks(int amount) {
+			StringBuilder sb = new StringBuilder();
+			for (int x = 0; x < amount; x++) {
+                sb.Append("\r\n");
+            }
+			return sb.ToString();
+		}
+
+        public static bool IsCrit(int percentage) {
             Random random = new Random();
             return percentage > random.Next(0, 101);
         }
