@@ -78,10 +78,16 @@ namespace PvPController.PvPVariables {
             return moddedArmorDefense - vanillaArmorDefense;
         }
 
-        public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection) {
+        public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection, bool isCrit) {
+            string star = "*";
+            if (PvPController.config.enableCriticals) {
+                damage *= (isCrit ? 2 : 1);
+                star = isCrit ? "!!" : "*";
+            }
+
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
                 damage, hitDirection, false, true, 5);
-            PvPUtils.PlayerTextPopup(attacker, this, "*" + TerrariaUtils.GetHurtDamage(this, damage) + "*", Color.DarkTurquoise);
+            PvPUtils.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, Color.DarkTurquoise);
         }
 
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {

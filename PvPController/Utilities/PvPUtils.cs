@@ -45,6 +45,11 @@ namespace PvPController.Utilities {
             return 0;
         }
 
+        public static bool isCrit(int percentage) {
+            Random random = new Random();
+            return percentage > random.Next(0, 101);
+        }
+
         public static void PlayerTextPopup(PvPPlayer player, string message, Color color) {
             NetMessage.SendData(119, player.Index, -1, NetworkText.FromLiteral(message), (int)color.PackedValue, player.X, player.Y + 10);
         }

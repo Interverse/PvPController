@@ -32,7 +32,8 @@ namespace PvPController.PacketHandling {
             }
             
             e.args.Handled = true;
-            e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.knockback);
+
+            e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.knockback, PvPUtils.isCrit(e.crit));
             e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
 
             if (PvPController.config.enableProjectileDebuffs)

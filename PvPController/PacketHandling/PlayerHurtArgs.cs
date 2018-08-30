@@ -23,9 +23,10 @@ namespace PvPController.PacketHandling {
         public int inflictedDamage { get; set; }
         public int damageReceived { get; set; }
         public int knockback { get; set; }
+        public int crit { get; set; }
 
         public PlayerHurtArgs(GetDataEventArgs args, PvPPlayer attacker, PvPPlayer target, PvPItem weapon, PvPProjectile projectile,
-            PlayerDeathReason playerHitReason, int inflictedDamage, int damageReceived, int knockback) {
+            PlayerDeathReason playerHitReason, int inflictedDamage, int damageReceived, int knockback, int crit) {
 
             this.args = args;
             this.attacker = attacker;
@@ -36,6 +37,7 @@ namespace PvPController.PacketHandling {
             this.inflictedDamage = inflictedDamage;
             this.damageReceived = damageReceived;
             this.knockback = knockback;
+            this.crit = crit;
         }
     }
 }

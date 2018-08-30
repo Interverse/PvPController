@@ -129,12 +129,18 @@ namespace PvPController {
                     data.ReadByte(); data.ReadByte();
                     int knockback = int2 - 1;
 
+                    int crit = weapon.crit;
+                    if (weapon.melee) crit += attacker.TPlayer.meleeCrit;
+                    else if (weapon.ranged) crit = attacker.TPlayer.rangedCrit;
+                    else if (weapon.magic) crit += attacker.TPlayer.magicCrit;
+                    else if (weapon.thrown) crit += attacker.TPlayer.thrownCrit;
+
                     target.lastHitBy = attacker;
                     target.lastHitWeapon = weapon;
                     target.lastHitProjectile = projectile;
 
                     DataHandler.OnPlayerHurtted(args, attacker, target, weapon, projectile, playerHitReason,
-                        inflictedDamage, damageReceived, knockback);
+                        inflictedDamage, damageReceived, knockback, crit);
 
                     break;
 

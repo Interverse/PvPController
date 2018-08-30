@@ -9,7 +9,7 @@ using TShockAPI;
 
 namespace PvPController {
     public class PluginCommands {
-        private static string damageParameters = "Parameters: enable, damagevariance (dv), modweapondamage (mwd), modprojectiledamage (mpd)";
+        private static string damageParameters = "Parameters: enable, critical (c), damagevariance (dv), modweapondamage (mwd), modprojectiledamage (mpd)";
         private static string buffParameters = "Parameters: enable, projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
         private static string reflectParameters = "Parameters: enable, turtle, thorns";
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
@@ -46,6 +46,13 @@ namespace PvPController {
                 case "enable":
                     PvPController.config.enableDamageChanges = !PvPController.config.enableDamageChanges;
                     args.Player.SendSuccessMessage("Damage mods: " + PvPController.config.enableDamageChanges);
+                    break;
+
+                case "critical":
+                case "crit":
+                case "c":
+                    PvPController.config.enableCriticals = !PvPController.config.enableCriticals;
+                    args.Player.SendSuccessMessage("Criticals: " + PvPController.config.enableCriticals);
                     break;
 
                 case "damagevariance":

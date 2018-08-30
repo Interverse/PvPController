@@ -13,6 +13,7 @@ namespace PvPController {
         public bool enablePlugin;
 
         public bool enableDamageChanges;
+        public bool enableCriticals;
 
         public bool enableProjectileDebuffs;
         public bool enableProjectileSelfBuffs;

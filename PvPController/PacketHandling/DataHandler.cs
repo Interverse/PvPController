@@ -18,10 +18,10 @@ namespace PvPController.PacketHandling {
         public static event EventHandler<PlayerSlotArgs> PlayerSlotUpdated;
 
         public static void OnPlayerHurtted(GetDataEventArgs args, PvPPlayer attacker, PvPPlayer target, PvPItem weapon, PvPProjectile projectile,
-            PlayerDeathReason playerHitReason, int inflictedDamage, int damageReceived, int knockback) {
+            PlayerDeathReason playerHitReason, int inflictedDamage, int damageReceived, int knockback, int crit) {
 
             if (PlayerHurtted != null)
-                PlayerHurtted(typeof(DataHandler), new PlayerHurtArgs(args, attacker, target, weapon, projectile, playerHitReason, inflictedDamage, damageReceived, knockback));
+                PlayerHurtted(typeof(DataHandler), new PlayerHurtArgs(args, attacker, target, weapon, projectile, playerHitReason, inflictedDamage, damageReceived, knockback, crit));
         }
 
         public static void OnPlayerUpdated(MemoryStream data, PvPPlayer player) {
