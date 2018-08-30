@@ -20,6 +20,7 @@ namespace PvPController.PacketHandling {
             DataHandler.PlayerHurtted -= OnPlayerHurtted;
             DataHandler.PlayerUpdated -= OnPlayerUpdated;
             DataHandler.ProjectileDestroyed -= OnProjectileDestroyed;
+            DataHandler.PlayerSlotUpdated -= OnPlayerSlotUpdated;
         }
 
         private void OnPlayerHurtted(object sender, PlayerHurtArgs e) {
