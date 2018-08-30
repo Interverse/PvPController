@@ -487,7 +487,7 @@ namespace PvPController {
                 case "deathitemtag":
                 case "dit":
                     if (args.Parameters.Count == 1) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /miscmod deathitemtag <message>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /miscmod deathitemtag <custom message> or /miscmod deathitemtag weapon");
                         return;
                     }
 
@@ -502,9 +502,9 @@ namespace PvPController {
                         return;
                     }
 
-                    int iframeTime;
+                    double iframeTime;
 
-                    if (!Int32.TryParse(args.Parameters[1], out iframeTime)) {
+                    if (!Double.TryParse(args.Parameters[1], out iframeTime)) {
                         args.Player.SendErrorMessage("Invalid iframetime of " + args.Parameters[1]);
                         return;
                     }
