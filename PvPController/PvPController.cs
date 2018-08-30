@@ -121,10 +121,13 @@ namespace PvPController {
                     PvPProjectile projectile = playerHitReason.SourceProjectileIndex == -1 ? null : projectiles[playerHitReason.SourceProjectileIndex];
                     PvPItem weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
 
-                    int inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : data.ReadByte();
+                    int int1 = data.ReadInt16(); //damage
+                    int int2 = data.ReadByte(); //knockback
+
+                    int inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : int1;
                     int damageReceived = target.GetDamageReceived(inflictedDamage);
                     data.ReadByte(); data.ReadByte();
-                    int knockback = data.ReadByte() - 1;
+                    int knockback = int2 - 1;
 
                     target.lastHitBy = attacker;
                     target.lastHitWeapon = weapon;
