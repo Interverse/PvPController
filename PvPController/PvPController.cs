@@ -91,7 +91,7 @@ namespace PvPController {
                 weapon.damage = MiscData.accessoryOrArmorProjectiles[args.Type];
                 weapon.name = Lang.GetProjectileName(args.Type).ToString();
             } else if (MiscData.fromWhatWeapon.ContainsKey(args.Type)) {
-                weapon = new PvPItem(MiscData.fromWhatWeapon[args.Type]);
+                weapon = player.FindPlayerItem(MiscData.fromWhatWeapon[args.Type]);
             } else {
                 weapon = player.GetPlayerItem();
             }

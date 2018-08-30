@@ -9,7 +9,7 @@ using TShockAPI;
 
 namespace PvPController.Utilities {
     public class PvPUtils {
-        public static string GetPvPDeathMessage(PvPPlayer attacker, PvPPlayer deadplayer, string weaponName, int type = 1, string prefix = "") {
+        public static string GetPvPDeathMessage(PvPPlayer attacker, PvPPlayer deadplayer, PvPItem weapon, int type = 1) {
             Random random = new Random();
             string deathmessage = "";
 
@@ -18,9 +18,11 @@ namespace PvPController.Utilities {
             else if (type == 2)
                 deathmessage = PvPController.config.reflectedDeathMessages[random.Next(PvPController.config.reflectedDeathMessages.Count)];
 
-            if (prefix != "") prefix += " ";
+            string tag = PvPController.config.deathItemTag;
+            if (PvPController.config.deathItemTag == "weapon" && type == 1) tag = "[i/p{0}:{1}] ".SFormat(weapon.prefix, weapon.netID);
+            else if (PvPController.config.deathItemTag == "weapon" && type == 2) tag = "[i:1150] ";
 
-            return PvPController.config.deathItemTag + deadplayer.Name + deathmessage + attacker.Name + "'s " + prefix + weaponName + ".";
+            return tag + deadplayer.Name + deathmessage + attacker.Name + "'s " + weapon.name + ".";
         }
 
         public static int GetDamageVariance() {

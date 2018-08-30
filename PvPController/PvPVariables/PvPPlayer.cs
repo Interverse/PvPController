@@ -33,6 +33,10 @@ namespace PvPController.PvPVariables {
             return PvPUtils.ConvertToPvPItem(SelectedItem);
         }
 
+        public PvPItem FindPlayerItem(int type) {
+            return PvPUtils.ConvertToPvPItem(TPlayer.inventory[TPlayer.FindItem(type)]);
+        }
+
         public int GetDamageReceived(int damage) {
             return (int)TerrariaUtils.GetHurtDamage(this, damage);
         }
@@ -75,7 +79,7 @@ namespace PvPController.PvPVariables {
         }
 
         public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection) {
-            NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon.name, 1)),
+            NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
                 damage, hitDirection, false, true, 5);
             PvPUtils.PlayerTextPopup(attacker, this, "*" + TerrariaUtils.GetHurtDamage(this, damage) + "*", Color.DarkTurquoise);
         }
@@ -87,17 +91,21 @@ namespace PvPController.PvPVariables {
         }
 
         public void ApplyReflectDamage(PvPPlayer attacker, int damage, PvPItem weapon) {
+            PvPItem reflectType = new PvPItem();
+
             if (PvPController.config.enableTurtle && this.TPlayer.setBonus == Language.GetTextValue("ArmorSetBonus.Turtle") && weapon.melee) {
+                reflectType.name = "Turtle Armor";
                 int turtleDamage = (int)(damage * PvPController.config.turtleMultiplier);
 
-                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(this, attacker, "Turtle Armor", 2)),
+                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(this, attacker, reflectType, 2)),
                     turtleDamage, 0, false, true, 5);
             }
 
             if (PvPController.config.enableThorns && this.TPlayer.FindBuffIndex(14) != -1) {
+                reflectType.name = "Thorns";
                 int thornDamage = (int)(damage * PvPController.config.thornMultiplier);
 
-                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(this, attacker, "Thorns", 2)),
+                NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(this, attacker, reflectType, 2)),
                     thornDamage, 0, false, true, 5);
             } 
         }
