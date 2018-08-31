@@ -177,7 +177,7 @@ namespace PvPController.Utilities {
             else if (prefix == 51)
                 damage = 1.05f;
 
-            return (int)Math.Round(PvPController.config.itemInfo[weapon.netID].damage * (double)damage);
+            return (int)Math.Round(PvPController.database.itemInfo[weapon.netID].damage * (double)damage);
         }
 
         public static void ActivateYoyo(PvPPlayer attacker, PvPPlayer target, int dmg, float kb) {

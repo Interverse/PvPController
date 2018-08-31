@@ -115,7 +115,8 @@ namespace PvPController {
                                 damage = item.damage;
                             }
 
-                            PvPController.config.itemInfo[itemid].damage = damage;
+                            PvPController.database.itemInfo[itemid].damage = damage;
+                            PvPController.database.UpdateItems(PvPController.database.itemInfo[itemid]);
 
                             args.Player.SendSuccessMessage("Base damage of " + Lang.GetItemName(itemid).ToString() + " set to " + damage);
                             break;
@@ -142,7 +143,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.projectileInfo[projectileid].damage = projectileDamage;
+                            PvPController.database.projectileInfo[projectileid].damage = projectileDamage;
+                            PvPController.database.UpdateProjectiles(PvPController.database.projectileInfo[projectileid]);
 
                             args.Player.SendSuccessMessage("Base projectile damage of " + Lang.GetProjectileName(projectileid).ToString() + " set to " + projectileDamage);
                             break;
@@ -240,7 +242,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.projectileInfo[projectileID].debuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.projectileInfo[projectileID].debuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.UpdateProjectiles(PvPController.database.projectileInfo[projectileID]);
 
                             args.Player.SendSuccessMessage("Projectile " + Lang.GetProjectileName(projectileID).ToString() + " set to buff " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -270,7 +273,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.projectileInfo[projectileID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.projectileInfo[projectileID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.UpdateProjectiles(PvPController.database.projectileInfo[projectileID]);
 
                             args.Player.SendSuccessMessage("Projectile " + Lang.GetProjectileName(projectileID).ToString() + " set to buff self " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -304,7 +308,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.itemInfo[weaponID].debuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.itemInfo[weaponID].debuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.UpdateItems(PvPController.database.itemInfo[weaponID]);
 
                             args.Player.SendSuccessMessage("Item " + Lang.GetItemName(weaponID).ToString() + " set to buff " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -339,7 +344,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.itemInfo[weaponID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.itemInfo[weaponID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
+                            PvPController.database.UpdateItems(PvPController.database.itemInfo[weaponID]);
 
                             args.Player.SendSuccessMessage("Item " + Lang.GetItemName(weaponID).ToString() + " set to buff self " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -369,7 +375,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.buffInfo[buffType].debuff = new BuffDuration(buffType2, buffDuration * 60);
+                            PvPController.database.buffInfo[buffType].debuff = new BuffDuration(buffType2, buffDuration * 60);
+                            PvPController.database.UpdateBuffs(PvPController.database.buffInfo[buffType]);
 
                             args.Player.SendSuccessMessage("Buff " + Lang.GetBuffName(buffType) + " set to debuff others with " + Lang.GetBuffName(buffType2) + " with a " + buffDuration + "s duration");
                             break;
@@ -399,7 +406,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.config.buffInfo[buffType].selfBuff = new BuffDuration(buffType2, buffDuration * 60);
+                            PvPController.database.buffInfo[buffType].selfBuff = new BuffDuration(buffType2, buffDuration * 60);
+                            PvPController.database.UpdateBuffs(PvPController.database.buffInfo[buffType]);
 
                             args.Player.SendSuccessMessage("Buff " + Lang.GetBuffName(buffType) + " set to buff self with " + Lang.GetBuffName(buffType2) + " with a " + buffDuration + "s duration");
                             break;
@@ -741,7 +749,8 @@ namespace PvPController {
                         return;
                     }
 
-                    PvPController.config.itemInfo[itemid].defense = defense;
+                    PvPController.database.itemInfo[itemid].defense = defense;
+                    PvPController.database.UpdateItems(PvPController.database.itemInfo[itemid]);
                     args.Player.SendSuccessMessage("Set item {0} to {1} defense.".SFormat(Lang.GetItemNameValue(itemid), defense));
                     break;
 

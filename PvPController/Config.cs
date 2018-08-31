@@ -50,9 +50,6 @@ namespace PvPController {
         public List<string> reflectedDeathMessages = new List<string>();
 
         public string Instructions = "Press ctrl+f to find your item faster! (Everything is sorted in IDs)";
-        public Dictionary<int, ItemInfo> itemInfo = new Dictionary<int, ItemInfo>(Main.maxItemTypes);
-        public Dictionary<int, ItemInfo> projectileInfo = new Dictionary<int, ItemInfo>(Main.maxProjectileTypes);
-        public Dictionary<int, ItemInfo> buffInfo = new Dictionary<int, ItemInfo>(Main.maxBuffTypes);
 
         public bool firstConfigGeneration = true;
 
@@ -72,111 +69,111 @@ namespace PvPController {
             sw.WriteLine("Melee Weapons");
             sw.WriteLine("--------------------");
 
-            for(int x = 0; x < itemInfo.Count; x++) {
+            for(int x = 0; x < PvPController.database.itemInfo.Count; x++) {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.melee && itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, itemInfo[x].damage));
+                if (item.melee && PvPController.database.itemInfo[x].damage > 0)
+                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, PvPController.database.itemInfo[x].damage));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Ranged Weapons");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < itemInfo.Count; x++) {
+            for (int x = 0; x < PvPController.database.itemInfo.Count; x++) {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.ranged && itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, itemInfo[x].damage));
+                if (item.ranged && PvPController.database.itemInfo[x].damage > 0)
+                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, PvPController.database.itemInfo[x].damage));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Magic Weapons");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < itemInfo.Count; x++) {
+            for (int x = 0; x < PvPController.database.itemInfo.Count; x++) {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.magic && itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, itemInfo[x].damage));
+                if (item.magic && PvPController.database.itemInfo[x].damage > 0)
+                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, PvPController.database.itemInfo[x].damage));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Throwing Weapons");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < itemInfo.Count; x++) {
+            for (int x = 0; x < PvPController.database.itemInfo.Count; x++) {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.thrown && itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).Value, x, itemInfo[x].damage));
+                if (item.thrown && PvPController.database.itemInfo[x].damage > 0)
+                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).Value, x, PvPController.database.itemInfo[x].damage));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Changed Projectile Damage Changes");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < projectileInfo.Count; x++) {
-                if (projectileInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetProjectileName(x).Value, x, projectileInfo[x].damage));
+            for (int x = 0; x < PvPController.database.projectileInfo.Count; x++) {
+                if (PvPController.database.projectileInfo[x].damage > 0)
+                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetProjectileName(x).Value, x, PvPController.database.projectileInfo[x].damage));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Projectile Debuffs");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < projectileInfo.Count; x++) {
-                if (projectileInfo[x].debuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts the {2} debuff for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(projectileInfo[x].debuff.buffid), projectileInfo[x].debuff.buffDuration / 60));
+            for (int x = 0; x < PvPController.database.projectileInfo.Count; x++) {
+                if (PvPController.database.projectileInfo[x].debuff.buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts the {2} debuff for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(PvPController.database.projectileInfo[x].debuff.buffid), PvPController.database.projectileInfo[x].debuff.buffDuration / 60));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Projectile Self Buff");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < projectileInfo.Count; x++) {
-                if (projectileInfo[x].selfBuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(projectileInfo[x].selfBuff.buffid), projectileInfo[x].selfBuff.buffDuration / 60));
+            for (int x = 0; x < PvPController.database.projectileInfo.Count; x++) {
+                if (PvPController.database.projectileInfo[x].selfBuff.buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(PvPController.database.projectileInfo[x].selfBuff.buffid), PvPController.database.projectileInfo[x].selfBuff.buffDuration / 60));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Weapon Debuffs");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < itemInfo.Count; x++) {
-                if (itemInfo[x].debuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(itemInfo[x].debuff.buffid), itemInfo[x].debuff.buffDuration / 60));
+            for (int x = 0; x < PvPController.database.itemInfo.Count; x++) {
+                if (PvPController.database.itemInfo[x].debuff.buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(PvPController.database.itemInfo[x].debuff.buffid), PvPController.database.itemInfo[x].debuff.buffDuration / 60));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Weapon Self Buff");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < itemInfo.Count; x++) {
-                if (itemInfo[x].selfBuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(itemInfo[x].selfBuff.buffid), itemInfo[x].selfBuff.buffDuration / 60));
+            for (int x = 0; x < PvPController.database.itemInfo.Count; x++) {
+                if (PvPController.database.itemInfo[x].selfBuff.buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(PvPController.database.itemInfo[x].selfBuff.buffid), PvPController.database.itemInfo[x].selfBuff.buffDuration / 60));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Buff Debuff");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < buffInfo.Count; x++) {
-                if (buffInfo[x].debuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(buffInfo[x].debuff.buffid), itemInfo[x].debuff.buffDuration / 60));
+            for (int x = 0; x < PvPController.database.buffInfo.Count; x++) {
+                if (PvPController.database.buffInfo[x].debuff.buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(PvPController.database.buffInfo[x].debuff.buffid), PvPController.database.itemInfo[x].debuff.buffDuration / 60));
             }
 
             sw.WriteLine("");
             sw.WriteLine("Buff Self Buff");
             sw.WriteLine("--------------------");
 
-            for (int x = 0; x < buffInfo.Count; x++) {
-                if (buffInfo[x].selfBuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(buffInfo[x].selfBuff.buffid), buffInfo[x].selfBuff.buffDuration / 60));
+            for (int x = 0; x < PvPController.database.buffInfo.Count; x++) {
+                if (PvPController.database.buffInfo[x].selfBuff.buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(PvPController.database.buffInfo[x].selfBuff.buffid), PvPController.database.buffInfo[x].selfBuff.buffDuration / 60));
             }
 
             sw.Close();
@@ -221,33 +218,11 @@ namespace PvPController {
                 normalDeathMessages = MiscData.normalDeathMessages;
                 reflectedDeathMessages = MiscData.reflectedDeathMessages;
 
-                for (int x = 0; x < Main.maxItemTypes; x++) {
-                    itemInfo[x] = new ItemInfo();
-                    Item item = new Item();
-                    item.SetDefaults(x);
-
-                    itemInfo[x].damage = item.damage;
-                    itemInfo[x].defense = item.defense;
-                }
-
-                for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                    projectileInfo[x] = new ItemInfo();
-                    if (MiscData.accessoryOrArmorProjectiles.ContainsKey(x)) {
-                        projectileInfo[x].damage = MiscData.accessoryOrArmorProjectiles[x];
-                    }
-                    if (MiscData.projectileDebuffs.ContainsKey(x)) {
-                        projectileInfo[x].debuff = MiscData.projectileDebuffs[x];
-                    }
-                }
-
-                for (int x = 0; x < Main.maxBuffTypes; x++) {
-                    buffInfo[x] = new ItemInfo();
-                    if (MiscData.flaskDebuffs.ContainsKey(x)) {
-                        buffInfo[x].debuff = MiscData.flaskDebuffs[x];
-                    }
-                }
+                PvPController.database.InitDefaultTables();
 
                 firstConfigGeneration = false;
+
+                PvPController.database.LoadDatabase();
             }
         }
 

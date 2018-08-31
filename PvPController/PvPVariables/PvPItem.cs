@@ -25,7 +25,7 @@ namespace PvPController.PvPVariables {
         }
 
         public int GetConfigDamage() {
-            return PvPController.config.itemInfo[type].damage;
+            return PvPController.database.itemInfo[type].damage;
         }
 
         public int GetPvPDamage(PvPPlayer owner) {

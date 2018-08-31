@@ -42,7 +42,7 @@ namespace PvPController.PvPVariables {
         }
 
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || PvPController.config.projectileInfo[projectile.type].damage < 1) ?
+            int damage = (projectile == null || PvPController.database.projectileInfo[projectile.type].damage < 1) ?
                 weapon.GetPvPDamage(attacker) : projectile.GetConfigDamage();
 
             damage += PvPUtils.GetAmmoDamage(attacker, weapon);
@@ -60,7 +60,7 @@ namespace PvPController.PvPVariables {
 
             for (int x = 0; x < 9; x++) {
                 vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += PvPController.config.itemInfo[this.TPlayer.armor[x].netID].defense;
+                moddedArmorDefense += PvPController.database.itemInfo[this.TPlayer.armor[x].netID].defense;
             }
             
             return this.TPlayer.statDefense - vanillaArmorDefense + moddedArmorDefense;
@@ -72,7 +72,7 @@ namespace PvPController.PvPVariables {
 
             for (int x = 0; x < 9; x++) {
                 vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += PvPController.config.itemInfo[this.TPlayer.armor[x].netID].defense;
+                moddedArmorDefense += PvPController.database.itemInfo[this.TPlayer.armor[x].netID].defense;
             }
 
             return moddedArmorDefense - vanillaArmorDefense;
@@ -164,11 +164,11 @@ namespace PvPController.PvPVariables {
                 buffType = attacker.TPlayer.buffType[x];
                 if (MiscData.flaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
-                        this.SetBuff(PvPController.config.buffInfo[buffType].debuff);
+                        this.SetBuff(PvPController.database.buffInfo[buffType].debuff);
                         continue;
                     }
                 }
-                this.SetBuff(PvPController.config.buffInfo[buffType].debuff);
+                this.SetBuff(PvPController.database.buffInfo[buffType].debuff);
             }
         }
 
@@ -194,7 +194,7 @@ namespace PvPController.PvPVariables {
             int buffType;
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 buffType = this.TPlayer.buffType[x];
-                this.SetBuff(PvPController.config.buffInfo[buffType].selfBuff);
+                this.SetBuff(PvPController.database.buffInfo[buffType].selfBuff);
             }
         }
 

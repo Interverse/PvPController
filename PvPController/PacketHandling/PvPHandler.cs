@@ -37,16 +37,16 @@ namespace PvPController.PacketHandling {
             e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
 
             if (PvPController.config.enableProjectileDebuffs)
-                e.target.SetBuff(PvPController.config.projectileInfo[e.playerHitReason.SourceProjectileType].debuff);
+                e.target.SetBuff(PvPController.database.projectileInfo[e.playerHitReason.SourceProjectileType].debuff);
 
             if (PvPController.config.enableProjectileSelfBuffs)
-                e.attacker.SetBuff(PvPController.config.projectileInfo[e.playerHitReason.SourceProjectileType].selfBuff);
+                e.attacker.SetBuff(PvPController.database.projectileInfo[e.playerHitReason.SourceProjectileType].selfBuff);
 
             if (PvPController.config.enableWeaponDebuffs)
-                e.target.SetBuff(PvPController.config.itemInfo[e.attacker.GetPlayerItem().netID].debuff);
+                e.target.SetBuff(PvPController.database.itemInfo[e.attacker.GetPlayerItem().netID].debuff);
 
             if (PvPController.config.enableWeaponSelfBuffs)
-                e.attacker.SetBuff(PvPController.config.itemInfo[e.attacker.GetPlayerItem().netID].selfBuff);
+                e.attacker.SetBuff(PvPController.database.itemInfo[e.attacker.GetPlayerItem().netID].selfBuff);
 
             if (PvPController.config.enableBuffDebuff)
                 e.target.ApplyBuffDebuffs(e.attacker, e.weapon);

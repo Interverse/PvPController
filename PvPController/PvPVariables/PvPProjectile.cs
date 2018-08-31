@@ -17,7 +17,7 @@ namespace PvPController.PvPVariables {
         }
 
         public int GetConfigDamage() {
-            return PvPController.config.projectileInfo[type].damage;
+            return PvPController.database.projectileInfo[type].damage;
         }
     }
 }

@@ -23,6 +23,7 @@ namespace PvPController {
         public static PvPPlayer[] pvpers = new PvPPlayer[Main.maxPlayers];
         public static PvPProjectile[] projectiles = new PvPProjectile[Main.maxProjectiles];
         public static PvPHandler pvpHandler = new PvPHandler();
+        public static Database database;
         public static Timer timer = new Timer(500) { Enabled = true };
         
         public override string Name => "PvP Controller";
@@ -37,6 +38,9 @@ namespace PvPController {
             if (!File.Exists(Config.configPath)) {
                 config.Write(Config.configPath);
             }
+
+            database = Database.InitDb("PvPDatabase");
+            database.LoadDatabase();
 
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
