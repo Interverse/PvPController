@@ -49,8 +49,6 @@ namespace PvPController {
         
         public List<string> reflectedDeathMessages = new List<string>();
 
-        public string Instructions = "Press ctrl+f to find your item faster! (Everything is sorted in IDs)";
-
         public bool firstConfigGeneration = true;
 
         public void Write(string path) {

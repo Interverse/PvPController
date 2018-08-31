@@ -66,6 +66,16 @@ namespace PvPController.PvPVariables {
             return this.TPlayer.statDefense - vanillaArmorDefense + moddedArmorDefense;
         }
 
+        public int GetCrit(PvPItem weapon) {
+            int crit = weapon.crit;
+            if (weapon.melee) crit += TPlayer.meleeCrit;
+            else if (weapon.ranged) crit = TPlayer.rangedCrit;
+            else if (weapon.magic) crit += TPlayer.magicCrit;
+            else if (weapon.thrown) crit += TPlayer.thrownCrit;
+
+            return crit;
+        }
+
         public int GetDefenseDifferenceFromModded() {
             int vanillaArmorDefense = 0;
             int moddedArmorDefense = 0;

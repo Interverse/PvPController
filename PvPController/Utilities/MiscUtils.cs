@@ -13,5 +13,13 @@ namespace PvPController.Utilities {
             }
             return s;
         }
+
+        public static string LineBreaks(int amount) {
+            StringBuilder sb = new StringBuilder();
+            for (int x = 0; x < amount; x++) {
+                sb.Append("\r\n");
+            }
+            return sb.ToString();
+        }
     }
 }

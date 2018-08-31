@@ -78,7 +78,6 @@ namespace PvPController {
 
         private void OnPlayerPostLogin(PlayerPostLoginEventArgs e) {
             pvpers[e.Player.Index] = new PvPPlayer(e.Player.Index);
-            //pvpers[e.Player.Index].TryGetUser();
         }
 
         private void OnJoin(JoinEventArgs args) {
@@ -87,7 +86,7 @@ namespace PvPController {
 
         private void PvPTimerElapsed(object sender, ElapsedEventArgs e) {
             for (int x = 0; x < pvpers.Length; x++) {
-                if (pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip)
+                if (pvpers[x].ConnectionAlive && pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip)
                     PvPUtils.DisplayInterface(pvpers[x]);
             }
         }
@@ -144,11 +143,7 @@ namespace PvPController {
                     data.ReadByte(); data.ReadByte();
                     int knockback = int2 - 1;
 
-                    int crit = weapon.crit;
-                    if (weapon.melee) crit += attacker.TPlayer.meleeCrit;
-                    else if (weapon.ranged) crit = attacker.TPlayer.rangedCrit;
-                    else if (weapon.magic) crit += attacker.TPlayer.magicCrit;
-                    else if (weapon.thrown) crit += attacker.TPlayer.thrownCrit;
+                    int crit = attacker.GetCrit(weapon);
 
                     target.lastHitBy = attacker;
                     target.lastHitWeapon = weapon;

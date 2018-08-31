@@ -9,9 +9,9 @@ using TShockAPI;
 
 namespace PvPController {
     public class PluginCommands {
-        private static string damageParameters = "Parameters: enable, critical (c), damagevariance (dv), modweapondamage (mwd), modprojectiledamage (mpd)";
-        private static string buffParameters = "Parameters: enable, projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
-        private static string reflectParameters = "Parameters: enable, turtle, thorns";
+        private static string damageParameters = "Parameters: enable (e), critical (c), damagevariance (dv), weapon (w), projectile (p)";
+        private static string buffParameters = "Parameters: enable (e), projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
+        private static string reflectParameters = "Parameters: enable (e), turtle, thorns";
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
         private static string miscParameters = "Parameters: enableplugin (ep), deathitemtag (dit), iframetime (ift), deathmessages (dm)";
 
@@ -45,6 +45,7 @@ namespace PvPController {
 
             switch (args.Parameters[0]) {
                 case "enable":
+                case "e":
                     PvPController.config.enableDamageChanges = !PvPController.config.enableDamageChanges;
                     args.Player.SendSuccessMessage("Damage mods: " + PvPController.config.enableDamageChanges);
                     break;
@@ -88,8 +89,8 @@ namespace PvPController {
                     }
                     break;
 
-                case "modweapondamage":
-                case "mwd":
+                case "weapon":
+                case "w":
                     int itemid = 0;
                     int damage;
 
@@ -121,13 +122,13 @@ namespace PvPController {
                             args.Player.SendSuccessMessage("Base damage of " + Lang.GetItemName(itemid).ToString() + " set to " + damage);
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /damagemod modweapondamage <item id or \"name\"> <damage>");
+                            args.Player.SendErrorMessage("Syntax: /damagemod weapon <item id or \"name\"> <damage>");
                             break;
                     }
                     break;
 
-                case "modprojectiledamage":
-                case "mpd":
+                case "projectile":
+                case "p":
                     int projectileid = 0;
                     int projectileDamage;
 
@@ -149,7 +150,7 @@ namespace PvPController {
                             args.Player.SendSuccessMessage("Base projectile damage of " + Lang.GetProjectileName(projectileid).ToString() + " set to " + projectileDamage);
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /damagemod modprojectiledamage <projectile id> <damage>");
+                            args.Player.SendErrorMessage("Syntax: /damagemod projectile <projectile id> <damage>");
                             break;
                     }
                     break;
@@ -175,6 +176,7 @@ namespace PvPController {
 
             switch (args.Parameters[0]) {
                 case "enable":
+                case "e":
                     if (args.Parameters.Count == 1) {
                         args.Player.SendErrorMessage("Wrong Syntax. /buffmod enable <projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff (wsb)");
                         return;
@@ -433,7 +435,7 @@ namespace PvPController {
 
             switch (args.Parameters[0]) {
                 case "enable":
-                    
+                case "e":
                     if (args.Parameters.Count == 1) {
                         args.Player.SendErrorMessage("Wrong Syntax. /reflectmod enable <turtle, thorns>");
                         return;
@@ -646,6 +648,7 @@ namespace PvPController {
 
                     switch (args.Parameters[1]) {
                         case "enable":
+                        case "e":
                             PvPController.config.enableFrost = !PvPController.config.enableFrost;
                             args.Player.SendSuccessMessage("Frost armor debuff: " + PvPController.config.enableFrost);
                             break;
@@ -675,6 +678,7 @@ namespace PvPController {
 
                     switch (args.Parameters[1]) {
                         case "enable":
+                        case "e":
                             PvPController.config.enableNebula = !PvPController.config.enableNebula;
                             args.Player.SendSuccessMessage("Nebula armor buffs: " + PvPController.config.enableNebula);
                             break;

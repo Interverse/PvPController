@@ -48,26 +48,18 @@ namespace PvPController.Utilities {
 
         public static void DisplayInterface(PvPPlayer player) {
             string message = string.Join("\r\n",
-            LineBreaks(8),
-            "Weapon and Armor Stats",
+            MiscUtils.LineBreaks(8),
+            "Weapon and Armor Stats (/toggletooltip or /tt)",
             new string('-', 40),
             player.GetPlayerItem().name + ": " + player.GetPlayerItem().GetPvPDamage(player) + " damage",
             "Defense: " + player.GetPlayerDefense(),
-            LineBreaks(50));
+            MiscUtils.LineBreaks(50));
             player.SendData(PacketTypes.Status, message);
         }
 
         public static void ClearInterface(PvPPlayer player) {
             player.SendData(PacketTypes.Status, String.Empty);
         }
-
-        public static string LineBreaks(int amount) {
-			StringBuilder sb = new StringBuilder();
-			for (int x = 0; x < amount; x++) {
-                sb.Append("\r\n");
-            }
-			return sb.ToString();
-		}
 
         public static bool IsCrit(int percentage) {
             Random random = new Random();
