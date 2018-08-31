@@ -9,3 +9,6 @@ C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\D
 C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\obj\Debug\PvPController.csprojResolveAssemblyReference.cache
 C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\obj\Debug\PvPController.dll
 C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\obj\Debug\PvPController.pdb
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\Mono.Data.Sqlite.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\MySql.Data.dll
+C:\Users\jiong\Desktop\Programs\TShock Plugins\PvPController\PvPController\bin\Debug\MySql.Data.xml
