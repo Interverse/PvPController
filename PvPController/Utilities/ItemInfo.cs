@@ -10,6 +10,7 @@ namespace PvPController.Utilities {
         public string name { get; set; }
         public int damage { get; set; }
         public int vanillaDamage { get; set; }
+        public int shoot { get; set; }
         public int defense { get; set; }
 
         public BuffDuration debuff { get; set; }
@@ -19,6 +20,7 @@ namespace PvPController.Utilities {
             id = 0;
             name = "";
             damage = 0;
+            shoot = 0;
             vanillaDamage = 0;
             defense = 0;
 

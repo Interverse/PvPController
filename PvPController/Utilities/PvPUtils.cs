@@ -47,15 +47,66 @@ namespace PvPController.Utilities {
         }
 
         public static void DisplayInterface(PvPPlayer player) {
-            string message = string.Join("\r\n",
-            MiscUtils.LineBreaks(8),
-            "Weapon and Armor Stats (/toggletooltip or /tt)",
-            new string('-', 40),
-            player.GetPlayerItem().name + ": " + player.GetPlayerItem().GetPvPDamage(player) + " damage",
-            "Knockback: " + player.GetPlayerItem().GetKnockback(player),
-            "Defense: " + player.GetPlayerDefense(),
-            MiscUtils.LineBreaks(50));
-            player.SendData(PacketTypes.Status, message);
+            StringBuilder sb = new StringBuilder();
+
+            PvPItem weapon = player.GetPlayerItem();
+            PvPProjectile projectile = weapon.useAmmo == AmmoID.None 
+                ? player.GetPlayerItem().GetItemShoot() 
+                : player.GetFirstAvailableAmmo(weapon).GetItemShoot();
+
+            sb.AppendLine(MiscUtils.LineBreaks(8));
+            sb.AppendLine("Weapon and Armor Stats (/toggletooltip or /tt)");
+            sb.AppendLine(new string('-', 40));
+
+            if (weapon.GetPvPDamage(player) > 0)
+                sb.AppendLine(weapon.name + ": " + weapon.GetPvPDamage(player) + " damage");
+            
+            if (PvPController.config.enableWeaponDebuffs)
+                if (weapon.GetDebuffInfo().buffid != 0)
+                    sb.AppendLine("  Inflicts {0} for {1}s."
+                        .SFormat(Lang.GetBuffName(weapon.GetDebuffInfo().buffid), weapon.GetDebuffInfo().buffDuration / 60.0));
+
+            if (PvPController.config.enableWeaponSelfBuffs)
+                if (weapon.GetSelfBuffInfo().buffid != 0) 
+                    sb.AppendLine("  Inflicts {0} to self for {1}s."
+                        .SFormat(Lang.GetBuffName(weapon.GetSelfBuffInfo().buffid), weapon.GetSelfBuffInfo().buffDuration / 60.0));
+
+            if (projectile.type != 0) {
+                int shoot = projectile.type;
+                sb.AppendLine("  Shoots " + Lang.GetProjectileName(shoot).ToString());
+
+                if (PvPController.config.enableProjectileDebuffs)
+                    if (projectile.GetDebuffInfo().buffid != 0)
+                        sb.AppendLine("    Inflicts {0} for {1}s."
+                            .SFormat(Lang.GetBuffName(projectile.GetDebuffInfo().buffid), projectile.GetDebuffInfo().buffDuration / 60.0));
+
+                if (PvPController.config.enableProjectileSelfBuffs)
+                    if (projectile.GetSelfBuffInfo().buffid != 0)
+                        sb.AppendLine("    Inflicts {0} to self for {1}s."
+                            .SFormat(Lang.GetBuffName(projectile.GetSelfBuffInfo().buffid), projectile.GetSelfBuffInfo().buffDuration / 60.0));
+            }
+
+            for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
+                int buffType = player.TPlayer.buffType[x];
+                ItemInfo buffInfo = PvPController.database.buffInfo[buffType];
+                
+                if (PvPController.config.enableBuffDebuff)
+                    if (buffInfo.debuff.buffid != 0)
+                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} to weapons for {2}s."
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.debuff.buffid), buffInfo.debuff.buffDuration / 60.0)));
+
+                if (PvPController.config.enableBuffSelfBuff)
+                    if (buffInfo.selfBuff.buffid != 0)
+                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} to self for {2}s on attack."
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.selfBuff.buffid), buffInfo.selfBuff.buffDuration / 60.0)));
+            }
+
+            if (PvPController.config.enableKnockback)
+                sb.AppendLine("Knockback: " + player.GetPlayerItem().GetKnockback(player));
+            sb.AppendLine("Defense: " + player.GetPlayerDefense());
+            sb.AppendLine(MiscUtils.LineBreaks(50));
+
+            player.SendData(PacketTypes.Status, sb.ToString());
         }
 
         public static void ClearInterface(PvPPlayer player) {

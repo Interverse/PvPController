@@ -21,5 +21,16 @@ namespace PvPController.Utilities {
             }
             return sb.ToString();
         }
+
+        public static string SeparateToLines(string s) {
+            StringBuilder sb = new StringBuilder();
+
+            for (int x = 0; x < s.Length; x++) {
+                if (x != 0 && x % 45 == 0) sb.Append("\r\n");
+                sb.Append(s[x]);
+            }
+
+            return sb.ToString();
+        }
     }
 }

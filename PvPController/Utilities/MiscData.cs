@@ -110,6 +110,9 @@ namespace PvPController.Utilities {
             //Poison Staff
             { 265, new BuffDuration(20, 210) },
 
+            //Poison Dart
+            { 267, new BuffDuration(20, 450) },
+
             //Ichor Arrow
             { 278, new BuffDuration(69, 450) },
 
@@ -179,6 +182,9 @@ namespace PvPController.Utilities {
 
             //Toxikarp
             { 523, new BuffDuration(20, 300) },
+
+            //Medusa Head
+            { 535, new BuffDuration(156, 30) },
 
             //Cascade
             { 545, new BuffDuration(24, 90) },

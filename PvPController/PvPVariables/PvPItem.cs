@@ -35,8 +35,20 @@ namespace PvPController.PvPVariables {
             return TerrariaUtils.GetWeaponDamage(owner, this);
         }
 
+        public PvPProjectile GetItemShoot() {
+            return new PvPProjectile(PvPController.database.itemInfo[type].shoot);
+        }
+
         public float GetKnockback(PvPPlayer owner) {
             return owner.TPlayer.GetWeaponKnockback(this, knockback);
+        }
+
+        public BuffDuration GetDebuffInfo() {
+            return PvPController.database.itemInfo[type].debuff;
+        }
+
+        public BuffDuration GetSelfBuffInfo() {
+            return PvPController.database.itemInfo[type].selfBuff;
         }
     }
 }

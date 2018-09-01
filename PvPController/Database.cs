@@ -32,6 +32,7 @@ namespace PvPController {
                 new SqlColumn("Name", MySqlDbType.String),
                 new SqlColumn("VanillaDamage", MySqlDbType.Int32),
                 new SqlColumn("ModdedDamage", MySqlDbType.Int32),
+                new SqlColumn("Shoot", MySqlDbType.Int32),
                 new SqlColumn("Defense", MySqlDbType.Int32),
                 new SqlColumn("InflictBuffID", MySqlDbType.Int32),
                 new SqlColumn("InflictBuffDuration", MySqlDbType.Int32),
@@ -98,8 +99,8 @@ namespace PvPController {
         public void UpdateItems(ItemInfo iteminfo) {
             var query =
                 string.Format(
-                    "UPDATE Items SET Name = '{0}', VanillaDamage = {1}, ModdedDamage = {2}, defense = {3}, InflictBuffID = {4}, InflictBuffDuration = {5}, ReceiveBuffID = {6}, ReceiveBuffDuration = {7} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.vanillaDamage, iteminfo.damage, iteminfo.defense, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
+                    "UPDATE Items SET Name = '{0}', VanillaDamage = {1}, ModdedDamage = {2}, Shoot = {3}, Defense = {4}, InflictBuffID = {5}, InflictBuffDuration = {6}, ReceiveBuffID = {7}, ReceiveBuffDuration = {8} WHERE ID = @0",
+                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.vanillaDamage, iteminfo.damage, iteminfo.shoot, iteminfo.defense, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
                 
             Query(query, iteminfo.id);
         }
@@ -137,10 +138,11 @@ namespace PvPController {
 
                         int damage = item.damage;
                         int defense = item.defense;
+                        int shoot = item.shoot;
 
                         cmd.CommandText =
-                            "INSERT INTO Items (ID, Name, VanillaDamage, ModdedDamage, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8})"
-                            .SFormat(x, name, damage, damage, defense, 0, 0, 0, 0);
+                            "INSERT INTO Items (ID, Name, VanillaDamage, ModdedDamage, Shoot, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9})"
+                            .SFormat(x, name, damage, damage, shoot, defense, 0, 0, 0, 0);
                         cmd.ExecuteNonQuery();
                     }
 
@@ -197,6 +199,7 @@ namespace PvPController {
                     itemInfo[id].name = reader.Get<string>("Name");
                     itemInfo[id].vanillaDamage = reader.Get<int>("VanillaDamage");
                     itemInfo[id].damage = reader.Get<int>("ModdedDamage");
+                    itemInfo[id].shoot = reader.Get<int>("Shoot");
                     itemInfo[id].defense = reader.Get<int>("Defense");
                     itemInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
                     itemInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));

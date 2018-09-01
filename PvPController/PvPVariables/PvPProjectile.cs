@@ -24,6 +24,14 @@ namespace PvPController.PvPVariables {
             return PvPController.database.projectileInfo[type].damage;
         }
 
+        public BuffDuration GetDebuffInfo() {
+            return PvPController.database.projectileInfo[type].debuff;
+        }
+
+        public BuffDuration GetSelfBuffInfo() {
+            return PvPController.database.projectileInfo[type].selfBuff;
+        }
+
         public void PerformProjectileAction() {
             switch (type) {
                 case 536:
@@ -33,7 +41,7 @@ namespace PvPController.PvPVariables {
                         if (Vector2.Distance(ownerProjectile.TPlayer.position, PvPController.pvpers[x].TPlayer.position) <= 300) {
                             if (PvPController.pvpers[x].CheckMedusa()) {
                                 PvPController.pvpers[x].DamagePlayer(ownerProjectile, itemOriginated, PvPController.pvpers[x].GetDamageDealt(ownerProjectile, itemOriginated, this), 0, PvPUtils.IsCrit(ownerProjectile.GetCrit(itemOriginated)));
-                                PvPController.pvpers[x].SetBuff(156, 40);
+                                PvPController.pvpers[x].SetBuff(PvPController.database.projectileInfo[536].debuff);
                             }
                         }
                     }
