@@ -52,6 +52,7 @@ namespace PvPController.Utilities {
             "Weapon and Armor Stats (/toggletooltip or /tt)",
             new string('-', 40),
             player.GetPlayerItem().name + ": " + player.GetPlayerItem().GetPvPDamage(player) + " damage",
+            "Knockback: " + player.GetPlayerItem().GetKnockback(player),
             "Defense: " + player.GetPlayerDefense(),
             MiscUtils.LineBreaks(50));
             player.SendData(PacketTypes.Status, message);

@@ -5,6 +5,7 @@ namespace PvPController.PvPVariables {
     public class PvPItem : Item {
         public string name = "";
         public double damage = 0;
+        public float knockback = 0;
 
         public PvPItem() {
             this.SetDefaults();
@@ -15,12 +16,14 @@ namespace PvPController.PvPVariables {
             this.SetDefaults(item.type);
             this.prefix = item.prefix;
             this.damage = item.damage;
+            this.knockback = item.knockBack;
             name = this.Name;
         }
 
         public PvPItem(int type) {
             this.SetDefaults(type);
             this.damage = base.damage;
+            this.knockback = base.knockBack;
             name = this.Name;
         }
 
@@ -30,6 +33,10 @@ namespace PvPController.PvPVariables {
 
         public int GetPvPDamage(PvPPlayer owner) {
             return TerrariaUtils.GetWeaponDamage(owner, this);
+        }
+
+        public float GetKnockback(PvPPlayer owner) {
+            return owner.TPlayer.GetWeaponKnockback(this, knockback);
         }
     }
 }

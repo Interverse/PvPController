@@ -17,6 +17,8 @@ namespace PvPController.PvPVariables {
         public PvPProjectile lastHitProjectile = null;
         public int previousSelectedItem = 0;
 
+        private int medusaHitCount = 0;
+
         public bool seeTooltip = true;
 
         public PvPPlayer(int index) : base(index) {
@@ -39,6 +41,14 @@ namespace PvPController.PvPVariables {
 
         public int GetDamageReceived(int damage) {
             return (int)TerrariaUtils.GetHurtDamage(this, damage);
+        }
+
+        public double GetAngleFrom(Vector2 target) {
+            return Math.Atan2(target.Y - this.Y, target.X - this.X);
+        }
+
+        public bool IsLeftFrom(Vector2 target) {
+            return target.X > this.X;
         }
 
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
@@ -95,9 +105,38 @@ namespace PvPController.PvPVariables {
                 star = isCrit ? "!!" : "*";
             }
 
+            if (PvPController.config.enableKnockback) {
+                this.KnockBack(weapon.GetKnockback(attacker), attacker.GetAngleFrom(this.TPlayer.position), IsLeftFrom(attacker.TPlayer.position) ? -hitDirection : hitDirection);
+                hitDirection = 0;
+            }
+
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
                 damage, hitDirection, false, true, 5);
             PvPUtils.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, Color.DarkTurquoise);
+        }
+
+        public void KnockBack(double knockback, double angle, double hitDirection = 1) {
+            if (this.TPlayer.noKnockback) return;
+            
+            if (PvPController.isSSC) {
+                this.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
+                this.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
+
+                NetMessage.SendData(13, -1, -1, null, this.Index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+            } else {
+                Main.ServerSideCharacter = true;
+                NetMessage.SendData(7, this.Index, -1, null, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                this.IgnoreSSCPackets = true;
+
+                this.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
+                this.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
+
+                NetMessage.SendData(13, -1, -1, null, this.Index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                
+                Main.ServerSideCharacter = false;
+                NetMessage.SendData(7, this.Index, -1, null, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                this.IgnoreSSCPackets = false;
+            }
         }
 
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {
@@ -223,6 +262,16 @@ namespace PvPController.PvPVariables {
 
         public override void SetBuff(int type, int time = 3600, bool bypass = false) {
             base.SetBuff(type, time, bypass);
+        }
+
+        public bool CheckMedusa() {
+            medusaHitCount++;
+            if (medusaHitCount != 1) {
+                if (medusaHitCount == 6) medusaHitCount = 0;
+                return false;
+            }
+
+            return true;
         }
     }
 }

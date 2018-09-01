@@ -13,7 +13,7 @@ namespace PvPController {
         private static string buffParameters = "Parameters: enable (e), projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
         private static string reflectParameters = "Parameters: enable (e), turtle, thorns";
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
-        private static string miscParameters = "Parameters: enableplugin (ep), deathitemtag (dit), iframetime (ift), deathmessages (dm)";
+        private static string miscParameters = "Parameters: enableplugin (ep), deathitemtag (dit), iframetime (ift), deathmessages (dm), knockback (k)";
 
         public static void registerCommands() {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", Reload, "reload", "readconfig") { HelpText = "Sets config settings to server" });
@@ -622,6 +622,12 @@ namespace PvPController {
                             break;
                     }
 
+                    break;
+
+                case "knockback":
+                case "k":
+                    PvPController.config.enableKnockback = !PvPController.config.enableKnockback;
+                    args.Player.SendSuccessMessage("Custom knockback: " + PvPController.config.enableKnockback);
                     break;
 
                 default:

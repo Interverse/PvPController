@@ -25,6 +25,8 @@ namespace PvPController {
         public static PvPHandler pvpHandler = new PvPHandler();
         public static Database database;
         public static Timer timer = new Timer(500) { Enabled = true };
+
+        public static bool isSSC;
         
         public override string Name => "PvP Controller";
         public override string Author => "Johuan";
@@ -51,6 +53,8 @@ namespace PvPController {
             GetDataHandlers.NewProjectile += OnNewProjectile;
 
             timer.Elapsed += PvPTimerElapsed;
+
+            isSSC = Main.ServerSideCharacter;
 
             PluginCommands.registerCommands();
         }
@@ -113,6 +117,7 @@ namespace PvPController {
             projectiles[args.Identity] = new PvPProjectile(args.Type);
             projectiles[args.Identity].SetOwner(args.Owner);
             projectiles[args.Identity].SetOriginatedItem(weapon);
+            projectiles[args.Identity].PerformProjectileAction();
         }
 
         private void GetData(GetDataEventArgs args) {
