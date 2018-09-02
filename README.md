@@ -12,3 +12,6 @@ Customize almost all aspect of pvp, including but not limited to:
 This plugin overrides tshock damage handling. All damage will be calculated from the server, assuming that weapon damage mods are on.
 
 WIP Plugin. New features will be implemented Soon™.
+
+
+**Note: Minions are currently buggy at the moment. Enable at own risk.
