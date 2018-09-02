@@ -153,8 +153,8 @@ namespace PvPController {
                         int inflictBuff = 0;
                         int inflictBuffDuration = 0;
 
-                        if (MiscData.accessoryOrArmorProjectiles.ContainsKey(x)) {
-                            damage = MiscData.accessoryOrArmorProjectiles[x];
+                        if (MiscData.projectileDamage.ContainsKey(x)) {
+                            damage = MiscData.projectileDamage[x];
                         }
                         if (MiscData.projectileDebuffs.ContainsKey(x)) {
                             inflictBuff = MiscData.projectileDebuffs[x].buffid;

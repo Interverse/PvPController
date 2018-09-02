@@ -15,6 +15,7 @@ namespace PvPController {
         public bool enableDamageChanges;
         public bool enableCriticals;
         public bool enableKnockback;
+        public bool enableMinions;
 
         public bool enableProjectileDebuffs;
         public bool enableProjectileSelfBuffs;
@@ -185,6 +186,7 @@ namespace PvPController {
                 enableDamageChanges = true;
                 enableCriticals = false;
                 enableKnockback = false;
+                enableMinions = false;
 
                 enableProjectileDebuffs = true;
                 enableProjectileSelfBuffs = true;

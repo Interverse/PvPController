@@ -20,7 +20,7 @@ namespace PvPController.Utilities {
                 deathmessage = PvPController.config.reflectedDeathMessages[random.Next(PvPController.config.reflectedDeathMessages.Count)];
 
             string tag = PvPController.config.deathItemTag;
-            if (PvPController.config.deathItemTag == "weapon" && type == 1) tag = "[i/p{0}:{1}] ".SFormat(weapon.prefix, weapon.netID);
+            if (PvPController.config.deathItemTag == "weapon" && type == 1) tag = weapon.netID != 0 ? "[i/p{0}:{1}] ".SFormat(weapon.prefix, weapon.netID) : "";
             else if (PvPController.config.deathItemTag == "weapon" && type == 2) tag = "[i:1150] ";
 
             return tag + deadplayer.Name + deathmessage + attacker.Name + "'s " + weapon.name + ".";
@@ -92,7 +92,7 @@ namespace PvPController.Utilities {
                 
                 if (PvPController.config.enableBuffDebuff)
                     if (buffInfo.debuff.buffid != 0)
-                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} to weapons for {2}s."
+                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} ({2}s) to weapons."
                             .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.debuff.buffid), buffInfo.debuff.buffDuration / 60.0)));
 
                 if (PvPController.config.enableBuffSelfBuff)

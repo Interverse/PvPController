@@ -102,11 +102,13 @@ namespace PvPController {
             PvPPlayer player = new PvPPlayer(args.Owner);
 
             if (player == null || !player.TPlayer.hostile) return;
+            if (projectiles[args.Identity] != null && projectiles[args.Identity].type == args.Type && MiscData.minionStats.ContainsKey(args.Type))
+                projectiles[args.Identity].timer.Dispose();
 
             PvPItem weapon;
-            if (MiscData.accessoryOrArmorProjectiles.ContainsKey(args.Type)) {
+            if (MiscData.projectileDamage.ContainsKey(args.Type)) {
                 weapon = new PvPItem();
-                weapon.damage = MiscData.accessoryOrArmorProjectiles[args.Type];
+                weapon.damage = MiscData.projectileDamage[args.Type];
                 weapon.name = Lang.GetProjectileName(args.Type).ToString();
             } else if (MiscData.fromWhatWeapon.ContainsKey(args.Type)) {
                 weapon = player.FindPlayerItem(MiscData.fromWhatWeapon[args.Type]);
@@ -114,7 +116,7 @@ namespace PvPController {
                 weapon = player.GetPlayerItem();
             }
 
-            projectiles[args.Identity] = new PvPProjectile(args.Type);
+            projectiles[args.Identity] = new PvPProjectile(args.Type, args.Identity);
             projectiles[args.Identity].SetOwner(args.Owner);
             projectiles[args.Identity].SetOriginatedItem(weapon);
             projectiles[args.Identity].PerformProjectileAction();

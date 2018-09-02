@@ -13,7 +13,7 @@ namespace PvPController {
         private static string buffParameters = "Parameters: enable (e), projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
         private static string reflectParameters = "Parameters: enable (e), turtle, thorns";
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
-        private static string miscParameters = "Parameters: enableplugin (ep), deathitemtag (dit), iframetime (ift), deathmessages (dm), knockback (k)";
+        private static string miscParameters = "Parameters: enableplugin (ep), minion (m), deathitemtag (dit), iframetime (ift), deathmessages (dm), knockback (k)";
 
         public static void registerCommands() {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", Reload, "reload", "readconfig") { HelpText = "Sets config settings to server" });
@@ -500,6 +500,12 @@ namespace PvPController {
                 case "ep":
                     PvPController.config.enablePlugin = !PvPController.config.enablePlugin;
                     args.Player.SendSuccessMessage("Plugin enabled: " + PvPController.config.enablePlugin);
+                    break;
+
+                case "minion":
+                case "m":
+                    PvPController.config.enableMinions = !PvPController.config.enableMinions;
+                    args.Player.SendSuccessMessage("Minions: " + PvPController.config.enableMinions);
                     break;
 
                 case "deathitemtag":

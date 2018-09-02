@@ -53,7 +53,7 @@ namespace PvPController.Utilities {
         };
 
         //Accessory and Armor created projectiles
-        public static Dictionary<int, int> accessoryOrArmorProjectiles = new Dictionary<int, int> {
+        public static Dictionary<int, int> projectileDamage = new Dictionary<int, int> {
             { 566, 15 },
             { 567, 30 },
             { 568, 30 },
@@ -68,7 +68,8 @@ namespace PvPController.Utilities {
             { 557, 60 },
             { 559, 60 },
             { 560, 60 },
-            { 561, 60 }
+            { 561, 60 },
+            { 624, 70 }
         };
 
         //Sets a debuff and its duration to a projectile id
@@ -292,5 +293,50 @@ namespace PvPController.Utilities {
             " played ping-pong with ",
             " sat on top of "
         };
+
+        //Minion Data
+        public static Dictionary<int, MinionProjectile> minionStats = new Dictionary<int, MinionProjectile> {
+            { 191, new MinionProjectile(195, 0.5, 40, 12) }, //Pygmy
+            { 192, new MinionProjectile(195, 0.5, 40, 12) }, //Pygmy
+            { 193, new MinionProjectile(195, 0.5, 40, 12) }, //Pygmy
+            { 194, new MinionProjectile(195, 0.5, 40, 12) }, //Pygmy
+            { 407, new MinionProjectile(408, 0.6, 50, 14, 0 ,9) }, //Tempest
+            { 377, new MinionProjectile(378, 1.0, 30, 9, 30, 10) }, //Spider
+            { 308, new MinionProjectile(309, 1.0, 50, 6, 40, 45) }, //Hydra
+            { 641, new MinionProjectile(642, 2.0, 30, 0) }, //Lunar Portal
+            { 643, new MinionProjectile(644, 1.5, 30, 0) }, //Rainbow
+            { 373, new MinionProjectile(374, 0.8, 50, 10, 0, 3) }, //Hornet
+            { 375, new MinionProjectile(376, 2.5, 50, 11) }, //Imp
+            { 387, new MinionProjectile(389, 0.8, 50, 8) }, //Retanimini
+            { 388, new MinionProjectile(389, 0.8, 50, 8) }, //Spazmamini
+            { 623, new MinionProjectile(624, 1.2, 6, 0) }, //Stardust Guardian
+            { 663, new MinionProjectile(664, 1.7, 50, 12, 0, 18) }, //Flameburst Rod
+            { 665, new MinionProjectile(666, 1.7, 50, 15, 0, 18) }, //Flameburst Cane
+            { 667, new MinionProjectile(668, 1.7, 50, 18, 0, 18) }, //Flameburst Staff
+            { 677, new MinionProjectile(680, 3.5, 50, 16, 0, 16) }, //Ballista Rod
+            { 678, new MinionProjectile(680, 3.5, 50, 16, 0, 16) }, //Ballista Cane
+            { 679, new MinionProjectile(680, 3.5, 50, 16, 0, 16) }, //Ballista Staff
+            { 691, new MinionProjectile(694, 1.0, 5, 0, 7, -24) }, //Explosive Trap Rod
+            { 692, new MinionProjectile(695, 1.0, 5, 0, 7, -24) }, //Explosive Trap Cane
+            { 693, new MinionProjectile(696, 1.0, 5, 0, 7, -24) },  //Explosive Trap Staff
+        };
+
+        public class MinionProjectile {
+            public int projectile;
+            public double fireRate;
+            public double radius;
+            public double velocity;
+            public int offsetX;
+            public int offsetY;
+
+            public MinionProjectile(int projectile, double fireRate, double radius, double velocity, int offsetX = 0, int offsetY = 0) {
+                this.projectile = projectile;
+                this.fireRate = fireRate;
+                this.radius = radius;
+                this.velocity = velocity;
+                this.offsetX = offsetX;
+                this.offsetY = offsetY;
+            }
+        }
     }
 }
