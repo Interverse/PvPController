@@ -33,7 +33,7 @@ namespace PvPController.PacketHandling {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        public void OnNewProjectile(object sender, GetDataHandlers.NewProjectileEventArgs args) {
+        private void OnNewProjectile(object sender, GetDataHandlers.NewProjectileEventArgs args) {
             if (!PvPController.config.enablePlugin) return;
 
             PvPPlayer player = new PvPPlayer(args.Owner);
@@ -42,23 +42,18 @@ namespace PvPController.PacketHandling {
 
             if (player == null || !player.TPlayer.hostile) return;
             //Resets a minion's timer if another minion of the same type is spawned on the same index
-            if (PvPController.projectiles[args.Identity] != null && PvPController.projectiles[args.Identity].type == args.Type && MiscData.minionStats.ContainsKey(args.Type))
+            if (PvPController.projectiles[args.Identity] != null && PvPController.projectiles[args.Identity].type == type && MiscData.minionStats.ContainsKey(type))
                 PvPController.projectiles[args.Identity].timer.Dispose();
 
             PvPItem weapon;
-            PvPItem ammo = new PvPItem();
-            if (MiscData.presetProjDamage.ContainsKey(args.Type)) {
+            if (MiscData.presetProjDamage.ContainsKey(type)) {
                 weapon = new PvPItem();
-                weapon.damage = MiscData.presetProjDamage[args.Type];
-                weapon.name = Lang.GetProjectileName(args.Type).ToString();
-            } else if (MiscData.fromWhatItem.ContainsKey(args.Type)) {
-                weapon = player.FindPlayerItem(MiscData.fromWhatItem[args.Type]);
+                weapon.damage = MiscData.presetProjDamage[type];
+                weapon.name = Lang.GetProjectileName(type).ToString();
+            } else if (MiscData.fromWhatItem.ContainsKey(type)) {
+                weapon = player.FindPlayerItem(MiscData.fromWhatItem[type]);
             } else {
                 weapon = player.GetPlayerItem();
-            }
-
-            if (player.GetFirstAvailableAmmo(weapon).netID > 0) {
-                ammo = player.GetFirstAvailableAmmo(weapon);
             }
 
             if (Database.itemInfo[weapon.netID].shoot > -1 || Database.itemInfo[weapon.netID].shootSpeed > -1) {
@@ -67,7 +62,7 @@ namespace PvPController.PacketHandling {
                     type = Database.itemInfo[weapon.netID].shoot;
                 if (Database.itemInfo[weapon.netID].shootSpeed > 0)
                     velocity = Vector2.Normalize(args.Velocity) * Database.itemInfo[weapon.netID].shootSpeed;
-                int number = Projectile.NewProjectile(args.Position.X, args.Position.Y, velocity.X, velocity.Y, type, args.Damage, 1f, args.Owner, 0.0f, 0.0f);
+                Projectile.NewProjectile(args.Position.X, args.Position.Y, velocity.X, velocity.Y, type, args.Damage, 1f, args.Owner, 0.0f, 0.0f);
                 NetMessage.SendData(27, -1, -1, null, args.Identity, 0.0f, 0.0f, 0.0f, 0, 0, 0);
             }
 
@@ -78,21 +73,20 @@ namespace PvPController.PacketHandling {
         }
 
         /// <summary>
-        /// Calculates pvp damage and interactions with players, such as buffs and other
-        /// miscellaneous broken vanilla pvp mechanics.
+        /// Calculates pvp damage and performs interactions with players, 
+        /// such as buffs and other miscellaneous broken vanilla pvp mechanics.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnPlayerHurtted(object sender, PlayerHurtArgs e) {
             if (!PvPController.config.enablePlugin) return;
 
+            e.args.Handled = true;
+
             if (!e.target.CanBeHit()) {
-                e.args.Handled = true;
                 return;
             }
             
-            e.args.Handled = true;
-
             e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.knockback, PvPUtils.IsCrit(e.crit));
             e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
 

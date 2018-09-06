@@ -63,7 +63,7 @@ namespace PvPController.PvPVariables {
                 weapon.GetPvPDamage(attacker) : projectile.GetConfigDamage();
 
             damage += PvPUtils.GetAmmoDamage(attacker, weapon);
-            damage += PvPUtils.GetDamageVariance();
+            damage += PvPUtils.GenerateDamageVariance();
             damage += PvPUtils.GetVortexDamage(attacker, weapon, damage);
 
             damage -= (int)(this.GetDefenseDifferenceFromModded() * 0.5);
@@ -124,10 +124,12 @@ namespace PvPController.PvPVariables {
         /// Damages players. Custom knockback and criticals will apply if enabled.
         /// </summary>
         public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection, bool isCrit) {
+            Color color = Color.DarkTurquoise;
             string star = "*";
             if (PvPController.config.enableCriticals) {
                 damage *= (isCrit ? 2 : 1);
                 star = isCrit ? "!!" : "*";
+                color = isCrit ? Color.SlateBlue : Color.DarkTurquoise;
             }
 
             if (PvPController.config.enableKnockback) {
@@ -137,7 +139,7 @@ namespace PvPController.PvPVariables {
 
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
                 damage, hitDirection, false, true, 5);
-            PvPUtils.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, Color.DarkTurquoise);
+            PvPUtils.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, color);
         }
 
         /// <summary>

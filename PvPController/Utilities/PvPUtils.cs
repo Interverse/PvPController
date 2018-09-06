@@ -39,7 +39,7 @@ namespace PvPController.Utilities {
         /// Generates a random int between the lower and upper bounds of damage variance.
         /// </summary>
         /// <returns></returns>
-        public static int GetDamageVariance() {
+        public static int GenerateDamageVariance() {
             Random random = new Random();
             return random.Next(PvPController.config.lowerDamageVariance, PvPController.config.upperDamageVariance + 1);
         }

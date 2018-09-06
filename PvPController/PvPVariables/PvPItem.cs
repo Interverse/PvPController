@@ -63,18 +63,6 @@ namespace PvPController.PvPVariables {
         }
 
         /// <summary>
-        /// Gets the projectile type based off a weapon. If a weapon uses ammo, it
-        /// gets the projectile id of the first available ammo.
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <returns></returns>
-        public int GetShootProjectileType(PvPPlayer owner) {
-            return this.useAmmo == AmmoID.None
-                ? owner.GetPlayerItem().GetItemShoot().type
-                : owner.GetFirstAvailableAmmo(this).GetItemShoot().type;
-        }
-
-        /// <summary>
         /// Returns information about an item's debuff.
         /// </summary>
         /// <returns></returns>

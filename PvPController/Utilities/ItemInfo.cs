@@ -18,7 +18,7 @@ namespace PvPController.Utilities {
         public BuffDuration selfBuff { get; set; }
 
         public ItemInfo() {
-            id = 0;
+            id = -1;
             name = "";
             damage = 0;
             shoot = -1;

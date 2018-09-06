@@ -47,14 +47,26 @@ namespace PvPController.PvPVariables {
             itemOriginated = item;
         }
 
+        /// <summary>
+        /// Gets the projectile damage based off the database.
+        /// </summary>
+        /// <returns></returns>
         public int GetConfigDamage() {
             return Database.projectileInfo[type].damage;
         }
 
+        /// <summary>
+        /// Gets the debuff information from the database.
+        /// </summary>
+        /// <returns></returns>
         public BuffDuration GetDebuffInfo() {
             return Database.projectileInfo[type].debuff;
         }
 
+        /// <summary>
+        /// Gets the self buff information from the database.
+        /// </summary>
+        /// <returns></returns>
         public BuffDuration GetSelfBuffInfo() {
             return Database.projectileInfo[type].selfBuff;
         }
