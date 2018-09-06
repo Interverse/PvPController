@@ -9,6 +9,9 @@ using Terraria.DataStructures;
 using TerrariaApi.Server;
 
 namespace PvPController.PacketHandling {
+    /// <summary>
+    /// Creates hooks for plugins to use.
+    /// </summary>
     public class DataHandler {
         public static event EventHandler<PlayerHurtArgs> PlayerHurtted;
         public static event EventHandler<PlayerUpdateArgs> PlayerUpdated;

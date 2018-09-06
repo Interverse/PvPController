@@ -23,7 +23,6 @@ namespace PvPController {
         public static PvPPlayer[] pvpers = new PvPPlayer[Main.maxPlayers];
         public static PvPProjectile[] projectiles = new PvPProjectile[Main.maxProjectiles];
         public static PvPHandler pvpHandler = new PvPHandler();
-        public static Database database;
         public static Timer timer = new Timer(500) { Enabled = true };
 
         public static bool isSSC;
@@ -34,23 +33,26 @@ namespace PvPController {
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
         public PvPController(Main game) : base(game) { }
-
+        
+        /// <summary>
+        /// Creates a config if one doesn't exist, reads the config and stores it into the plugin memory,
+        /// connects the sql(ite) database, starts hooks and timer, initialize commands,
+        /// and stores whether the server has Server Side Characters enabled.
+        /// </summary>
         public override void Initialize() {
             config = Config.Read(Config.configPath);
             if (!File.Exists(Config.configPath)) {
                 config.Write(Config.configPath);
             }
-
-            database = Database.InitDb("PvPDatabase");
-            database.LoadDatabase();
+            
+            Database.ConnectDB();
+            Database.LoadDatabase();
 
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
             ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
             
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
-
-            GetDataHandlers.NewProjectile += OnNewProjectile;
 
             timer.Elapsed += PvPTimerElapsed;
 
@@ -59,19 +61,18 @@ namespace PvPController {
             PluginCommands.registerCommands();
         }
 
-        private void OnGamePostInitialize(EventArgs args) {
-            config.SetDefaultValues();
-            config.Write(Config.configPath);
-        }
-
+        /// <summary>
+        /// Disposes timers, deregisters hooks, and writes all changes of config to .json
+        /// </summary>
         protected override void Dispose(bool disposing) {
             if (disposing) {
+                ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
                 ServerApi.Hooks.NetGetData.Deregister(this, GetData);
                 ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
 
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
 
-                GetDataHandlers.NewProjectile -= OnNewProjectile;
+                timer.Dispose();
 
                 pvpHandler.Unsubscribe();
 
@@ -80,14 +81,37 @@ namespace PvPController {
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Adds a player who just logged in to the plugin-stored collection of players.
+        /// </summary>
+        /// <param name="e"></param>
         private void OnPlayerPostLogin(PlayerPostLoginEventArgs e) {
             pvpers[e.Player.Index] = new PvPPlayer(e.Player.Index);
         }
 
+        /// <summary>
+        /// Adds the player to the plugin-stored collection of players.
+        /// </summary>
+        /// <param name="args"></param>
         private void OnJoin(JoinEventArgs args) {
             pvpers[args.Who] = new PvPPlayer(args.Who);
         }
 
+        /// <summary>
+        /// Tries to set config values to default values if being generated
+        /// for the first time.
+        /// </summary>
+        /// <param name="args"></param>
+        private void OnGamePostInitialize(EventArgs args) {
+            config.SetDefaultValues();
+            config.Write(Config.configPath);
+        }
+
+        /// <summary>
+        /// Displays a pvp interface on the right side of a client, showing
+        /// statistics about their weapon and self, such as damage, weapons,
+        /// projectiles, knockback, criticals, et cetera.
+        /// </summary>
         private void PvPTimerElapsed(object sender, ElapsedEventArgs e) {
             for (int x = 0; x < pvpers.Length; x++) {
                 if (pvpers[x].ConnectionAlive && pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip)
@@ -95,33 +119,10 @@ namespace PvPController {
             }
         }
 
-        //Stores newly created projectiles into a list along with its originated item
-        public void OnNewProjectile(object sender, GetDataHandlers.NewProjectileEventArgs args) {
-            if (!PvPController.config.enablePlugin) return;
-
-            PvPPlayer player = new PvPPlayer(args.Owner);
-
-            if (player == null || !player.TPlayer.hostile) return;
-            if (projectiles[args.Identity] != null && projectiles[args.Identity].type == args.Type && MiscData.minionStats.ContainsKey(args.Type))
-                projectiles[args.Identity].timer.Dispose();
-
-            PvPItem weapon;
-            if (MiscData.projectileDamage.ContainsKey(args.Type)) {
-                weapon = new PvPItem();
-                weapon.damage = MiscData.projectileDamage[args.Type];
-                weapon.name = Lang.GetProjectileName(args.Type).ToString();
-            } else if (MiscData.fromWhatWeapon.ContainsKey(args.Type)) {
-                weapon = player.FindPlayerItem(MiscData.fromWhatWeapon[args.Type]);
-            } else {
-                weapon = player.GetPlayerItem();
-            }
-
-            projectiles[args.Identity] = new PvPProjectile(args.Type, args.Identity);
-            projectiles[args.Identity].SetOwner(args.Owner);
-            projectiles[args.Identity].SetOriginatedItem(weapon);
-            projectiles[args.Identity].PerformProjectileAction();
-        }
-
+        /// <summary>
+        /// Processes data so it can be used in <see cref="PvPHandler"/>.
+        /// </summary>
+        /// <param name="args">The data needed to be processed.</param> 
         private void GetData(GetDataEventArgs args) {
             MemoryStream data = new MemoryStream(args.Msg.readBuffer, args.Index, args.Length);
             PvPPlayer attacker = pvpers[args.Msg.whoAmI];

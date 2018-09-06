@@ -23,7 +23,7 @@ namespace PvPController.PvPVariables {
 
         public PvPPlayer(int index) : base(index) {
             lastHit = DateTime.Now;
-            User = TShock.Players[Index].User;
+            User = TShock.Players[index].User;
         }
 
         public bool TryGetUser() {
@@ -46,13 +46,20 @@ namespace PvPController.PvPVariables {
         public double GetAngleFrom(Vector2 target) {
             return Math.Atan2(target.Y - this.Y, target.X - this.X);
         }
-
+        
         public bool IsLeftFrom(Vector2 target) {
             return target.X > this.X;
         }
 
+        /// <summary>
+        /// Gets the damage dealt to a person with server side calculations.
+        /// </summary>
+        /// <param name="attacker"></param>
+        /// <param name="weapon"></param>
+        /// <param name="projectile"></param>
+        /// <returns></returns>
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || PvPController.database.projectileInfo[projectile.type].damage < 1) ?
+            int damage = (projectile == null || Database.projectileInfo[projectile.type].damage < 1) ?
                 weapon.GetPvPDamage(attacker) : projectile.GetConfigDamage();
 
             damage += PvPUtils.GetAmmoDamage(attacker, weapon);
@@ -64,18 +71,29 @@ namespace PvPController.PvPVariables {
             return damage;
         }
 
+        /// <summary>
+        /// Gets the defense of a player. Includes both vanilla and modded defense values.
+        /// </summary>
+        /// <returns></returns>
         public int GetPlayerDefense() {
             int vanillaArmorDefense = 0;
             int moddedArmorDefense = 0;
 
             for (int x = 0; x < 9; x++) {
                 vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += PvPController.database.itemInfo[this.TPlayer.armor[x].netID].defense;
+                moddedArmorDefense += Database.itemInfo[this.TPlayer.armor[x].netID].defense;
             }
             
             return this.TPlayer.statDefense - vanillaArmorDefense + moddedArmorDefense;
         }
 
+        /// <summary>
+        /// Gets the critical percentage of an item.
+        /// Note: The ranged crit value is the final crit value, whereas the other crits have to
+        /// be added to the existing weapon crit value.
+        /// </summary>
+        /// <param name="weapon"></param>
+        /// <returns></returns>
         public int GetCrit(PvPItem weapon) {
             int crit = weapon.crit;
             if (weapon.melee) crit += TPlayer.meleeCrit;
@@ -86,18 +104,25 @@ namespace PvPController.PvPVariables {
             return crit;
         }
 
+        /// <summary>
+        /// Returns the difference from normal defense values from the modded defense values.
+        /// </summary>
+        /// <returns></returns>
         public int GetDefenseDifferenceFromModded() {
             int vanillaArmorDefense = 0;
             int moddedArmorDefense = 0;
 
             for (int x = 0; x < 9; x++) {
                 vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += PvPController.database.itemInfo[this.TPlayer.armor[x].netID].defense;
+                moddedArmorDefense += Database.itemInfo[this.TPlayer.armor[x].netID].defense;
             }
 
             return moddedArmorDefense - vanillaArmorDefense;
         }
 
+        /// <summary>
+        /// Damages players. Custom knockback and criticals will apply if enabled.
+        /// </summary>
         public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection, bool isCrit) {
             string star = "*";
             if (PvPController.config.enableCriticals) {
@@ -115,6 +140,13 @@ namespace PvPController.PvPVariables {
             PvPUtils.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, Color.DarkTurquoise);
         }
 
+        /// <summary>
+        /// Sets a velocity to a player, emulating directional knockback.
+        /// 
+        /// This method requires SSC to be enabled. To allow knockback to work
+        /// on non-SSC servers, the method will temporarily enable SSC to set player
+        /// velocity.
+        /// </summary>
         public void KnockBack(double knockback, double angle, double hitDirection = 1) {
             if (this.TPlayer.noKnockback) return;
             
@@ -139,12 +171,19 @@ namespace PvPController.PvPVariables {
             }
         }
 
+        /// <summary>
+        /// Applies effects that normally won't work in vanilla pvp.
+        /// Effects include nebula/frost armor, yoyo-bag projectiles, and thorns/turtle damage.
+        /// </summary>
         public void ApplyPvPEffects(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile, int damage) {
             this.ApplyReflectDamage(attacker, damage, weapon);
             this.ApplyArmorEffects(attacker, weapon);
             TerrariaUtils.ActivateYoyo(attacker, this, damage, weapon.knockBack);
         }
 
+        /// <summary>
+        /// Applies turtle and thorns damage to the attacker.
+        /// </summary>
         public void ApplyReflectDamage(PvPPlayer attacker, int damage, PvPItem weapon) {
             PvPItem reflectType = new PvPItem();
 
@@ -165,6 +204,9 @@ namespace PvPController.PvPVariables {
             } 
         }
 
+        /// <summary>
+        /// Applies nebula and frost armor effects.
+        /// </summary>
         public void ApplyArmorEffects(PvPPlayer attacker, PvPItem weapon) {
             if (weapon.magic
                 && attacker.TPlayer.armor[0].netID == 2760 && attacker.TPlayer.armor[1].netID == 2761 && attacker.TPlayer.armor[2].netID == 2762
@@ -207,20 +249,28 @@ namespace PvPController.PvPVariables {
             }
         }
 
+        /// <summary>
+        /// Applies buffs to the attacker based off the buff, if any.
+        /// </summary>
         public void ApplyBuffDebuffs(PvPPlayer attacker, PvPItem weapon) {
             int buffType;
             for(int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 buffType = attacker.TPlayer.buffType[x];
                 if (MiscData.flaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
-                        this.SetBuff(PvPController.database.buffInfo[buffType].debuff);
+                        this.SetBuff(Database.buffInfo[buffType].debuff);
                         continue;
                     }
                 }
-                this.SetBuff(PvPController.database.buffInfo[buffType].debuff);
+                this.SetBuff(Database.buffInfo[buffType].debuff);
             }
         }
 
+        /// <summary>
+        /// Gets the first available ammo for a weapon.
+        /// </summary>
+        /// <param name="weapon">The weapon to find ammo for.</param>
+        /// <returns></returns>
         public PvPItem GetFirstAvailableAmmo(PvPItem weapon) {
             int useAmmo = weapon.useAmmo;
 
@@ -239,14 +289,21 @@ namespace PvPController.PvPVariables {
             return new PvPItem();
         }
 
+        /// <summary>
+        /// Applies buffs to self based off a buff, if any.
+        /// </summary>
         public void ApplyBuffSelfBuff() {
             int buffType;
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 buffType = this.TPlayer.buffType[x];
-                this.SetBuff(PvPController.database.buffInfo[buffType].selfBuff);
+                this.SetBuff(Database.buffInfo[buffType].selfBuff);
             }
         }
 
+        /// <summary>
+        /// Determines whether a person can be hit based off the config iframes.
+        /// </summary>
+        /// <returns></returns>
         public bool CanBeHit() {
             if ((DateTime.Now - lastHit).TotalMilliseconds >= PvPController.config.iframeTime) {
                 lastHit = DateTime.Now;
@@ -264,6 +321,12 @@ namespace PvPController.PvPVariables {
             base.SetBuff(type, time, bypass);
         }
 
+        /// <summary>
+        /// Determines whether a person can be hit with Medusa Head.
+        /// A normal Medusa attack hits six times at once, so this method
+        /// limits it down to one hit per attack.
+        /// </summary>
+        /// <returns></returns>
         public bool CheckMedusa() {
             medusaHitCount++;
             if (medusaHitCount != 1) {

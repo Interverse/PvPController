@@ -10,7 +10,14 @@ using Terraria.DataStructures;
 using Terraria.ID;
 
 namespace PvPController.Utilities {
+    /// <summary>
+    /// Methods ripped off Terraria's source code to be emulated in the plugin.
+    /// </summary>
     class TerrariaUtils {
+
+        /// <summary>
+        /// Calculates the amount of damage dealt to a player after factoring in their defense stats.
+        /// </summary>
         public static double GetHurtDamage(PvPPlayer damagedPlayer, int Damage) {
             damagedPlayer.TPlayer.stealth = 1f;
             int Damage1 = Damage;
@@ -71,6 +78,9 @@ namespace PvPController.Utilities {
             return dmg;
         }
 
+        /// <summary>
+        /// Gets the damage of a weapon with all the player's buffs and stat boosts.
+        /// </summary>
         public static int GetWeaponDamage(PvPPlayer attacker, PvPItem weapon) {
             int dmg = GetPrefixDamage(weapon);
 
@@ -95,6 +105,9 @@ namespace PvPController.Utilities {
             return dmg;
         }
 
+        /// <summary>
+        /// Gets the damage of a weapon based off its prefix.
+        /// </summary>
         public static int GetPrefixDamage(PvPItem weapon) {
             int prefix = weapon.prefix;
 
@@ -177,9 +190,14 @@ namespace PvPController.Utilities {
             else if (prefix == 51)
                 damage = 1.05f;
 
-            return (int)Math.Round(PvPController.database.itemInfo[weapon.netID].damage * (double)damage);
+            return (int)Math.Round(Database.itemInfo[weapon.netID].damage * (double)damage);
         }
 
+        /// <summary>
+        /// Spawns Counterweights/Additional yoyos when a person has hit with one.
+        /// This normally does not work in vanilla servers, so this must be emulated on a 
+        /// server for accessories such as Yoyo Bag to work.
+        /// </summary>
         public static void ActivateYoyo(PvPPlayer attacker, PvPPlayer target, int dmg, float kb) {
             if (!attacker.TPlayer.yoyoGlove && attacker.TPlayer.counterWeight <= 0)
                 return;

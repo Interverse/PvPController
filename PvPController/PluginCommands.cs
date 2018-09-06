@@ -13,6 +13,7 @@ namespace PvPController {
         private static string buffParameters = "Parameters: enable (e), projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
         private static string reflectParameters = "Parameters: enable (e), turtle, thorns";
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
+        private static string projectileParameters = "Parameters: shoot (s), shootspeed (ss)";
         private static string miscParameters = "Parameters: enableplugin (ep), minion (m), deathitemtag (dit), iframetime (ift), deathmessages (dm), knockback (k)";
 
         public static void registerCommands() {
@@ -21,11 +22,12 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", ResetConfig, "resetconfig") { HelpText = "Reset server config to default values" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteDoc, "writedoc") { HelpText = "Formats server changes to a .txt document" });
 
-            Commands.ChatCommands.Add(new Command("pvpcontroller.damage", DamageMod, "damagemod", "dm") { HelpText = "Modifies damage settings. " + damageParameters });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.buff", BuffMod, "buffmod", "bm") { HelpText = "Modifies buff settings. " +  buffParameters });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.reflect", ReflectMod, "reflectmod", "rm") { HelpText = "Modifies reflect damage settings. " + reflectParameters });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.armor", ArmorMod, "armormod", "am") { HelpText = "Modifies armor settings. " + armorParameters });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.misc", MiscMod, "miscmod", "mm") { HelpText = "Modifies miscellaneous settings. " + miscParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.damage", ModDamage, "moddamage", "md") { HelpText = "Modifies damage settings. " + damageParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.buff", ModBuff, "modbuff", "mb") { HelpText = "Modifies buff settings. " +  buffParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.reflect", ModReflect, "modreflect", "mr") { HelpText = "Modifies reflect damage settings. " + reflectParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.armor", ModArmor, "modarmor", "ma") { HelpText = "Modifies armor settings. " + armorParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.projectile", ModProjectile, "modprojectile", "modproj", "mp") { HelpText = "Modifies projectile settings. " + projectileParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.misc", ModMisc, "modmisc", "mm") { HelpText = "Modifies miscellaneous settings. " + miscParameters });
             
             Commands.ChatCommands.Add(new Command(ToggleTooltip, "toggletooltip", "tt") { HelpText = "Toggles damage/defense tooltip popups." });
         }
@@ -37,7 +39,7 @@ namespace PvPController {
             PvPUtils.ClearInterface(PvPController.pvpers[args.Player.Index]);
         }
 
-        private static void DamageMod(CommandArgs args) {
+        private static void ModDamage(CommandArgs args) {
             if (args.Parameters.Count == 0) {
                 args.Player.SendErrorMessage("Wrong Syntax. " + damageParameters);
                 return;
@@ -68,7 +70,7 @@ namespace PvPController {
                                 PvPController.config.upperDamageVariance = upperVariance;
                                 PvPController.config.lowerDamageVariance = lowerVariance;
                             } else {
-                                args.Player.SendErrorMessage("Syntax: /damagemod damagevariance <variance>");
+                                args.Player.SendErrorMessage("Syntax: /moddamage damagevariance <variance>");
                             }
 
                             args.Player.SendSuccessMessage("Damage variance set to between " + lowerVariance + " and " + upperVariance + ".");
@@ -78,13 +80,13 @@ namespace PvPController {
                                 PvPController.config.upperDamageVariance = upperVariance;
                                 PvPController.config.lowerDamageVariance = lowerVariance;
                             } else {
-                                args.Player.SendErrorMessage("Syntax: /damagemod damagevariance <lowervariance> <uppervariance>");
+                                args.Player.SendErrorMessage("Syntax: /moddamage damagevariance <lowervariance> <uppervariance>");
                             }
 
                             args.Player.SendSuccessMessage("Damage variance set to between " + lowerVariance + " and " + upperVariance + ".");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /damagemod damagevariance <lowervariance> <uppervariance>");
+                            args.Player.SendErrorMessage("Syntax: /moddamage damagevariance <lowervariance> <uppervariance>");
                             break;
                     }
                     break;
@@ -116,13 +118,13 @@ namespace PvPController {
                                 damage = item.damage;
                             }
 
-                            PvPController.database.itemInfo[itemid].damage = damage;
-                            PvPController.database.UpdateItems(PvPController.database.itemInfo[itemid]);
+                            Database.itemInfo[itemid].damage = damage;
+                            Database.UpdateItems(Database.itemInfo[itemid]);
 
                             args.Player.SendSuccessMessage("Base damage of " + Lang.GetItemName(itemid).ToString() + " set to " + damage);
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /damagemod weapon <item id or \"name\"> <damage>");
+                            args.Player.SendErrorMessage("Syntax: /moddamage weapon <item id or \"name\"> <damage>");
                             break;
                     }
                     break;
@@ -144,13 +146,13 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.projectileInfo[projectileid].damage = projectileDamage;
-                            PvPController.database.UpdateProjectiles(PvPController.database.projectileInfo[projectileid]);
+                            Database.projectileInfo[projectileid].damage = projectileDamage;
+                            Database.UpdateProjectiles(Database.projectileInfo[projectileid]);
 
                             args.Player.SendSuccessMessage("Base projectile damage of " + Lang.GetProjectileName(projectileid).ToString() + " set to " + projectileDamage);
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /damagemod projectile <projectile id> <damage>");
+                            args.Player.SendErrorMessage("Syntax: /moddamage projectile <projectile id> <damage>");
                             break;
                     }
                     break;
@@ -161,7 +163,7 @@ namespace PvPController {
             }
         }
 
-        private static void BuffMod(CommandArgs args) {
+        private static void ModBuff(CommandArgs args) {
             if (args.Parameters.Count == 0) {
                 args.Player.SendErrorMessage("Wrong Syntax. " + buffParameters);
                 return;
@@ -178,7 +180,7 @@ namespace PvPController {
                 case "enable":
                 case "e":
                     if (args.Parameters.Count == 1) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /buffmod enable <projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff (wsb)");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modbuff enable <projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff (wsb)");
                         return;
                     }
                     switch (args.Parameters[1]) {
@@ -219,7 +221,7 @@ namespace PvPController {
                             break;
 
                         default:
-                            args.Player.SendErrorMessage("Wrong Syntax. /buffmod enable <projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff (wsb)");
+                            args.Player.SendErrorMessage("Wrong Syntax. /modbuff enable <projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff (wsb)");
                             break;
                     }
                     break;
@@ -244,13 +246,13 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.projectileInfo[projectileID].debuff = new BuffDuration(buffType, buffDuration * 60);
-                            PvPController.database.UpdateProjectiles(PvPController.database.projectileInfo[projectileID]);
+                            Database.projectileInfo[projectileID].debuff = new BuffDuration(buffType, buffDuration * 60);
+                            Database.UpdateProjectiles(Database.projectileInfo[projectileID]);
 
                             args.Player.SendSuccessMessage("Projectile " + Lang.GetProjectileName(projectileID).ToString() + " set to buff " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /buffmod projectilebuff <projectile ID> <buff type> <buff duration>");
+                            args.Player.SendErrorMessage("Syntax: /modbuff projectilebuff <projectile ID> <buff type> <buff duration>");
                             break;
                     }
                     break;
@@ -275,13 +277,13 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.projectileInfo[projectileID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
-                            PvPController.database.UpdateProjectiles(PvPController.database.projectileInfo[projectileID]);
+                            Database.projectileInfo[projectileID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
+                            Database.UpdateProjectiles(Database.projectileInfo[projectileID]);
 
                             args.Player.SendSuccessMessage("Projectile " + Lang.GetProjectileName(projectileID).ToString() + " set to buff self " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /buffmod projectileselfbuff <projectile ID> <buff type> <buff duration>");
+                            args.Player.SendErrorMessage("Syntax: /modbuff projectileselfbuff <projectile ID> <buff type> <buff duration>");
                             break;
                     }
                     break;
@@ -310,14 +312,14 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.itemInfo[weaponID].debuff = new BuffDuration(buffType, buffDuration * 60);
-                            PvPController.database.UpdateItems(PvPController.database.itemInfo[weaponID]);
+                            Database.itemInfo[weaponID].debuff = new BuffDuration(buffType, buffDuration * 60);
+                            Database.UpdateItems(Database.itemInfo[weaponID]);
 
                             args.Player.SendSuccessMessage("Item " + Lang.GetItemName(weaponID).ToString() + " set to buff " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
 
                         default:
-                            args.Player.SendErrorMessage("Syntax: /buffmod weaponbuff <weapon ID or \"name\"> <buff type> <buff duration>");
+                            args.Player.SendErrorMessage("Syntax: /modbuff weaponbuff <weapon ID or \"name\"> <buff type> <buff duration>");
                             break;
                     }
                     break;
@@ -346,13 +348,13 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.itemInfo[weaponID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
-                            PvPController.database.UpdateItems(PvPController.database.itemInfo[weaponID]);
+                            Database.itemInfo[weaponID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
+                            Database.UpdateItems(Database.itemInfo[weaponID]);
 
                             args.Player.SendSuccessMessage("Item " + Lang.GetItemName(weaponID).ToString() + " set to buff self " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /buffmod weaponselfbuff <weapon ID or \"name\"> <buff type> <buff duration>");
+                            args.Player.SendErrorMessage("Syntax: /modbuff weaponselfbuff <weapon ID or \"name\"> <buff type> <buff duration>");
                             break;
                     }
                     break;
@@ -377,13 +379,13 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.buffInfo[buffType].debuff = new BuffDuration(buffType2, buffDuration * 60);
-                            PvPController.database.UpdateBuffs(PvPController.database.buffInfo[buffType]);
+                            Database.buffInfo[buffType].debuff = new BuffDuration(buffType2, buffDuration * 60);
+                            Database.UpdateBuffs(Database.buffInfo[buffType]);
 
                             args.Player.SendSuccessMessage("Buff " + Lang.GetBuffName(buffType) + " set to debuff others with " + Lang.GetBuffName(buffType2) + " with a " + buffDuration + "s duration");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /buffmod buffdebuff <buff type> <inflict buff type> <buff duration>");
+                            args.Player.SendErrorMessage("Syntax: /modbuff buffdebuff <buff type> <inflict buff type> <buff duration>");
                             break;
                     }
                     break;
@@ -408,13 +410,13 @@ namespace PvPController {
                                 return;
                             }
 
-                            PvPController.database.buffInfo[buffType].selfBuff = new BuffDuration(buffType2, buffDuration * 60);
-                            PvPController.database.UpdateBuffs(PvPController.database.buffInfo[buffType]);
+                            Database.buffInfo[buffType].selfBuff = new BuffDuration(buffType2, buffDuration * 60);
+                            Database.UpdateBuffs(Database.buffInfo[buffType]);
 
                             args.Player.SendSuccessMessage("Buff " + Lang.GetBuffName(buffType) + " set to buff self with " + Lang.GetBuffName(buffType2) + " with a " + buffDuration + "s duration");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /buffmod buffselfbuff <buff type> <inflict buff type> <buff duration>");
+                            args.Player.SendErrorMessage("Syntax: /modbuff buffselfbuff <buff type> <inflict buff type> <buff duration>");
                             break;
                     }
                     break;
@@ -425,7 +427,7 @@ namespace PvPController {
             }
         }
 
-        private static void ReflectMod(CommandArgs args) {
+        private static void ModReflect(CommandArgs args) {
             if (args.Parameters.Count <= 1) {
                 args.Player.SendErrorMessage("Wrong Syntax. " + reflectParameters);
                 return;
@@ -437,7 +439,7 @@ namespace PvPController {
                 case "enable":
                 case "e":
                     if (args.Parameters.Count == 1) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /reflectmod enable <turtle, thorns>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modreflect enable <turtle, thorns>");
                         return;
                     }
 
@@ -453,7 +455,7 @@ namespace PvPController {
                             break;
 
                         default:
-                            args.Player.SendErrorMessage("Wrong Syntax. /reflectmod enable <turtle, thorns>");
+                            args.Player.SendErrorMessage("Wrong Syntax. /modreflect enable <turtle, thorns>");
                             break;
                     }
                     
@@ -486,7 +488,7 @@ namespace PvPController {
             }
         }
 
-        private static void MiscMod(CommandArgs args) {
+        private static void ModMisc(CommandArgs args) {
             if (args.Parameters.Count == 0) {
                 args.Player.SendErrorMessage("Wrong Syntax. " + miscParameters);
                 return;
@@ -511,7 +513,7 @@ namespace PvPController {
                 case "deathitemtag":
                 case "dit":
                     if (args.Parameters.Count == 1) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /miscmod deathitemtag <custom message> or /miscmod deathitemtag weapon");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modmisc deathitemtag <custom message> or /modmisc deathitemtag weapon");
                         return;
                     }
 
@@ -522,7 +524,7 @@ namespace PvPController {
                 case "iframetime":
                 case "ift":
                     if (args.Parameters.Count == 1) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /miscmod iframetime <seconds>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modmisc iframetime <seconds>");
                         return;
                     }
 
@@ -541,14 +543,14 @@ namespace PvPController {
                 case "dm":
 
                     if (args.Parameters.Count == 1) {
-                        args.Player.SendErrorMessage("Wrong syntax. /miscmod deathmessages <add/del/list>");
+                        args.Player.SendErrorMessage("Wrong syntax. /modmisc deathmessages <add/del/list>");
                         return;
                     }
 
                     switch (args.Parameters[1]) {
                         case "add":
                             if (args.Parameters.Count == 2) {
-                                args.Player.SendErrorMessage("Invalid Syntax. /miscmod deathmessages add <normal/reflection> <deathmessage>");
+                                args.Player.SendErrorMessage("Invalid Syntax. /modmisc deathmessages add <normal/reflection> <deathmessage>");
                                 return;
                             }
 
@@ -559,13 +561,13 @@ namespace PvPController {
                                 PvPController.config.reflectedDeathMessages.Add(args.Parameters[3]);
                                 args.Player.SendSuccessMessage("Reflection death message added: \"" + args.Parameters[3] + "\"");
                             } else {
-                                args.Player.SendErrorMessage("Invalid Syntax. /miscmod deathmessages add <normal/reflection> <deathmessage>");
+                                args.Player.SendErrorMessage("Invalid Syntax. /modmisc deathmessages add <normal/reflection> <deathmessage>");
                             }
                             break;
 
                         case "del":
                             if (args.Parameters.Count == 2) {
-                                args.Player.SendErrorMessage("Invalid Syntax. /miscmod deathmessages del <normal/reflection> <death message #>");
+                                args.Player.SendErrorMessage("Invalid Syntax. /modmisc deathmessages del <normal/reflection> <death message #>");
                                 return;
                             }
 
@@ -592,13 +594,13 @@ namespace PvPController {
 
                                 PvPController.config.reflectedDeathMessages.RemoveAt(selection);
                             } else {
-                                args.Player.SendErrorMessage("Invalid Syntax. /miscmod deathmessages del <normal/reflection> <death message #>");
+                                args.Player.SendErrorMessage("Invalid Syntax. /modmisc deathmessages del <normal/reflection> <death message #>");
                             }
                             break;
 
                         case "list":
                             if (args.Parameters.Count == 2) {
-                                args.Player.SendErrorMessage("Invalid Syntax. /miscmod deathmessages list <normal/reflection>");
+                                args.Player.SendErrorMessage("Invalid Syntax. /modmisc deathmessages list <normal/reflection>");
                                 return;
                             }
 
@@ -608,7 +610,7 @@ namespace PvPController {
 
                                 PaginationTools.SendPage(args.Player, pageNumber, PvPController.config.normalDeathMessages, new PaginationTools.Settings() {
                                     HeaderFormat = "Normal Death Messages list ({0}/{1}):",
-                                    FooterFormat = "Type {0}miscmod deathmessages normal {{0}} for more death messages.".SFormat((args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier))
+                                    FooterFormat = "Type {0}modmisc deathmessages normal {{0}} for more death messages.".SFormat((args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier))
                                 });
                             } else if (args.Parameters[2] == "reflection") {
                                 if (!PaginationTools.TryParsePageNumber(args.Parameters, 3, args.Player, out pageNumber))
@@ -616,15 +618,15 @@ namespace PvPController {
 
                                 PaginationTools.SendPage(args.Player, pageNumber, PvPController.config.reflectedDeathMessages, new PaginationTools.Settings() {
                                     HeaderFormat = "Reflected Death Messages list ({0}/{1}):",
-                                    FooterFormat = "Type {0}miscmod deathmessages reflection {{0}} for more death messages.".SFormat((args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier))
+                                    FooterFormat = "Type {0}modmisc deathmessages reflection {{0}} for more death messages.".SFormat((args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier))
                                 });
                             } else {
-                                args.Player.SendErrorMessage("Invalid Syntax. /miscmod deathmessages list <normal/reflection>");
+                                args.Player.SendErrorMessage("Invalid Syntax. /modmisc deathmessages list <normal/reflection>");
                             }
                             break;
 
                         default:
-                            args.Player.SendErrorMessage("Wrong syntax. /miscmod deathmessages <add/del/list>");
+                            args.Player.SendErrorMessage("Wrong syntax. /modmisc deathmessages <add/del/list>");
                             break;
                     }
 
@@ -642,7 +644,7 @@ namespace PvPController {
             }
         }
 
-        private static void ArmorMod(CommandArgs args) {
+        private static void ModArmor(CommandArgs args) {
             if (args.Parameters.Count == 0) {
                 args.Player.SendErrorMessage("Wrong Syntax. " + armorParameters);
                 return;
@@ -654,7 +656,7 @@ namespace PvPController {
                     double frostDuration;
 
                     if (args.Parameters.Count < 2) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /armormod frost <enable> or /armormod frost <buffduration>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modarmor frost <enable> or /modarmor frost <buffduration>");
                         return;
                     }
 
@@ -684,7 +686,7 @@ namespace PvPController {
                     double nebulaTier3Duration;
 
                     if (args.Parameters.Count < 2) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /armormod nebula <enable> or /armormod nebula <tier #> <duration>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modarmor nebula <enable> or /modarmor nebula <tier #> <duration>");
                         return;
                     }
 
@@ -726,7 +728,7 @@ namespace PvPController {
                             break;
 
                         default:
-                            args.Player.SendErrorMessage("Wrong Syntax. /armormod nebula <enable> or /armormod nebula <tier #> <duration>");
+                            args.Player.SendErrorMessage("Wrong Syntax. /modarmor nebula <enable> or /modarmor nebula <tier #> <duration>");
                             break;
                     }
                     break;
@@ -734,7 +736,7 @@ namespace PvPController {
                 case "vortex":
                 case "v":
                     if (args.Parameters.Count < 2) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /armormod vortex <percentage>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modarmor vortex <percentage>");
                         return;
                     }
 
@@ -751,7 +753,7 @@ namespace PvPController {
                 case "defense":
                 case "d":
                     if (args.Parameters.Count < 3) {
-                        args.Player.SendErrorMessage("Wrong Syntax. /armormod defense <item id> <value>");
+                        args.Player.SendErrorMessage("Wrong Syntax. /modarmor defense <item id> <value>");
                         return;
                     }
 
@@ -765,13 +767,70 @@ namespace PvPController {
                         return;
                     }
 
-                    PvPController.database.itemInfo[itemid].defense = defense;
-                    PvPController.database.UpdateItems(PvPController.database.itemInfo[itemid]);
+                    Database.itemInfo[itemid].defense = defense;
+                    Database.UpdateItems(Database.itemInfo[itemid]);
                     args.Player.SendSuccessMessage("Set item {0} to {1} defense.".SFormat(Lang.GetItemNameValue(itemid), defense));
                     break;
 
                 default:
                     args.Player.SendErrorMessage("Wrong Syntax. " + armorParameters);
+                    break;
+            }
+        }
+        
+        private static void ModProjectile(CommandArgs args) {
+            if (args.Parameters.Count == 0) {
+                args.Player.SendErrorMessage("Wrong Syntax. " + projectileParameters);
+                return;
+            }
+
+            switch (args.Parameters[0]) {
+                case "shoot":
+                case "s":
+                    if (args.Parameters.Count < 3) {
+                        args.Player.SendErrorMessage("Wrong Syntax. /modprojectile shoot <item id> <projectile id>");
+                        return;
+                    }
+
+                    if (!Int32.TryParse(args.Parameters[1], out int itemid)) {
+                        args.Player.SendErrorMessage("Invalid item id of " + args.Parameters[1]);
+                        return;
+                    }
+
+                    if (!Int32.TryParse(args.Parameters[2], out int shoot)) {
+                        args.Player.SendErrorMessage("Invalid projectile value of " + args.Parameters[2]);
+                        return;
+                    }
+
+                    Database.itemInfo[itemid].shoot = shoot;
+                    Database.UpdateItems(Database.itemInfo[itemid]);
+                    args.Player.SendSuccessMessage("Set item {0} to shoot {1}.".SFormat(Lang.GetItemNameValue(itemid), Lang.GetProjectileName(shoot)));
+                    break;
+
+                case "shootspeed":
+                case "ss":
+                    if (args.Parameters.Count < 3) {
+                        args.Player.SendErrorMessage("Wrong Syntax. /modprojectile shootspeed <item id> <speed>");
+                        return;
+                    }
+
+                    if (!Int32.TryParse(args.Parameters[1], out int itemId)) {
+                        args.Player.SendErrorMessage("Invalid item id of " + args.Parameters[1]);
+                        return;
+                    }
+
+                    if (!float.TryParse(args.Parameters[2], out float shootSpeed)) {
+                        args.Player.SendErrorMessage("Invalid defense value of " + args.Parameters[2]);
+                        return;
+                    }
+
+                    Database.itemInfo[itemId].shootSpeed = shootSpeed;
+                    Database.UpdateItems(Database.itemInfo[itemId]);
+                    args.Player.SendSuccessMessage("Set item {0} to {1} speed.".SFormat(Lang.GetItemNameValue(itemId), shootSpeed));
+                    break;
+
+                default:
+                    args.Player.SendErrorMessage("Wrong Syntax. " + projectileParameters);
                     break;
             }
         }

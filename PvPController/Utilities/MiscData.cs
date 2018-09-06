@@ -5,45 +5,75 @@ using TShockAPI;
 namespace PvPController.Utilities {
     class MiscData {
         //Defines a weapon to a projectile that spawns from another projectile
-        public static Dictionary<int, int> fromWhatWeapon = new Dictionary<int, int> {
-            { 19, 119 },
-            { 33, 191 },
-            { 52, 284 },
-            { 90, 515 },
-            { 92, 516 },
-            { 113, 670 },
-            { 150, 788 },
-            { 151, 788 },
-            { 152, 788 },
-            { 182, 1122 },
-            { 239, 1244 },
-            { 249, 1258 },
-            { 250, 1260 },
-            { 251, 1260 },
-            { 264, 1244 },
-            { 272, 1324 },
-            { 296, 1445 },
-            { 301, 1513 },
-            { 307, 1571 },
-            { 320, 1825 },
-            { 321, 1826 },
-            { 344, 1947 },
-            { 400, 2590 },
-            { 401, 2590 },
-            { 402, 2590 },
-            { 405, 2611 },
-            { 443, 2796 },
-            { 491, 3030 },
-            { 493, 3051 },
-            { 494, 3051 },
-            { 511, 3105 },
-            { 512, 3105 },
-            { 513, 3105 },
-            { 522, 3209 },
-            { 604, 3389 },
-            { 617, 3476 },
-            { 619, 3476 },
-            { 620, 3476 }
+        public static Dictionary<int, int> fromWhatItem = new Dictionary<int, int> {
+            { 19, 119 }, //Flamarang
+            { 33, 191 }, //Thorn Chakram
+            { 52, 284 }, //Wooden Boomerang
+            { 90, 515 }, //Crystal Bullet
+            { 92, 516 }, //Holy Arrow
+            { 113, 670 }, //Ice Boomerang
+            { 150, 788 }, //Nettle Burst
+            { 151, 788 }, //Nettle Burst
+            { 152, 788 }, //Nettle Burst
+            { 182, 1122 }, //Possessed Hatchet
+            { 239, 1244 }, //Nimbus Rod
+            { 249, 1258 }, //Stynger
+            { 250, 1260 }, //Rainbow Gun
+            { 251, 1260 }, //Rainbow Gun
+            { 264, 1244 }, //Nimbus Rod
+            { 272, 1324 }, //Bananarang
+            { 296, 1445 }, //Inferno Fork
+            { 301, 1513 }, //Paladin's Hammer
+            { 307, 1571 }, //Scourge of the Corruptor
+            { 320, 1825 }, //Bloody Machete
+            { 321, 1826 }, //The Horseman's Blade
+            { 344, 1947 }, //North Pole
+            { 400, 2590 }, //Molotov Cocktail
+            { 401, 2590 }, //Molotov Cocktail
+            { 402, 2590 }, //Molotov Cocktail
+            { 405, 2611 }, //Flairon
+            { 443, 2796 }, //Electrosphere Launcher
+            { 491, 3030 }, //Flying Knife
+            { 493, 3051 }, //Crystal Vile Shard
+            { 494, 3051 }, //Crystal Vile Shard
+            { 511, 3105 }, //Toxic Flask
+            { 512, 3105 }, //Toxic Flask
+            { 513, 3105 }, //Toxic Flask
+            { 522, 3209 }, //Crystal Serpent
+            { 604, 3389 }, //Terrarian
+            { 617, 3476 }, //Nebula Arcanum
+            { 619, 3476 }, //Nebula Arcanum
+            { 620, 3476 }, //Nebula Arcanum
+            { 3, 84 }, //Grappling Hook
+            { 32, 185 }, //Ivy Whip
+            { 73, 437 }, //Dual Hook (Blue)
+            { 74, 437 }, //Dual Hook (Red)
+            { 165, 939 }, //Web Slinger
+            { 230, 1236 }, //Amethyst Hook
+            { 231, 1237 }, //Topaz Hook
+            { 232, 1238 }, //Sapphire Hook
+            { 233, 1239 }, //Emerald Hook
+            { 234, 1240 }, //Ruby Hook
+            { 235, 1241 }, //Diamond Hook
+            { 256, 1273 }, //Skeletron Hand
+            { 315, 1800 }, //Bat Hook
+            { 322, 1829 }, //Spooky Hook
+            { 331, 1915 }, //Candy Cane Hook
+            { 332, 1916 }, //Christmas Hook
+            { 372, 2360 }, //Fish Hook
+            { 396, 2585 }, //Slime Hook
+            { 403, 0 }, //Minecart Hook
+            { 446, 2800 }, //Anti-Gravity Hook
+            { 646, 3572 }, //Lunar Hook (Solar)
+            { 647, 3572 }, //Lunar Hook (Vortex)
+            { 648, 3572 }, //Lunar Hook (Nebula)
+            { 649, 3572 } //Lunar Hook (Stardust)
+        };
+        
+        public static List<int> rightClickWeapons = new List<int> {
+            3858, //Sky Dragon's Fury
+            3823, //Brand of the Inferno
+            3852 //Tome of Infinite Wisdom
         };
 
         //Minion IDs
@@ -53,7 +83,7 @@ namespace PvPController.Utilities {
         };
 
         //Accessory and Armor created projectiles
-        public static Dictionary<int, int> projectileDamage = new Dictionary<int, int> {
+        public static Dictionary<int, int> presetProjDamage = new Dictionary<int, int> {
             { 566, 15 },
             { 567, 30 },
             { 568, 30 },
