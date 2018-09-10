@@ -65,23 +65,26 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="PacketHandling\DataHandler.cs" />
-    <Compile Include="PacketHandling\PlayerDeathArgs.cs" />
-    <Compile Include="PacketHandling\PlayerHurtArgs.cs" />
-    <Compile Include="PacketHandling\PlayerSlotArgs.cs" />
-    <Compile Include="PacketHandling\PlayerUpdateArgs.cs" />
-    <Compile Include="PacketHandling\ProjectileDestroyArgs.cs" />
-    <Compile Include="PacketHandling\PvPHandler.cs" />
-    <Compile Include="PacketHandling\TogglePvPArgs.cs" />
+    <Compile Include="Network\DataHandler.cs" />
+    <Compile Include="Network\PlayerDeathArgs.cs" />
+    <Compile Include="Network\PlayerHurtArgs.cs" />
+    <Compile Include="Network\PlayerSlotArgs.cs" />
+    <Compile Include="Network\PlayerUpdateArgs.cs" />
+    <Compile Include="Network\ProjectileDestroyArgs.cs" />
+    <Compile Include="Network\PvPHandler.cs" />
+    <Compile Include="Network\TogglePvPArgs.cs" />
+    <Compile Include="ProjectileTracker.cs" />
     <Compile Include="Utilities\ItemInfo.cs" />
+    <Compile Include="Utilities\MinionUtils.cs" />
     <Compile Include="Utilities\MiscData.cs" />
     <Compile Include="PluginCommands.cs" />
     <Compile Include="PvPController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\ProjectileUtils.cs" />
     <Compile Include="Utilities\PvPUtils.cs" />
-    <Compile Include="PvPVariables\PvPItem.cs" />
-    <Compile Include="PvPVariables\PvPPlayer.cs" />
-    <Compile Include="PvPVariables\PvPProjectile.cs" />
+    <Compile Include="Variables\PvPItem.cs" />
+    <Compile Include="Variables\PvPPlayer.cs" />
+    <Compile Include="Variables\PvPProjectile.cs" />
     <Compile Include="Utilities\TerrariaUtils.cs" />
     <Compile Include="Utilities\MiscUtils.cs" />
   </ItemGroup>

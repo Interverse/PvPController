@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PvPController.PacketHandling {
+namespace PvPController.Network {
     public class ProjectileDestroyArgs : EventArgs {
         public int projectileID { get; set; }
         public int owner { get; set; }

@@ -9,8 +9,8 @@ namespace PvPController.Utilities {
         public int id { get; set; }
         public string name { get; set; }
         public int damage { get; set; }
-        public int vanillaDamage { get; set; }
         public int shoot { get; set; }
+        public bool isShootModded { get; set; }
         public float shootSpeed { get; set; }
         public int defense { get; set; }
 
@@ -22,8 +22,8 @@ namespace PvPController.Utilities {
             name = "";
             damage = 0;
             shoot = -1;
+            isShootModded = false;
             shootSpeed = -1;
-            vanillaDamage = 0;
             defense = 0;
 
             debuff = new BuffDuration(0, 0);

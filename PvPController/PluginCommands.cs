@@ -803,6 +803,7 @@ namespace PvPController {
                     }
 
                     Database.itemInfo[itemid].shoot = shoot;
+                    Database.itemInfo[itemid].isShootModded = true;
                     Database.UpdateItems(Database.itemInfo[itemid]);
                     args.Player.SendSuccessMessage("Set item {0} to shoot {1}.".SFormat(Lang.GetItemNameValue(itemid), Lang.GetProjectileName(shoot)));
                     break;

@@ -8,7 +8,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using TShockAPI;
 
-namespace PvPController.PvPVariables {
+namespace PvPController.Variables {
     public class PvPPlayer : TSPlayer {
 
         DateTime lastHit;
@@ -252,7 +252,7 @@ namespace PvPController.PvPVariables {
         }
 
         /// <summary>
-        /// Applies buffs to the attacker based off the buff, if any.
+        /// Applies buffs to the attacker based off own buffs, if any.
         /// </summary>
         public void ApplyBuffDebuffs(PvPPlayer attacker, PvPItem weapon) {
             int buffType;
@@ -261,8 +261,8 @@ namespace PvPController.PvPVariables {
                 if (MiscData.flaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
                         this.SetBuff(Database.buffInfo[buffType].debuff);
-                        continue;
                     }
+                    continue;
                 }
                 this.SetBuff(Database.buffInfo[buffType].debuff);
             }

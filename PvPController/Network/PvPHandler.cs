@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.PvPVariables;
+using PvPController.Variables;
 using PvPController.Utilities;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,11 @@ using System.Threading.Tasks;
 using Terraria;
 using TShockAPI;
 
-namespace PvPController.PacketHandling {
+namespace PvPController.Network {
     public class PvPHandler {
         public PvPHandler() {
             DataHandler.PlayerHurtted += OnPlayerHurtted;
             DataHandler.PlayerUpdated += OnPlayerUpdated;
-            DataHandler.ProjectileDestroyed += OnProjectileDestroyed;
             DataHandler.PvPToggled += OnPvPToggled;
             GetDataHandlers.NewProjectile += OnNewProjectile;
         }
@@ -22,7 +21,6 @@ namespace PvPController.PacketHandling {
         public void Unsubscribe() {
             DataHandler.PlayerHurtted -= OnPlayerHurtted;
             DataHandler.PlayerUpdated -= OnPlayerUpdated;
-            DataHandler.ProjectileDestroyed -= OnProjectileDestroyed;
             DataHandler.PvPToggled -= OnPvPToggled;
             GetDataHandlers.NewProjectile -= OnNewProjectile;
         }
@@ -42,23 +40,14 @@ namespace PvPController.PacketHandling {
 
             if (player == null || !player.TPlayer.hostile) return;
             //Resets a minion's timer if another minion of the same type is spawned on the same index
-            if (PvPController.projectiles[args.Identity] != null && PvPController.projectiles[args.Identity].type == type && MiscData.minionStats.ContainsKey(type))
-                PvPController.projectiles[args.Identity].timer.Dispose();
+            if (ProjectileTracker.projectiles[args.Identity] != null && ProjectileTracker.projectiles[args.Identity].type == type && MinionUtils.minionStats.ContainsKey(type))
+                ProjectileTracker.projectiles[args.Identity].timer.Dispose();
 
-            PvPItem weapon;
-            if (MiscData.presetProjDamage.ContainsKey(type)) {
-                weapon = new PvPItem();
-                weapon.damage = MiscData.presetProjDamage[type];
-                weapon.name = Lang.GetProjectileName(type).ToString();
-            } else if (MiscData.fromWhatItem.ContainsKey(type)) {
-                weapon = player.FindPlayerItem(MiscData.fromWhatItem[type]);
-            } else {
-                weapon = player.GetPlayerItem();
-            }
+            PvPItem weapon = ProjectileUtils.GetProjectileWeapon(player, type);
 
-            if (Database.itemInfo[weapon.netID].shoot > -1 || Database.itemInfo[weapon.netID].shootSpeed > -1) {
+            if ((Database.itemInfo[weapon.netID].shoot > 0 && Database.itemInfo[weapon.netID].isShootModded) || Database.itemInfo[weapon.netID].shootSpeed > -1) {
                 args.Handled = true;
-                if (Database.itemInfo[weapon.netID].shoot > 0)
+                if (Database.itemInfo[weapon.netID].shoot > 0 && Database.itemInfo[weapon.netID].isShootModded)
                     type = Database.itemInfo[weapon.netID].shoot;
                 if (Database.itemInfo[weapon.netID].shootSpeed > 0)
                     velocity = Vector2.Normalize(args.Velocity) * Database.itemInfo[weapon.netID].shootSpeed;
@@ -66,10 +55,7 @@ namespace PvPController.PacketHandling {
                 NetMessage.SendData(27, -1, -1, null, args.Identity, 0.0f, 0.0f, 0.0f, 0, 0, 0);
             }
 
-            PvPController.projectiles[args.Identity] = new PvPProjectile(type, args.Identity);
-            PvPController.projectiles[args.Identity].SetOwner(args.Owner);
-            PvPController.projectiles[args.Identity].SetOriginatedItem(weapon);
-            PvPController.projectiles[args.Identity].PerformProjectileAction();
+            ProjectileTracker.InsertProjectile(args.Identity, type, args.Owner, weapon);
         }
 
         /// <summary>
@@ -122,15 +108,6 @@ namespace PvPController.PacketHandling {
             if (e.player.previousSelectedItem != e.selectedSlot) {
                 e.player.previousSelectedItem = e.selectedSlot;
             }
-        }
-
-        /// <summary>
-        /// Resets a projectile to null after it has disappeared.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnProjectileDestroyed(object sender, ProjectileDestroyArgs e) {
-            PvPController.projectiles[e.projectileID] = null;
         }
 
         /// <summary>

@@ -3,8 +3,9 @@ using PvPController.Utilities;
 using System.Timers;
 using Terraria;
 using System;
+using System.Linq;
 
-namespace PvPController.PvPVariables {
+namespace PvPController.Variables {
     /// <summary>
     /// The class used to store projectile data. Includes additional methods and variables to
     /// perform pvp based calculations and actions.
@@ -14,7 +15,8 @@ namespace PvPController.PvPVariables {
         public Timer timer = new Timer();
         public PvPItem itemOriginated;
         public PvPPlayer ownerProjectile;
-        int identity = 0;
+
+        public PvPProjectile() { }
 
         public PvPProjectile(int type) {
             this.SetDefaults(type);
@@ -72,6 +74,14 @@ namespace PvPController.PvPVariables {
         }
 
         /// <summary>
+        /// Gets the position of the projectile.
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetPosition() {
+            return ProjectileTracker.GetMainProjectile(this.identity, this.type, this.ownerProjectile.Index).position;
+        }
+
+        /// <summary>
         /// Performs additional actions for projectiles.
         /// </summary>
         public void PerformProjectileAction() {
@@ -91,8 +101,8 @@ namespace PvPController.PvPVariables {
                     break;
 
                 default:
-                    if (PvPController.config.enableMinions && MiscData.minionStats.ContainsKey(type) && !timer.Enabled) {
-                        timer.Interval = MiscData.minionStats[type].fireRate * 1000;
+                    if (PvPController.config.enableMinions && MinionUtils.minionStats.ContainsKey(type) && !timer.Enabled) {
+                        timer.Interval = MinionUtils.minionStats[type].fireRate * 1000;
                         timer.Enabled = true;
                     }
                     break;
@@ -105,12 +115,12 @@ namespace PvPController.PvPVariables {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ProjectileElapsed(object sender, ElapsedEventArgs e) {
-            if ((!Main.projectile[identity].active || Main.projectile[identity].type != type) && timer.Enabled) {
+            Vector2 position = this.GetPosition();
+
+            if (position == null && timer.Enabled) {
                 timer.Dispose();
                 return;
             }
-
-            Vector2 position = Main.projectile[identity].position;
 
             if (PvPController.config.enableMinions) {
                 for (int x = 0; x < PvPController.pvpers.Length; x++) {
@@ -120,10 +130,10 @@ namespace PvPController.PvPVariables {
                     if (ownerProjectile.Index == target.Index) continue;
                     if (!target.TPlayer.hostile || target.TPlayer.dead) continue;
 
-                    float startX = position.X + MiscData.minionStats[type].offsetX;
-                    float startY = position.Y + MiscData.minionStats[type].offsetY;
+                    float startX = position.X + MinionUtils.minionStats[type].offsetX;
+                    float startY = position.Y + MinionUtils.minionStats[type].offsetY;
 
-                    if (Vector2.Distance(new Vector2(startX, startY), target.TPlayer.position) <= MiscData.minionStats[type].radius * 16) {
+                    if (Vector2.Distance(new Vector2(startX, startY), target.TPlayer.position) <= MinionUtils.minionStats[type].radius * 16) {
                         Vector2 direction = Vector2.Normalize(target.TPlayer.position - position);
 
                         if (type == 643) {
@@ -135,17 +145,14 @@ namespace PvPController.PvPVariables {
                             startY = target.Y + 20;
                         }
 
-                        int velocityX = (int)(direction.X * MiscData.minionStats[type].velocity);
-                        int velocityY = (int)(direction.Y * MiscData.minionStats[type].velocity);
+                        int velocityX = (int)(direction.X * MinionUtils.minionStats[type].velocity);
+                        int velocityY = (int)(direction.Y * MinionUtils.minionStats[type].velocity);
 
                         int index = Projectile.NewProjectile(startX, startY, velocityX, velocityY,
-                            MiscData.minionStats[type].projectile, damage, target.Index, owner);
+                            MinionUtils.minionStats[type].projectile, damage, target.Index, owner);
                         NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
 
-                        PvPController.projectiles[index] = new PvPProjectile(MiscData.minionStats[type].projectile, index);
-                        PvPController.projectiles[index].SetOwner(ownerProjectile.Index);
-                        PvPController.projectiles[index].SetOriginatedItem(itemOriginated);
-                        PvPController.projectiles[index].PerformProjectileAction();
+                        ProjectileTracker.InsertProjectile(index, MinionUtils.minionStats[type].projectile, ownerProjectile.Index, ProjectileUtils.GetProjectileWeapon(ownerProjectile, this.type));
 
                         return;
                     }

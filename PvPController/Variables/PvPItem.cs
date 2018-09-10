@@ -2,7 +2,7 @@
 using Terraria;
 using Terraria.ID;
 
-namespace PvPController.PvPVariables {
+namespace PvPController.Variables {
     public class PvPItem : Item {
         public string name = "";
         public double damage = 0;

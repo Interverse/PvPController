@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.PvPVariables;
+using PvPController.Variables;
 using PvPController.Utilities;
-using PvPController.PacketHandling;
+using PvPController.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +14,7 @@ using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
 using System.Timers;
+using System.Linq;
 
 namespace PvPController {
     [ApiVersion(2, 1)]
@@ -21,7 +22,6 @@ namespace PvPController {
 
         public static Config config;
         public static PvPPlayer[] pvpers = new PvPPlayer[Main.maxPlayers];
-        public static PvPProjectile[] projectiles = new PvPProjectile[Main.maxProjectiles];
         public static PvPHandler pvpHandler = new PvPHandler();
         public static Timer timer = new Timer(500) { Enabled = true };
 
@@ -114,8 +114,9 @@ namespace PvPController {
         /// </summary>
         private void PvPTimerElapsed(object sender, ElapsedEventArgs e) {
             for (int x = 0; x < pvpers.Length; x++) {
-                if (pvpers[x].ConnectionAlive && pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip)
+                if (pvpers[x].ConnectionAlive && pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip) {
                     PvPUtils.DisplayInterface(pvpers[x]);
+                }
             }
         }
 
@@ -140,7 +141,8 @@ namespace PvPController {
                         return;
                     }
 
-                    PvPProjectile projectile = playerHitReason.SourceProjectileIndex == -1 ? null : projectiles[playerHitReason.SourceProjectileIndex];
+                    PvPProjectile projectile = playerHitReason.SourceProjectileIndex == -1 ? 
+                        null : ProjectileTracker.projectiles[playerHitReason.SourceProjectileIndex];
                     PvPItem weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
 
                     int int1 = data.ReadInt16(); //damage
@@ -148,7 +150,6 @@ namespace PvPController {
 
                     int inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : int1;
                     int damageReceived = target.GetDamageReceived(inflictedDamage);
-                    data.ReadByte(); data.ReadByte();
                     int knockback = int2 - 1;
 
                     int crit = attacker.GetCrit(weapon);
@@ -167,7 +168,7 @@ namespace PvPController {
                     break;
 
                 case PacketTypes.PlayerSlot:
-                    data.ReadByte();
+                    data.ReadByte(); //Cycles through the MemoryStream data
                     int slot = data.ReadByte();
                     DataHandler.OnPlayerSlotUpdated(attacker, slot);
                     break;

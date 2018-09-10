@@ -1,4 +1,4 @@
-﻿using PvPController.PvPVariables;
+﻿using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Terraria.DataStructures;
 using TerrariaApi.Server;
 
-namespace PvPController.PacketHandling {
+namespace PvPController.Network {
     /// <summary>
     /// Creates hooks for plugins to use.
     /// </summary>

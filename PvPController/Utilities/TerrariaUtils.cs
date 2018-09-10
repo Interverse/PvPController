@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.PvPVariables;
+using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;

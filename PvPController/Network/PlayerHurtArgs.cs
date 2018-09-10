@@ -1,4 +1,4 @@
-﻿using PvPController.PvPVariables;
+﻿using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Terraria.DataStructures;
 using TerrariaApi.Server;
 
-namespace PvPController.PacketHandling {
+namespace PvPController.Network {
     public class PlayerHurtArgs : EventArgs {
         public GetDataEventArgs args { get; set; }
 

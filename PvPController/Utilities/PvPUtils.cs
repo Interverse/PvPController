@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.PvPVariables;
+using PvPController.Variables;
 using System;
 using System.Text;
 using Terraria;
@@ -78,8 +78,8 @@ namespace PvPController.Utilities {
             StringBuilder sb = new StringBuilder();
 
             PvPItem weapon = player.GetPlayerItem();
-            PvPProjectile projectile = weapon.useAmmo == AmmoID.None 
-                ? player.GetPlayerItem().GetItemShoot() 
+            PvPProjectile projectile = weapon.useAmmo == AmmoID.None
+                ? player.GetPlayerItem().GetItemShoot()
                 : player.GetFirstAvailableAmmo(weapon).GetItemShoot();
 
             sb.AppendLine(MiscUtils.LineBreaks(8));
@@ -88,25 +88,25 @@ namespace PvPController.Utilities {
 
             if (weapon.GetPvPDamage(player) > 0)
                 sb.AppendLine(weapon.name + ": " + weapon.GetPvPDamage(player) + " damage");
-            
+
             if (PvPController.config.enableWeaponDebuffs)
                 if (weapon.GetDebuffInfo().buffid != 0)
                     sb.AppendLine("  Inflicts {0} for {1}s."
                         .SFormat(Lang.GetBuffName(weapon.GetDebuffInfo().buffid), weapon.GetDebuffInfo().buffDuration / 60.0));
 
             if (PvPController.config.enableWeaponSelfBuffs)
-                if (weapon.GetSelfBuffInfo().buffid != 0) 
+                if (weapon.GetSelfBuffInfo().buffid != 0)
                     sb.AppendLine("  Inflicts {0} to self for {1}s."
                         .SFormat(Lang.GetBuffName(weapon.GetSelfBuffInfo().buffid), weapon.GetSelfBuffInfo().buffDuration / 60.0));
 
-            if (projectile.type != 0) {
+            if (projectile.type != -1) {
                 int shoot = projectile.type;
                 sb.AppendLine("  Shoots " + Lang.GetProjectileName(shoot).ToString());
 
                 if (PvPController.config.enableProjectileDebuffs)
                     if (projectile.GetDebuffInfo().buffid != 0)
                         sb.AppendLine("    Inflicts {0} for {1}s."
-                            .SFormat(Lang.GetBuffName(projectile.GetDebuffInfo().buffid), projectile.GetDebuffInfo().buffDuration / 60.0));
+                            .SFormat(Lang.GetBuffName(projectile.GetDebuffInfo().buffid), projectile.GetDebuffInfo().buffDuration / 60.0)); 
 
                 if (PvPController.config.enableProjectileSelfBuffs)
                     if (projectile.GetSelfBuffInfo().buffid != 0)
@@ -117,7 +117,7 @@ namespace PvPController.Utilities {
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 int buffType = player.TPlayer.buffType[x];
                 ItemInfo buffInfo = Database.buffInfo[buffType];
-                
+
                 if (PvPController.config.enableBuffDebuff)
                     if (buffInfo.debuff.buffid != 0)
                         sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} ({2}s) to weapons."

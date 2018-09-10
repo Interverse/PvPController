@@ -1,4 +1,4 @@
-﻿using PvPController.PvPVariables;
+﻿using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TerrariaApi.Server;
 
-namespace PvPController.PacketHandling {
+namespace PvPController.Network {
     public class PlayerUpdateArgs : EventArgs {
         public PvPPlayer player { get; set; }
 

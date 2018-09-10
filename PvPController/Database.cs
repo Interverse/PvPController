@@ -53,9 +53,9 @@ namespace PvPController {
             SqlTable table1 = new SqlTable("Items",
                 new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
                 new SqlColumn("Name", MySqlDbType.String),
-                new SqlColumn("VanillaDamage", MySqlDbType.Int32),
-                new SqlColumn("ModdedDamage", MySqlDbType.Int32),
+                new SqlColumn("Damage", MySqlDbType.Int32),
                 new SqlColumn("Shoot", MySqlDbType.Int32),
+                new SqlColumn("IsShootModded", MySqlDbType.Int32),
                 new SqlColumn("ShootSpeed", MySqlDbType.Float),
                 new SqlColumn("Defense", MySqlDbType.Int32),
                 new SqlColumn("InflictBuffID", MySqlDbType.Int32),
@@ -98,8 +98,8 @@ namespace PvPController {
         public static void UpdateItems(ItemInfo iteminfo) {
             var query =
                 string.Format(
-                    "UPDATE Items SET Name = '{0}', VanillaDamage = {1}, ModdedDamage = {2}, Shoot = {3}, ShootSpeed = {4}, Defense = {5}, InflictBuffID = {6}, InflictBuffDuration = {7}, ReceiveBuffID = {8}, ReceiveBuffDuration = {9} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.vanillaDamage, iteminfo.damage, iteminfo.shoot, iteminfo.shootSpeed, iteminfo.defense, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
+                    "UPDATE Items SET Name = '{0}', Damage = {1}, Shoot = {2}, IsShootModded = {3}, ShootSpeed = {4}, Defense = {5}, InflictBuffID = {6}, InflictBuffDuration = {7}, ReceiveBuffID = {8}, ReceiveBuffDuration = {9} WHERE ID = @0",
+                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.damage, iteminfo.shoot, iteminfo.isShootModded ? 1 : 0, iteminfo.shootSpeed, iteminfo.defense, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
                 
             Query(query, iteminfo.id);
         }
@@ -147,10 +147,11 @@ namespace PvPController {
 
                         int damage = item.damage;
                         int defense = item.defense;
+                        int shoot = item.shoot;
 
                         cmd.CommandText =
-                            "INSERT INTO Items (ID, Name, VanillaDamage, ModdedDamage, Shoot, ShootSpeed, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10})"
-                            .SFormat(x, name, damage, damage, -1, -1, defense, 0, 0, 0, 0);
+                            "INSERT INTO Items (ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10})"
+                            .SFormat(x, name, damage, shoot, 0, -1, defense, 0, 0, 0, 0);
                         cmd.ExecuteNonQuery();
                     }
 
@@ -161,12 +162,12 @@ namespace PvPController {
                         int inflictBuff = 0;
                         int inflictBuffDuration = 0;
 
-                        if (MiscData.presetProjDamage.ContainsKey(x)) {
-                            damage = MiscData.presetProjDamage[x];
+                        if (ProjectileUtils.presetProjDamage.ContainsKey(x)) {
+                            damage = ProjectileUtils.presetProjDamage[x];
                         }
-                        if (MiscData.projectileDebuffs.ContainsKey(x)) {
-                            inflictBuff = MiscData.projectileDebuffs[x].buffid;
-                            inflictBuffDuration = MiscData.projectileDebuffs[x].buffDuration;
+                        if (ProjectileUtils.projectileDebuffs.ContainsKey(x)) {
+                            inflictBuff = ProjectileUtils.projectileDebuffs[x].buffid;
+                            inflictBuffDuration = ProjectileUtils.projectileDebuffs[x].buffDuration;
                         }
 
                         cmd.CommandText = 
@@ -208,9 +209,9 @@ namespace PvPController {
                     itemInfo[id] = new ItemInfo();
                     itemInfo[id].id = id;
                     itemInfo[id].name = reader.Get<string>("Name");
-                    itemInfo[id].vanillaDamage = reader.Get<int>("VanillaDamage");
-                    itemInfo[id].damage = reader.Get<int>("ModdedDamage");
+                    itemInfo[id].damage = reader.Get<int>("Damage");
                     itemInfo[id].shoot = reader.Get<int>("Shoot");
+                    itemInfo[id].isShootModded = reader.Get<int>("IsShootModded") == 1 ? true : false;
                     itemInfo[id].shootSpeed = reader.Get<float>("ShootSpeed");
                     itemInfo[id].defense = reader.Get<int>("Defense");
                     itemInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
