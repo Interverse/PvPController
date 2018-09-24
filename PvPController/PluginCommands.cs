@@ -20,8 +20,7 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", Reload, "reload", "readconfig") { HelpText = "Sets config settings to server" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteConfig, "writeconfig") { HelpText = "Writes server settings to config" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", ResetConfig, "resetconfig") { HelpText = "Reset server config to default values" });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteDoc, "writedoc") { HelpText = "Formats server changes to a .txt document" });
-
+            
             Commands.ChatCommands.Add(new Command("pvpcontroller.damage", ModDamage, "moddamage", "md") { HelpText = "Modifies damage settings. " + damageParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.buff", ModBuff, "modbuff", "mb") { HelpText = "Modifies buff settings. " +  buffParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.reflect", ModReflect, "modreflect", "mr") { HelpText = "Modifies reflect damage settings. " + reflectParameters });
@@ -36,7 +35,7 @@ namespace PvPController {
             PvPController.pvpers[args.Player.Index].seeTooltip = !PvPController.pvpers[args.Player.Index].seeTooltip;
 
             args.Player.SendSuccessMessage("Tooltips: " + PvPController.pvpers[args.Player.Index].seeTooltip);
-            PvPUtils.ClearInterface(PvPController.pvpers[args.Player.Index]);
+            Interface.ClearInterface(PvPController.pvpers[args.Player.Index]);
         }
 
         private static void ModDamage(CommandArgs args) {
@@ -845,11 +844,6 @@ namespace PvPController {
             PvPController.config.ResetConfigValues();
             PvPController.config.Write(Config.configPath);
             args.Player.SendSuccessMessage("Reset config values to default.");
-        }
-
-        private static void WriteDoc(CommandArgs args) {
-            PvPController.config.WriteDocumentation();
-            args.Player.SendSuccessMessage("Written server changes to a .txt file");
         }
 
         private static void Reload(CommandArgs args) {

@@ -27,5 +27,9 @@ namespace PvPController {
             projectiles[index].SetOriginatedItem(item);
             projectiles[index].PerformProjectileAction();
         }
+
+        public static void RemoveProjectile(int index) {
+            projectiles[index] = null;
+        }
     }
 }

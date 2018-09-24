@@ -139,7 +139,7 @@ namespace PvPController.Variables {
 
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
                 damage, hitDirection, false, true, 5);
-            PvPUtils.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, color);
+            Interface.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, color);
         }
 
         /// <summary>

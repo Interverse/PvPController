@@ -20,11 +20,10 @@ namespace PvPController.Network {
         public static event EventHandler<TogglePvPArgs> PvPToggled;
         public static event EventHandler<PlayerSlotArgs> PlayerSlotUpdated;
 
-        public static void OnPlayerHurtted(GetDataEventArgs args, PvPPlayer attacker, PvPPlayer target, PvPItem weapon, PvPProjectile projectile,
-            PlayerDeathReason playerHitReason, int inflictedDamage, int damageReceived, int knockback, int crit) {
+        public static void OnPlayerHurtted(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
 
             if (PlayerHurtted != null)
-                PlayerHurtted(typeof(DataHandler), new PlayerHurtArgs(args, attacker, target, weapon, projectile, playerHitReason, inflictedDamage, damageReceived, knockback, crit));
+                PlayerHurtted(typeof(DataHandler), new PlayerHurtArgs(args, data, attacker));
         }
 
         public static void OnPlayerUpdated(MemoryStream data, PvPPlayer player) {
@@ -47,9 +46,9 @@ namespace PvPController.Network {
                 PvPToggled(typeof(DataHandler), new TogglePvPArgs(player));
         }
 
-        public static void OnPlayerSlotUpdated(PvPPlayer player, int slotid) {
+        public static void OnPlayerSlotUpdated(MemoryStream data, PvPPlayer player) {
             if (PlayerSlotUpdated != null)
-                PlayerSlotUpdated(typeof(DataHandler), new PlayerSlotArgs(player, slotid));
+                PlayerSlotUpdated(typeof(DataHandler), new PlayerSlotArgs(data, player));
         }
     }
 }

@@ -115,7 +115,7 @@ namespace PvPController {
         private void PvPTimerElapsed(object sender, ElapsedEventArgs e) {
             for (int x = 0; x < pvpers.Length; x++) {
                 if (pvpers[x].ConnectionAlive && pvpers[x].TPlayer.hostile && pvpers[x].seeTooltip) {
-                    PvPUtils.DisplayInterface(pvpers[x]);
+                    Interface.DisplayInterface(pvpers[x]);
                 }
             }
         }
@@ -133,34 +133,7 @@ namespace PvPController {
 
             switch (args.MsgID) {
                 case PacketTypes.PlayerHurtV2:
-                    PvPPlayer target = pvpers[data.ReadByte()];
-                    PlayerDeathReason playerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
-                    if (target == null || !target.ConnectionAlive || !target.Active) return;
-                    if (playerHitReason.SourcePlayerIndex == -1) {
-                        target.lastHitBy = null;
-                        return;
-                    }
-
-                    PvPProjectile projectile = playerHitReason.SourceProjectileIndex == -1 ? 
-                        null : ProjectileTracker.projectiles[playerHitReason.SourceProjectileIndex];
-                    PvPItem weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
-
-                    int int1 = data.ReadInt16(); //damage
-                    int int2 = data.ReadByte(); //knockback
-
-                    int inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : int1;
-                    int damageReceived = target.GetDamageReceived(inflictedDamage);
-                    int knockback = int2 - 1;
-
-                    int crit = attacker.GetCrit(weapon);
-
-                    target.lastHitBy = attacker;
-                    target.lastHitWeapon = weapon;
-                    target.lastHitProjectile = projectile;
-
-                    DataHandler.OnPlayerHurtted(args, attacker, target, weapon, projectile, playerHitReason,
-                        inflictedDamage, damageReceived, knockback, crit);
-
+                    DataHandler.OnPlayerHurtted(args, data, attacker);
                     break;
 
                 case PacketTypes.TogglePvp:
@@ -168,9 +141,7 @@ namespace PvPController {
                     break;
 
                 case PacketTypes.PlayerSlot:
-                    data.ReadByte(); //Cycles through the MemoryStream data
-                    int slot = data.ReadByte();
-                    DataHandler.OnPlayerSlotUpdated(attacker, slot);
+                    DataHandler.OnPlayerSlotUpdated(data, attacker);
                     break;
 
                 case PacketTypes.PlayerDeathV2:

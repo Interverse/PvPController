@@ -15,6 +15,7 @@ namespace PvPController.Network {
             DataHandler.PlayerHurtted += OnPlayerHurtted;
             DataHandler.PlayerUpdated += OnPlayerUpdated;
             DataHandler.PvPToggled += OnPvPToggled;
+            DataHandler.ProjectileDestroyed += OnProjectileDestroyed;
             GetDataHandlers.NewProjectile += OnNewProjectile;
         }
 
@@ -22,7 +23,12 @@ namespace PvPController.Network {
             DataHandler.PlayerHurtted -= OnPlayerHurtted;
             DataHandler.PlayerUpdated -= OnPlayerUpdated;
             DataHandler.PvPToggled -= OnPvPToggled;
+            DataHandler.ProjectileDestroyed -= OnProjectileDestroyed;
             GetDataHandlers.NewProjectile -= OnNewProjectile;
+        }
+
+        private void OnProjectileDestroyed(object sender, ProjectileDestroyArgs e) {
+            ProjectileTracker.RemoveProjectile(e.projectileIndex);
         }
 
         /// <summary>
@@ -51,8 +57,8 @@ namespace PvPController.Network {
                     type = Database.itemInfo[weapon.netID].shoot;
                 if (Database.itemInfo[weapon.netID].shootSpeed > 0)
                     velocity = Vector2.Normalize(args.Velocity) * Database.itemInfo[weapon.netID].shootSpeed;
-                Projectile.NewProjectile(args.Position.X, args.Position.Y, velocity.X, velocity.Y, type, args.Damage, 1f, args.Owner, 0.0f, 0.0f);
-                NetMessage.SendData(27, -1, -1, null, args.Identity, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                type = Projectile.NewProjectile(args.Position.X, args.Position.Y, velocity.X, velocity.Y, type, args.Damage, 1f, args.Owner, 0.0f, 0.0f);
+                NetMessage.SendData(27, -1, -1, null, type, 0.0f, 0.0f, 0.0f, 0, 0, 0);
             }
 
             ProjectileTracker.InsertProjectile(args.Identity, type, args.Owner, weapon);
@@ -118,7 +124,7 @@ namespace PvPController.Network {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnPvPToggled(object sender, TogglePvPArgs e) {
-            PvPUtils.ClearInterface(e.player);
+            Interface.ClearInterface(e.player);
         }
     }
 }

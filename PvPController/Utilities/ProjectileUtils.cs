@@ -87,7 +87,9 @@ namespace PvPController.Utilities {
             { 646, 3572 }, //Lunar Hook (Solar)
             { 647, 3572 }, //Lunar Hook (Vortex)
             { 648, 3572 }, //Lunar Hook (Nebula)
-            { 649, 3572 } //Lunar Hook (Stardust)
+            { 649, 3572 }, //Lunar Hook (Stardust)
+            { 640, 3568 }, //Luminite Arrow
+            { 480, 3010 } //Cursed Darts
         };
         
         //Accessory and Armor created projectiles

@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="Interface.cs" />
     <Compile Include="Network\DataHandler.cs" />
     <Compile Include="Network\PlayerDeathArgs.cs" />
     <Compile Include="Network\PlayerHurtArgs.cs" />
