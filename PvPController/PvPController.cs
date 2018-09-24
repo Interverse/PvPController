@@ -148,6 +148,10 @@ namespace PvPController {
                     DataHandler.OnPlayerDead(attacker);
                     break;
 
+                case PacketTypes.ProjectileNew:
+                    DataHandler.OnProjectileNew(args, data, attacker);
+                    break;
+
                 case PacketTypes.ProjectileDestroy:
                     DataHandler.OnProjectileDestroyed(data);
                     break;

@@ -14,11 +14,13 @@ namespace PvPController.Utilities {
                 weapon = new PvPItem();
                 weapon.damage = ProjectileUtils.presetProjDamage[type];
                 weapon.name = Lang.GetProjectileName(type).ToString();
+            } else if (ProjectileUtils.projHooks.ContainsKey(type)) {
+                weapon = new PvPItem(type);
             } else if (ProjectileUtils.fromWhatItem.ContainsKey(type)) {
                 weapon = owner.FindPlayerItem(ProjectileUtils.fromWhatItem[type]);
             } else if (MinionUtils.minionItem.ContainsKey(type)) {
                 weapon = owner.FindPlayerItem(MinionUtils.minionItem[type]);
-            } else  {
+            } else {
                 weapon = owner.GetPlayerItem();
             }
             return weapon;
@@ -64,6 +66,11 @@ namespace PvPController.Utilities {
             { 617, 3476 }, //Nebula Arcanum
             { 619, 3476 }, //Nebula Arcanum
             { 620, 3476 }, //Nebula Arcanum
+            { 640, 3568 }, //Luminite Arrow
+            { 480, 3010 } //Cursed Darts
+        };
+
+        public static Dictionary<int, int> projHooks = new Dictionary<int, int> {
             { 3, 84 }, //Grappling Hook
             { 32, 185 }, //Ivy Whip
             { 73, 437 }, //Dual Hook (Blue)
@@ -87,9 +94,7 @@ namespace PvPController.Utilities {
             { 646, 3572 }, //Lunar Hook (Solar)
             { 647, 3572 }, //Lunar Hook (Vortex)
             { 648, 3572 }, //Lunar Hook (Nebula)
-            { 649, 3572 }, //Lunar Hook (Stardust)
-            { 640, 3568 }, //Luminite Arrow
-            { 480, 3010 } //Cursed Darts
+            { 649, 3572 } //Lunar Hook (Stardust)
         };
         
         //Accessory and Armor created projectiles

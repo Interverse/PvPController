@@ -13,8 +13,9 @@ namespace PvPController.Network {
     /// Creates hooks for plugins to use.
     /// </summary>
     public class DataHandler {
-        public static event EventHandler<PlayerHurtArgs> PlayerHurtted;
+        public static event EventHandler<PlayerHurtArgs> PlayerHurt;
         public static event EventHandler<PlayerUpdateArgs> PlayerUpdated;
+        public static event EventHandler<ProjectileNewArgs> ProjectileNew;
         public static event EventHandler<ProjectileDestroyArgs> ProjectileDestroyed;
         public static event EventHandler<PlayerDeathArgs> PlayerDied;
         public static event EventHandler<TogglePvPArgs> PvPToggled;
@@ -22,13 +23,18 @@ namespace PvPController.Network {
 
         public static void OnPlayerHurtted(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
 
-            if (PlayerHurtted != null)
-                PlayerHurtted(typeof(DataHandler), new PlayerHurtArgs(args, data, attacker));
+            if (PlayerHurt != null)
+                PlayerHurt(typeof(DataHandler), new PlayerHurtArgs(args, data, attacker));
         }
 
         public static void OnPlayerUpdated(MemoryStream data, PvPPlayer player) {
             if (PlayerUpdated != null)
                 PlayerUpdated(typeof(DataHandler), new PlayerUpdateArgs(data, player));
+        }
+
+        public static void OnProjectileNew(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
+            if (ProjectileNew != null)
+                ProjectileNew(typeof(DataHandler), new ProjectileNewArgs(args, data, attacker));
         }
 
         public static void OnProjectileDestroyed(MemoryStream data) {

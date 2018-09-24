@@ -12,19 +12,19 @@ using TShockAPI;
 namespace PvPController.Network {
     public class PvPHandler {
         public PvPHandler() {
-            DataHandler.PlayerHurtted += OnPlayerHurtted;
+            DataHandler.PlayerHurt += OnPlayerHurtted;
             DataHandler.PlayerUpdated += OnPlayerUpdated;
             DataHandler.PvPToggled += OnPvPToggled;
             DataHandler.ProjectileDestroyed += OnProjectileDestroyed;
-            GetDataHandlers.NewProjectile += OnNewProjectile;
+            DataHandler.ProjectileNew += OnNewProjectile;
         }
 
         public void Unsubscribe() {
-            DataHandler.PlayerHurtted -= OnPlayerHurtted;
+            DataHandler.PlayerHurt -= OnPlayerHurtted;
             DataHandler.PlayerUpdated -= OnPlayerUpdated;
             DataHandler.PvPToggled -= OnPvPToggled;
             DataHandler.ProjectileDestroyed -= OnProjectileDestroyed;
-            GetDataHandlers.NewProjectile -= OnNewProjectile;
+            DataHandler.ProjectileNew -= OnNewProjectile;
         }
 
         private void OnProjectileDestroyed(object sender, ProjectileDestroyArgs e) {
@@ -37,31 +37,40 @@ namespace PvPController.Network {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private void OnNewProjectile(object sender, GetDataHandlers.NewProjectileEventArgs args) {
+        private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPController.config.enablePlugin) return;
 
-            PvPPlayer player = new PvPPlayer(args.Owner);
-            Vector2 velocity = args.Velocity;
-            int type = args.Type;
+            bool isModified = false;
+            int index = e.identity;
 
-            if (player == null || !player.TPlayer.hostile) return;
+            if (e.attacker == null || !e.attacker.TPlayer.hostile) return;
             //Resets a minion's timer if another minion of the same type is spawned on the same index
-            if (ProjectileTracker.projectiles[args.Identity] != null && ProjectileTracker.projectiles[args.Identity].type == type && MinionUtils.minionStats.ContainsKey(type))
-                ProjectileTracker.projectiles[args.Identity].timer.Dispose();
+            if (ProjectileTracker.projectiles[e.identity] != null && ProjectileTracker.projectiles[e.identity].type == e.type && MinionUtils.minionStats.ContainsKey(e.type))
+                ProjectileTracker.projectiles[e.identity].timer.Dispose();
 
-            PvPItem weapon = ProjectileUtils.GetProjectileWeapon(player, type);
-
-            if ((Database.itemInfo[weapon.netID].shoot > 0 && Database.itemInfo[weapon.netID].isShootModded) || Database.itemInfo[weapon.netID].shootSpeed > -1) {
-                args.Handled = true;
-                if (Database.itemInfo[weapon.netID].shoot > 0 && Database.itemInfo[weapon.netID].isShootModded)
-                    type = Database.itemInfo[weapon.netID].shoot;
-                if (Database.itemInfo[weapon.netID].shootSpeed > 0)
-                    velocity = Vector2.Normalize(args.Velocity) * Database.itemInfo[weapon.netID].shootSpeed;
-                type = Projectile.NewProjectile(args.Position.X, args.Position.Y, velocity.X, velocity.Y, type, args.Damage, 1f, args.Owner, 0.0f, 0.0f);
-                NetMessage.SendData(27, -1, -1, null, type, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+            if (Database.itemInfo[e.weapon.netID].shoot > 0 && Database.itemInfo[e.weapon.netID].isShootModded) {
+                e.type = Database.itemInfo[e.weapon.netID].shoot;
+                isModified = true;
+            }
+            
+            if (Database.itemInfo[e.weapon.netID].shootSpeed > 0) {
+                e.velocity = Vector2.Normalize(e.velocity) * Database.itemInfo[e.weapon.netID].shootSpeed;
+                isModified = true;
             }
 
-            ProjectileTracker.InsertProjectile(args.Identity, type, args.Owner, weapon);
+            var projectile = Main.projectile[index];
+            projectile.SetDefaults(e.type);
+            projectile.identity = e.identity;
+            projectile.damage = e.damage;
+            projectile.active = true;
+            projectile.owner = e.owner;
+            projectile.velocity = e.velocity;
+            projectile.position = e.position;
+
+            e.args.Handled = isModified;
+            if (isModified) NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+
+            ProjectileTracker.InsertProjectile(e.identity, e.type, e.owner, e.weapon);
         }
 
         /// <summary>

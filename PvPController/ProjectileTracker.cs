@@ -15,6 +15,24 @@ namespace PvPController {
             }
         }
 
+        public static int FindFreeIndex() {
+            for (int x = 0; x < Main.projectile.Length; x++) {
+                if (!Main.projectile[x].active)
+                    return x;
+            }
+
+            return -1;
+        }
+
+        public static int GetProjectileIndex(int identity, int owner) {
+            for (int x = 0; x < Main.projectile.Length; x++) {
+                if (Main.projectile[x].identity == identity && Main.projectile[x].owner == owner)
+                    return x;
+            }
+
+            return -1;
+        }
+
         public static Projectile GetMainProjectile(int identity, int type, int owner) {
             return Main.projectile.Where(c => c != null)
                 .Where(c => c.active)
