@@ -47,6 +47,7 @@ namespace PvPController.Network {
 
             this.attacker = attacker;
             this.target = target;
+
             this.projectile = playerHitReason.SourceProjectileIndex == -1 ?
                 null : ProjectileTracker.projectiles[playerHitReason.SourceProjectileIndex];
             this.weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
