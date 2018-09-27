@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Timers;
 using Terraria;
 
 namespace PvPController {
@@ -12,21 +13,13 @@ namespace PvPController {
         public static void InitializeTracker() {
             for(int x = 0; x < projectiles.Length; x++) {
                 projectiles[x] = new PvPProjectile();
+                projectiles[x].SetDefaults(0);
             }
         }
 
         public static int FindFreeIndex() {
             for (int x = 0; x < Main.projectile.Length; x++) {
                 if (!Main.projectile[x].active)
-                    return x;
-            }
-
-            return -1;
-        }
-
-        public static int GetProjectileIndex(int identity, int owner) {
-            for (int x = 0; x < Main.projectile.Length; x++) {
-                if (Main.projectile[x].identity == identity && Main.projectile[x].owner == owner)
                     return x;
             }
 
@@ -46,8 +39,9 @@ namespace PvPController {
             projectiles[index].PerformProjectileAction();
         }
 
-        public static void RemoveProjectile(int index) {
-            projectiles[index] = null;
+        public static void SetInactive(int index) {
+            projectiles[index].SetDefaults(0);
+            projectiles[index].active = false;
         }
     }
 }

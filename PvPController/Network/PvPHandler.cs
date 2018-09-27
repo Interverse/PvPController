@@ -15,7 +15,6 @@ namespace PvPController.Network {
             DataHandler.PlayerHurt += OnPlayerHurtted;
             DataHandler.PlayerUpdated += OnPlayerUpdated;
             DataHandler.PvPToggled += OnPvPToggled;
-            DataHandler.ProjectileDestroyed += OnProjectileDestroyed;
             DataHandler.ProjectileNew += OnNewProjectile;
         }
 
@@ -23,12 +22,7 @@ namespace PvPController.Network {
             DataHandler.PlayerHurt -= OnPlayerHurtted;
             DataHandler.PlayerUpdated -= OnPlayerUpdated;
             DataHandler.PvPToggled -= OnPvPToggled;
-            DataHandler.ProjectileDestroyed -= OnProjectileDestroyed;
             DataHandler.ProjectileNew -= OnNewProjectile;
-        }
-
-        private void OnProjectileDestroyed(object sender, ProjectileDestroyArgs e) {
-            ProjectileTracker.RemoveProjectile(e.projectileIndex);
         }
 
         /// <summary>
@@ -40,13 +34,15 @@ namespace PvPController.Network {
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPController.config.enablePlugin) return;
 
+            if (ProjectileTracker.projectiles[e.identity].type == e.type) return;
+
             bool isModified = false;
-            int index = e.identity;
+            int index = ProjectileTracker.FindFreeIndex();
 
             if (e.attacker == null || !e.attacker.TPlayer.hostile) return;
             //Resets a minion's timer if another minion of the same type is spawned on the same index
-            if (ProjectileTracker.projectiles[e.identity] != null && ProjectileTracker.projectiles[e.identity].type == e.type && MinionUtils.minionStats.ContainsKey(e.type))
-                ProjectileTracker.projectiles[e.identity].timer.Dispose();
+            if (ProjectileTracker.projectiles[index] != null && ProjectileTracker.projectiles[index].type == e.type && MinionUtils.minionStats.ContainsKey(e.type))
+                ProjectileTracker.projectiles[index].timer.Dispose();
 
             if (Database.itemInfo[e.weapon.netID].shoot > 0 && Database.itemInfo[e.weapon.netID].isShootModded) {
                 e.type = Database.itemInfo[e.weapon.netID].shoot;
@@ -60,17 +56,17 @@ namespace PvPController.Network {
 
             var projectile = Main.projectile[index];
             projectile.SetDefaults(e.type);
-            projectile.identity = e.identity;
+            projectile.identity = index;
             projectile.damage = e.damage;
             projectile.active = true;
             projectile.owner = e.owner;
             projectile.velocity = e.velocity;
             projectile.position = e.position;
 
+            ProjectileTracker.InsertProjectile(index, e.type, e.owner, e.weapon);
+
             e.args.Handled = isModified;
             if (isModified) NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-
-            ProjectileTracker.InsertProjectile(e.identity, e.type, e.owner, e.weapon);
         }
 
         /// <summary>

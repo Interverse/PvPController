@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.ID;
 using TShockAPI;
 using TShockAPI.DB;
 
@@ -147,7 +148,7 @@ namespace PvPController {
 
                         int damage = item.damage;
                         int defense = item.defense;
-                        int shoot = item.shoot;
+                        int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
 
                         cmd.CommandText =
                             "INSERT INTO Items (ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10})"

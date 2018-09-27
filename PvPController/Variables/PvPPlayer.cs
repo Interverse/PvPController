@@ -152,7 +152,7 @@ namespace PvPController.Variables {
         public void KnockBack(double knockback, double angle, double hitDirection = 1) {
             if (this.TPlayer.noKnockback) return;
             
-            if (PvPController.isSSC) {
+            if (Main.ServerSideCharacter) {
                 this.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
                 this.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
 

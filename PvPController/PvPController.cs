@@ -24,8 +24,6 @@ namespace PvPController {
         public static PvPPlayer[] pvpers = new PvPPlayer[Main.maxPlayers];
         public static PvPHandler pvpHandler = new PvPHandler();
         public static Timer timer = new Timer(500) { Enabled = true };
-
-        public static bool isSSC;
         
         public override string Name => "PvP Controller";
         public override string Author => "Johuan";
@@ -55,8 +53,6 @@ namespace PvPController {
             PlayerHooks.PlayerPostLogin += OnPlayerPostLogin;
 
             timer.Elapsed += PvPTimerElapsed;
-
-            isSSC = Main.ServerSideCharacter;
 
             PluginCommands.registerCommands();
         }
@@ -98,13 +94,13 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Tries to set config values to default values if being generated
-        /// for the first time.
+        /// Sets config values and initializes projectile tracking
         /// </summary>
         /// <param name="args"></param>
         private void OnGamePostInitialize(EventArgs args) {
             config.SetDefaultValues();
             config.Write(Config.configPath);
+            ProjectileTracker.InitializeTracker();
         }
 
         /// <summary>
