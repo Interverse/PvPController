@@ -20,7 +20,8 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", Reload, "reload", "readconfig") { HelpText = "Sets config settings to server" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteConfig, "writeconfig") { HelpText = "Writes server settings to config" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", ResetConfig, "resetconfig") { HelpText = "Reset server config to default values" });
-            
+            Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteDocumentation, "writedocumentation") { HelpText = "Writes documentation to a .txt file in /tshock" });
+
             Commands.ChatCommands.Add(new Command("pvpcontroller.damage", ModDamage, "moddamage", "md") { HelpText = "Modifies damage settings. " + damageParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.buff", ModBuff, "modbuff", "mb") { HelpText = "Modifies buff settings. " +  buffParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.reflect", ModReflect, "modreflect", "mr") { HelpText = "Modifies reflect damage settings. " + reflectParameters });
@@ -849,6 +850,11 @@ namespace PvPController {
         private static void Reload(CommandArgs args) {
             PvPController.config = Config.Read(Config.configPath);
             args.Player.SendSuccessMessage("PvP config reloaded to server.");
+        }
+
+        private static void WriteDocumentation(CommandArgs args) {
+            PvPController.config.WriteDocumentation();
+            args.Player.SendSuccessMessage("Wrote documentation in a .txt file in /tshock.");
         }
     }
 }

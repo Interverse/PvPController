@@ -64,7 +64,7 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Parses all item, projectile, and buff changes and puts it into a .txt file in the /tshock/ folder.
+        /// Parses all item, projectile, and buff changes and puts it into a .txt file in the /tshock folder.
         /// </summary>
         public void WriteDocumentation() {
             StreamWriter sw = new StreamWriter(documentationPath, false);
@@ -77,7 +77,16 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.melee && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, Database.itemInfo[x].damage));
+                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                        .SFormat(Lang.GetItemName(x).Value,
+                        x,
+                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].shoot > 0
+                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                                Database.itemInfo[x].shootSpeed > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                                    : "")
+                            : ""));
             }
 
             sw.WriteLine("");
@@ -89,7 +98,16 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.ranged && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, Database.itemInfo[x].damage));
+                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                        .SFormat(Lang.GetItemName(x).Value,
+                        x,
+                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].shoot > 0
+                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot), 
+                                Database.itemInfo[x].shootSpeed > 0 
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                                    : "")
+                            : ""));
             }
 
             sw.WriteLine("");
@@ -101,7 +119,16 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.magic && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).ToString(), x, Database.itemInfo[x].damage));
+                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                        .SFormat(Lang.GetItemName(x).Value,
+                        x,
+                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].shoot > 0
+                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                                Database.itemInfo[x].shootSpeed > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                                    : "")
+                            : ""));
             }
 
             sw.WriteLine("");
@@ -113,11 +140,20 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.thrown && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetItemName(x).Value, x, Database.itemInfo[x].damage));
+                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                        .SFormat(Lang.GetItemName(x).Value,
+                        x,
+                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].shoot > 0
+                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                                Database.itemInfo[x].shootSpeed > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                                    : "")
+                            : ""));
             }
 
             sw.WriteLine("");
-            sw.WriteLine("Changed Projectile Damage Changes");
+            sw.WriteLine("Projectile Damage Changes");
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.projectileInfo.Count; x++) {
