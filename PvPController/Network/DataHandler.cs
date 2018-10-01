@@ -21,7 +21,7 @@ namespace PvPController.Network {
         public static event EventHandler<TogglePvPArgs> PvPToggled;
         public static event EventHandler<PlayerSlotArgs> PlayerSlotUpdated;
 
-        public static void OnPlayerHurtted(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
+        public static void OnPlayerHurt(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
             if (PlayerHurt != null)
                 PlayerHurt(typeof(DataHandler), new PlayerHurtArgs(args, data, attacker));
         }

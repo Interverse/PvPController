@@ -12,6 +12,7 @@ namespace PvPController.Variables {
     public class PvPPlayer : TSPlayer {
 
         DateTime lastHit;
+        public ProjectileTracker projTracker = new ProjectileTracker();
         public PvPPlayer lastHitBy = null;
         public PvPItem lastHitWeapon = null;
         public PvPProjectile lastHitProjectile = null;
@@ -59,8 +60,9 @@ namespace PvPController.Variables {
         /// <param name="projectile"></param>
         /// <returns></returns>
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || Database.projectileInfo[projectile.type].damage < 1) ?
-                weapon.GetPvPDamage(attacker) : projectile.GetConfigDamage();
+            int damage = (projectile == null || Database.projectileInfo[projectile.type].damage < 1) 
+                ? weapon.GetPvPDamage(attacker) 
+                : projectile.GetConfigDamage();
 
             damage += PvPUtils.GetAmmoDamage(attacker, weapon);
             damage += PvPUtils.GenerateDamageVariance();
@@ -121,7 +123,7 @@ namespace PvPController.Variables {
         }
 
         /// <summary>
-        /// Damages players. Custom knockback and criticals will apply if enabled.
+        /// Damages players. Criticals and custom knockback will apply if enabled.
         /// </summary>
         public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection, bool isCrit) {
             Color color = Color.DarkTurquoise;
@@ -133,8 +135,11 @@ namespace PvPController.Variables {
             }
 
             if (PvPController.config.enableKnockback) {
-                this.KnockBack(weapon.GetKnockback(attacker), attacker.GetAngleFrom(this.TPlayer.position), IsLeftFrom(attacker.TPlayer.position) ? -hitDirection : hitDirection);
-                hitDirection = 0;
+                float knockback = weapon.GetKnockback(attacker);
+                if (knockback <= PvPController.config.knockbackThreshold) {
+                    this.KnockBack(weapon.GetKnockback(attacker), attacker.GetAngleFrom(this.TPlayer.position), IsLeftFrom(attacker.TPlayer.position) ? -hitDirection : hitDirection);
+                    hitDirection = 0;
+                }
             }
 
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
@@ -149,24 +154,30 @@ namespace PvPController.Variables {
         /// on non-SSC servers, the method will temporarily enable SSC to set player
         /// velocity.
         /// </summary>
-        public void KnockBack(double knockback, double angle, double hitDirection = 1) {
+        public void KnockBack(double magnitude, double angle, double hitDirection = 1) {
             if (this.TPlayer.noKnockback) return;
-            
-            if (Main.ServerSideCharacter) {
-                this.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
-                this.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
 
-                NetMessage.SendData(13, -1, -1, null, this.Index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-            } else {
+            bool isSSC = Main.ServerSideCharacter;
+            
+            if (!isSSC) {
                 Main.ServerSideCharacter = true;
                 NetMessage.SendData(7, this.Index, -1, null, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
                 this.IgnoreSSCPackets = true;
+            }
 
-                this.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
-                this.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
+            if (this.TPlayer.velocity.Length() <= magnitude) {
+                if (Math.Abs(this.TPlayer.velocity.Length() + magnitude) < magnitude) {
+                    this.TPlayer.velocity.X += (float)(magnitude * Math.Cos(angle) * hitDirection);
+                    this.TPlayer.velocity.Y += (float)(magnitude * Math.Sin(angle));
+                } else {
+                    this.TPlayer.velocity.X = (float)(magnitude * Math.Cos(angle) * hitDirection);
+                    this.TPlayer.velocity.Y = (float)(magnitude * Math.Sin(angle));
+                }
+            }
 
-                NetMessage.SendData(13, -1, -1, null, this.Index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+            NetMessage.SendData(13, -1, -1, null, this.Index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
                 
+            if (!isSSC) {
                 Main.ServerSideCharacter = false;
                 NetMessage.SendData(7, this.Index, -1, null, 0, 0.0f, 0.0f, 0.0f, 0, 0, 0);
                 this.IgnoreSSCPackets = false;

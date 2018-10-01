@@ -10,6 +10,7 @@ namespace PvPController.Utilities {
         public string name { get; set; }
         public int damage { get; set; }
         public int shoot { get; set; }
+        public float knockback { get; set; }
         public bool isShootModded { get; set; }
         public float shootSpeed { get; set; }
         public int defense { get; set; }
@@ -25,6 +26,7 @@ namespace PvPController.Utilities {
             isShootModded = false;
             shootSpeed = -1;
             defense = 0;
+            knockback = 0;
 
             debuff = new BuffDuration(0, 0);
             selfBuff = new BuffDuration(0, 0);

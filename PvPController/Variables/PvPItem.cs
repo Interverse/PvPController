@@ -59,7 +59,7 @@ namespace PvPController.Variables {
         /// <param name="owner"></param>
         /// <returns></returns>
         public float GetKnockback(PvPPlayer owner) {
-            return owner.TPlayer.GetWeaponKnockback(this, knockback);
+            return owner.TPlayer.GetWeaponKnockback(this, Database.itemInfo[netID].knockback);
         }
 
         /// <summary>

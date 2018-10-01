@@ -26,6 +26,21 @@ namespace PvPController.Utilities {
             return weapon;
         }
 
+        public static int FindFreeIndex() {
+            for (int x = 0; x < Main.projectile.Length; x++) {
+                if (!Main.projectile[x].active)
+                    return x;
+            }
+
+            return -1;
+        }
+
+        public static Projectile GetMainProjectile(int identity, int type, int owner) {
+            return Main.projectile.Where(c => c != null)
+                .Where(c => c.active)
+                .SingleOrDefault(c => c.identity == identity && c.type == type && c.owner == owner);
+        }
+
         //Defines a weapon to a projectile that spawns from another projectile
         public static Dictionary<int, int> fromWhatItem = new Dictionary<int, int> {
             { 19, 119 }, //Flamarang
@@ -54,7 +69,6 @@ namespace PvPController.Utilities {
             { 401, 2590 }, //Molotov Cocktail
             { 402, 2590 }, //Molotov Cocktail
             { 405, 2611 }, //Flairon
-            { 443, 2796 }, //Electrosphere Launcher
             { 491, 3030 }, //Flying Knife
             { 493, 3051 }, //Crystal Vile Shard
             { 494, 3051 }, //Crystal Vile Shard

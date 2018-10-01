@@ -12,14 +12,14 @@ using TShockAPI;
 namespace PvPController.Network {
     public class PvPHandler {
         public PvPHandler() {
-            DataHandler.PlayerHurt += OnPlayerHurtted;
+            DataHandler.PlayerHurt += OnPlayerHurt;
             DataHandler.PlayerUpdated += OnPlayerUpdated;
             DataHandler.PvPToggled += OnPvPToggled;
             DataHandler.ProjectileNew += OnNewProjectile;
         }
 
         public void Unsubscribe() {
-            DataHandler.PlayerHurt -= OnPlayerHurtted;
+            DataHandler.PlayerHurt -= OnPlayerHurt;
             DataHandler.PlayerUpdated -= OnPlayerUpdated;
             DataHandler.PvPToggled -= OnPvPToggled;
             DataHandler.ProjectileNew -= OnNewProjectile;
@@ -34,15 +34,12 @@ namespace PvPController.Network {
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPController.config.enablePlugin) return;
 
-            if (ProjectileTracker.projectiles[e.identity].type == e.type) return;
+            if (Main.projectile[e.identity].active && Main.projectile[e.identity].type == e.type) return;
 
             bool isModified = false;
-            int index = ProjectileTracker.FindFreeIndex();
+            int index = ProjectileUtils.FindFreeIndex();
 
             if (e.attacker == null || !e.attacker.TPlayer.hostile) return;
-            //Resets a minion's timer if another minion of the same type is spawned on the same index
-            if (ProjectileTracker.projectiles[index] != null && ProjectileTracker.projectiles[index].type == e.type && MinionUtils.minionStats.ContainsKey(e.type))
-                ProjectileTracker.projectiles[index].timer.Dispose();
 
             if (Database.itemInfo[e.weapon.netID].shoot > 0 && Database.itemInfo[e.weapon.netID].isShootModded) {
                 e.type = Database.itemInfo[e.weapon.netID].shoot;
@@ -53,7 +50,7 @@ namespace PvPController.Network {
                 e.velocity = Vector2.Normalize(e.velocity) * Database.itemInfo[e.weapon.netID].shootSpeed;
                 isModified = true;
             }
-
+            
             var projectile = Main.projectile[index];
             projectile.SetDefaults(e.type);
             projectile.identity = index;
@@ -63,7 +60,7 @@ namespace PvPController.Network {
             projectile.velocity = e.velocity;
             projectile.position = e.position;
 
-            ProjectileTracker.InsertProjectile(index, e.type, e.owner, e.weapon);
+            e.attacker.projTracker.InsertProjectile(index, e.type, e.owner, e.weapon);
 
             e.args.Handled = isModified;
             if (isModified) NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
@@ -75,15 +72,17 @@ namespace PvPController.Network {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnPlayerHurtted(object sender, PlayerHurtArgs e) {
+        private void OnPlayerHurt(object sender, PlayerHurtArgs e) {
             if (!PvPController.config.enablePlugin) return;
+
+            if (e.target == null || !e.target.ConnectionAlive || !e.target.Active) return;
 
             e.args.Handled = true;
 
             if (!e.target.CanBeHit()) {
                 return;
             }
-            
+
             e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.knockback, PvPUtils.IsCrit(e.crit));
             e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
 

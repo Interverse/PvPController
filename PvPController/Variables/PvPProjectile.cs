@@ -11,25 +11,18 @@ namespace PvPController.Variables {
     /// perform pvp based calculations and actions.
     /// </summary>
     public class PvPProjectile : Projectile {
-
-        public Timer timer = new Timer();
+        
         public PvPItem itemOriginated;
         public PvPPlayer ownerProjectile;
-
-        public PvPProjectile() { }
 
         public PvPProjectile(int type) {
             this.SetDefaults(type);
             this.identity = -1;
-
-            timer.Elapsed += ProjectileElapsed;
         }
 
         public PvPProjectile(int type, int identity) {
             this.SetDefaults(type);
             this.identity = identity;
-
-            timer.Elapsed += ProjectileElapsed;
         }
 
         /// <summary>
@@ -78,7 +71,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public Vector2 GetPosition() {
-            return ProjectileTracker.GetMainProjectile(this.identity, this.type, this.ownerProjectile.Index).position;
+            return ProjectileUtils.GetMainProjectile(this.identity, this.type, this.ownerProjectile.Index).position;
         }
 
         /// <summary>
@@ -99,64 +92,6 @@ namespace PvPController.Variables {
                         }
                     }
                     break;
-
-                default:
-                    if (PvPController.config.enableMinions && MinionUtils.minionStats.ContainsKey(type) && !timer.Enabled) {
-                        timer.Interval = MinionUtils.minionStats[type].fireRate * 1000;
-                        timer.Enabled = true;
-                    }
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Performs timer specific actions for projectiles, such as minions.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ProjectileElapsed(object sender, ElapsedEventArgs e) {
-            Vector2 position = this.GetPosition();
-
-            if (position == null && timer.Enabled) {
-                timer.Dispose();
-                return;
-            }
-
-            if (PvPController.config.enableMinions) {
-                for (int x = 0; x < PvPController.pvpers.Length; x++) {
-                    PvPPlayer target = PvPController.pvpers[x];
-                    int damage = ownerProjectile.GetDamageDealt(ownerProjectile, itemOriginated, this);
-
-                    if (ownerProjectile.Index == target.Index) continue;
-                    if (!target.TPlayer.hostile || target.TPlayer.dead) continue;
-
-                    float startX = position.X + MinionUtils.minionStats[type].offsetX;
-                    float startY = position.Y + MinionUtils.minionStats[type].offsetY;
-
-                    if (Vector2.Distance(new Vector2(startX, startY), target.TPlayer.position) <= MinionUtils.minionStats[type].radius * 16) {
-                        Vector2 direction = Vector2.Normalize(target.TPlayer.position - position);
-
-                        if (type == 643) {
-                            Random random = new Random();
-                            startX = target.X + (random.Next(-3, 3) * 16);
-                            startY = target.Y + (random.Next(-3, 3) * 16);
-                        } else if (type == 623) {
-                            startX = target.X + 9;
-                            startY = target.Y + 20;
-                        }
-
-                        int velocityX = (int)(direction.X * MinionUtils.minionStats[type].velocity);
-                        int velocityY = (int)(direction.Y * MinionUtils.minionStats[type].velocity);
-
-                        int index = Projectile.NewProjectile(startX, startY, velocityX, velocityY,
-                            MinionUtils.minionStats[type].projectile, damage, target.Index, owner);
-                        NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
-
-                        ProjectileTracker.InsertProjectile(index, MinionUtils.minionStats[type].projectile, ownerProjectile.Index, ProjectileUtils.GetProjectileWeapon(ownerProjectile, this.type));
-
-                        return;
-                    }
-                }
             }
         }
     }

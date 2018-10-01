@@ -20,6 +20,8 @@ namespace PvPController {
     [ApiVersion(2, 1)]
     public class PvPController : TerrariaPlugin {
 
+        public static bool debug = false;
+
         public static Config config;
         public static PvPPlayer[] pvpers = new PvPPlayer[Main.maxPlayers];
         public static PvPHandler pvpHandler = new PvPHandler();
@@ -94,13 +96,13 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Sets config values and initializes projectile tracking
+        /// Sets default config values if a config doesn't exist 
+        /// after the server has loaded the game
         /// </summary>
         /// <param name="args"></param>
         private void OnGamePostInitialize(EventArgs args) {
             config.SetDefaultValues();
             config.Write(Config.configPath);
-            ProjectileTracker.InitializeTracker();
         }
 
         /// <summary>
@@ -129,7 +131,7 @@ namespace PvPController {
 
             switch (args.MsgID) {
                 case PacketTypes.PlayerHurtV2:
-                    DataHandler.OnPlayerHurtted(args, data, attacker);
+                    DataHandler.OnPlayerHurt(args, data, attacker);
                     break;
 
                 case PacketTypes.TogglePvp:

@@ -9,7 +9,7 @@ using TShockAPI;
 
 namespace PvPController {
     public class PluginCommands {
-        private static string damageParameters = "Parameters: enable (e), critical (c), damagevariance (dv), weapon (w), projectile (p)";
+        private static string weaponParameters = "Parameters: enable (e), critical (c), damagevariance (dv), damage (d), projectile (p), knockback (k)";
         private static string buffParameters = "Parameters: enable (e), projectilebuff (pb), projectileselfbuff (psb), weaponbuff (wb), weaponselfbuff(wsb), buffdebuff (bd), buffselfbuff (bsb)";
         private static string reflectParameters = "Parameters: enable (e), turtle, thorns";
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
@@ -22,7 +22,7 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", ResetConfig, "resetconfig") { HelpText = "Reset server config to default values" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteDocumentation, "writedocumentation") { HelpText = "Writes documentation to a .txt file in /tshock" });
 
-            Commands.ChatCommands.Add(new Command("pvpcontroller.damage", ModDamage, "moddamage", "md") { HelpText = "Modifies damage settings. " + damageParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.weapon", ModWeapon, "modweapon", "mw") { HelpText = "Modifies weapon settings. " + weaponParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.buff", ModBuff, "modbuff", "mb") { HelpText = "Modifies buff settings. " +  buffParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.reflect", ModReflect, "modreflect", "mr") { HelpText = "Modifies reflect damage settings. " + reflectParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.armor", ModArmor, "modarmor", "ma") { HelpText = "Modifies armor settings. " + armorParameters });
@@ -30,6 +30,45 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.misc", ModMisc, "modmisc", "mm") { HelpText = "Modifies miscellaneous settings. " + miscParameters });
             
             Commands.ChatCommands.Add(new Command(ToggleTooltip, "toggletooltip", "tt") { HelpText = "Toggles damage/defense tooltip popups." });
+            
+            Commands.ChatCommands.Add(new Command("pvpcontroller.dev", MemesFrom2006, "memesfrom2006") { HelpText = "Writes documentation to a .txt file in /tshock" });
+        }
+
+        private static void MemesFrom2006(CommandArgs args) {
+            float knockback = 0;
+
+            if (args.Parameters.Count == 1) {
+                if (!float.TryParse(args.Parameters[0], out knockback)) {
+                    args.Player.SendErrorMessage("Failed");
+                    return;
+                }
+            }
+
+            Mono.Data.Sqlite.SqliteConnection conn = new Mono.Data.Sqlite.SqliteConnection(Database.db.ConnectionString);
+
+            conn.Open();
+
+            using (Mono.Data.Sqlite.SqliteCommand cmd = new Mono.Data.Sqlite.SqliteCommand(conn)) {
+                using (Mono.Data.Sqlite.SqliteTransaction transaction = conn.BeginTransaction()) {
+                    for (int x = 0; x < Main.maxItemTypes; x++) {
+                        Item item = new Item();
+                        item.SetDefaults(x);
+
+                        if (item.knockBack != 0) {
+                            Database.itemInfo[x].knockback = knockback;
+                            cmd.CommandText = "UPDATE Items SET Knockback = {0} WHERE ID = {1}"
+                                .SFormat(knockback, x);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            conn.Close();
+
+            args.Player.SendSuccessMessage("Knockback changed to {0} for all weapons".SFormat(knockback));
         }
 
         private static void ToggleTooltip(CommandArgs args) {
@@ -39,9 +78,9 @@ namespace PvPController {
             Interface.ClearInterface(PvPController.pvpers[args.Player.Index]);
         }
 
-        private static void ModDamage(CommandArgs args) {
+        private static void ModWeapon(CommandArgs args) {
             if (args.Parameters.Count == 0) {
-                args.Player.SendErrorMessage("Wrong Syntax. " + damageParameters);
+                args.Player.SendErrorMessage("Wrong Syntax. " + weaponParameters);
                 return;
             }
 
@@ -70,7 +109,7 @@ namespace PvPController {
                                 PvPController.config.upperDamageVariance = upperVariance;
                                 PvPController.config.lowerDamageVariance = lowerVariance;
                             } else {
-                                args.Player.SendErrorMessage("Syntax: /moddamage damagevariance <variance>");
+                                args.Player.SendErrorMessage("Syntax: /modweapon damagevariance <variance>");
                             }
 
                             args.Player.SendSuccessMessage("Damage variance set to between " + lowerVariance + " and " + upperVariance + ".");
@@ -80,19 +119,19 @@ namespace PvPController {
                                 PvPController.config.upperDamageVariance = upperVariance;
                                 PvPController.config.lowerDamageVariance = lowerVariance;
                             } else {
-                                args.Player.SendErrorMessage("Syntax: /moddamage damagevariance <lowervariance> <uppervariance>");
+                                args.Player.SendErrorMessage("Syntax: /modweapon damagevariance <lowervariance> <uppervariance>");
                             }
 
                             args.Player.SendSuccessMessage("Damage variance set to between " + lowerVariance + " and " + upperVariance + ".");
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /moddamage damagevariance <lowervariance> <uppervariance>");
+                            args.Player.SendErrorMessage("Syntax: /modweapon damagevariance <lowervariance> <uppervariance>");
                             break;
                     }
                     break;
 
-                case "weapon":
-                case "w":
+                case "damage":
+                case "d":
                     int itemid = 0;
                     int damage;
 
@@ -124,7 +163,40 @@ namespace PvPController {
                             args.Player.SendSuccessMessage("Base damage of " + Lang.GetItemName(itemid).ToString() + " set to " + damage);
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /moddamage weapon <item id or \"name\"> <damage>");
+                            args.Player.SendErrorMessage("Syntax: /modweapon damage <item id or \"name\"> <damage>");
+                            break;
+                    }
+                    break;
+
+                case "knockback":
+                case "kb":
+                case "k":
+                    int itemID = 0;
+                    float knockback;
+
+                    switch (args.Parameters.Count) {
+                        case 3:
+                            if (!Int32.TryParse(args.Parameters[1], out itemID)) {
+                                List<Item> foundItems = TShock.Utils.GetItemByName(args.Parameters[1]);
+                                if (foundItems.Count != 1) {
+                                    args.Player.SendErrorMessage("Cannot find item or found multiple possible items for " + args.Parameters[1]);
+                                    return;
+                                }
+                                itemID = foundItems[0].netID;
+                            }
+
+                            if (!float.TryParse(args.Parameters[2], out knockback)) {
+                                args.Player.SendErrorMessage("Invalid knockback value of " + args.Parameters[2]);
+                                return;
+                            }
+
+                            Database.itemInfo[itemID].knockback = knockback;
+                            Database.UpdateItems(Database.itemInfo[itemID]);
+
+                            args.Player.SendSuccessMessage("Base knockback of " + Lang.GetItemName(itemID).ToString() + " set to " + knockback);
+                            break;
+                        default:
+                            args.Player.SendErrorMessage("Syntax: /modweapon knockback <item id or \"name\"> <damage>");
                             break;
                     }
                     break;
@@ -152,13 +224,13 @@ namespace PvPController {
                             args.Player.SendSuccessMessage("Base projectile damage of " + Lang.GetProjectileName(projectileid).ToString() + " set to " + projectileDamage);
                             break;
                         default:
-                            args.Player.SendErrorMessage("Syntax: /moddamage projectile <projectile id> <damage>");
+                            args.Player.SendErrorMessage("Syntax: /modweapon projectile <projectile id> <damage>");
                             break;
                     }
                     break;
 
                 default:
-                    args.Player.SendErrorMessage("Wrong Syntax. " + damageParameters);
+                    args.Player.SendErrorMessage("Wrong Syntax. " + weaponParameters);
                     break;
             }
         }
@@ -634,6 +706,19 @@ namespace PvPController {
 
                 case "knockback":
                 case "k":
+                    float knockback = 0;
+
+                    if (args.Parameters.Count > 1) {
+                        if (float.TryParse(args.Parameters[1], out knockback)) {
+                            PvPController.config.knockbackThreshold = knockback;
+                            args.Player.SendSuccessMessage("Knockback threshold set to " + knockback);
+                        } else {
+                            args.Player.SendErrorMessage("Wrong syntax. /miscmod knockback <optional:threshold>");
+                        }
+
+                        return;
+                    }
+
                     PvPController.config.enableKnockback = !PvPController.config.enableKnockback;
                     args.Player.SendSuccessMessage("Custom knockback: " + PvPController.config.enableKnockback);
                     break;

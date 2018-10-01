@@ -40,6 +40,8 @@ namespace PvPController {
         public bool enableBuffDebuff;
         public bool enableBuffSelfBuff;
 
+        public double knockbackThreshold;
+
         public double iframeTime;
 
         public int lowerDamageVariance;
@@ -77,16 +79,17 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.melee && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].damage + " damage",
                         Database.itemInfo[x].shoot > 0
-                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
                                 Database.itemInfo[x].shootSpeed > 0
                                     ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
                                     : "")
-                            : ""));
+                            : "",
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
             }
 
             sw.WriteLine("");
@@ -98,16 +101,17 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.ranged && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].damage + " damage",
                         Database.itemInfo[x].shoot > 0
-                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot), 
-                                Database.itemInfo[x].shootSpeed > 0 
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                                Database.itemInfo[x].shootSpeed > 0
                                     ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
                                     : "")
-                            : ""));
+                            : "",
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
             }
 
             sw.WriteLine("");
@@ -119,16 +123,17 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.magic && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].damage + " damage",
                         Database.itemInfo[x].shoot > 0
-                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
                                 Database.itemInfo[x].shootSpeed > 0
                                     ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
                                     : "")
-                            : ""));
+                            : "",
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
             }
 
             sw.WriteLine("");
@@ -140,16 +145,17 @@ namespace PvPController {
                 item.SetDefaults(x);
 
                 if (item.thrown && Database.itemInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage{3}"
+                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage,
+                        Database.itemInfo[x].damage + " damage",
                         Database.itemInfo[x].shoot > 0
-                            ? " shooting {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
                                 Database.itemInfo[x].shootSpeed > 0
                                     ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
                                     : "")
-                            : ""));
+                            : "",
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
             }
 
             sw.WriteLine("");

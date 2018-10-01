@@ -29,7 +29,7 @@ namespace PvPController.Network {
 
         public PlayerHurtArgs(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
             this.args = args;
-
+            
             PvPPlayer target = PvPController.pvpers[data.ReadByte()];
             PlayerDeathReason playerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
             if (target == null || !target.ConnectionAlive || !target.Active) return;
@@ -49,7 +49,7 @@ namespace PvPController.Network {
             this.target = target;
 
             this.projectile = playerHitReason.SourceProjectileIndex == -1 ?
-                null : ProjectileTracker.projectiles[playerHitReason.SourceProjectileIndex];
+                null : attacker.projTracker.projectiles[playerHitReason.SourceProjectileType];
             this.weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
             this.inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : int1;
             this.damageReceived = target.GetDamageReceived(inflictedDamage);
