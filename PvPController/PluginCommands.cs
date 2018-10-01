@@ -710,10 +710,10 @@ namespace PvPController {
 
                     if (args.Parameters.Count > 1) {
                         if (float.TryParse(args.Parameters[1], out knockback)) {
-                            PvPController.config.knockbackThreshold = knockback;
-                            args.Player.SendSuccessMessage("Knockback threshold set to " + knockback);
+                            PvPController.config.knockbackMinimum = knockback;
+                            args.Player.SendSuccessMessage("Knockback minimum set to " + knockback);
                         } else {
-                            args.Player.SendErrorMessage("Wrong syntax. /miscmod knockback <optional:threshold>");
+                            args.Player.SendErrorMessage("Wrong syntax. /miscmod knockback <optional:minimum>");
                         }
 
                         return;

@@ -136,7 +136,7 @@ namespace PvPController.Variables {
 
             if (PvPController.config.enableKnockback) {
                 float knockback = weapon.GetKnockback(attacker);
-                if (knockback <= PvPController.config.knockbackThreshold) {
+                if (Math.Abs(knockback) >= PvPController.config.knockbackMinimum) {
                     this.KnockBack(weapon.GetKnockback(attacker), attacker.GetAngleFrom(this.TPlayer.position), IsLeftFrom(attacker.TPlayer.position) ? -hitDirection : hitDirection);
                     hitDirection = 0;
                 }
@@ -154,7 +154,7 @@ namespace PvPController.Variables {
         /// on non-SSC servers, the method will temporarily enable SSC to set player
         /// velocity.
         /// </summary>
-        public void KnockBack(double magnitude, double angle, double hitDirection = 1) {
+        public void KnockBack(double knockback, double angle, double hitDirection = 1) {
             if (this.TPlayer.noKnockback) return;
 
             bool isSSC = Main.ServerSideCharacter;
@@ -165,13 +165,13 @@ namespace PvPController.Variables {
                 this.IgnoreSSCPackets = true;
             }
 
-            if (this.TPlayer.velocity.Length() <= magnitude) {
-                if (Math.Abs(this.TPlayer.velocity.Length() + magnitude) < magnitude) {
-                    this.TPlayer.velocity.X += (float)(magnitude * Math.Cos(angle) * hitDirection);
-                    this.TPlayer.velocity.Y += (float)(magnitude * Math.Sin(angle));
+            if (this.TPlayer.velocity.Length() <= Math.Abs(knockback)) {
+                if (Math.Abs(this.TPlayer.velocity.Length() + knockback) < knockback) {
+                    this.TPlayer.velocity.X += (float)(knockback * Math.Cos(angle) * hitDirection);
+                    this.TPlayer.velocity.Y += (float)(knockback * Math.Sin(angle));
                 } else {
-                    this.TPlayer.velocity.X = (float)(magnitude * Math.Cos(angle) * hitDirection);
-                    this.TPlayer.velocity.Y = (float)(magnitude * Math.Sin(angle));
+                    this.TPlayer.velocity.X = (float)(knockback * Math.Cos(angle) * hitDirection);
+                    this.TPlayer.velocity.Y = (float)(knockback * Math.Sin(angle));
                 }
             }
 

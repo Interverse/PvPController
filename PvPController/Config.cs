@@ -40,7 +40,7 @@ namespace PvPController {
         public bool enableBuffDebuff;
         public bool enableBuffSelfBuff;
 
-        public double knockbackThreshold;
+        public double knockbackMinimum;
 
         public double iframeTime;
 
