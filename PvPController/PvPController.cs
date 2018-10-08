@@ -46,7 +46,6 @@ namespace PvPController {
             }
             
             Database.ConnectDB();
-            Database.LoadDatabase();
 
             ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
             ServerApi.Hooks.NetGetData.Register(this, GetData);
@@ -101,7 +100,8 @@ namespace PvPController {
         /// </summary>
         /// <param name="args"></param>
         private void OnGamePostInitialize(EventArgs args) {
-            config.SetDefaultValues();
+            if (!config.SetDefaultValues())
+                Database.LoadDatabase();
             config.Write(Config.configPath);
         }
 

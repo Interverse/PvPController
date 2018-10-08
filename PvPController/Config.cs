@@ -227,7 +227,7 @@ namespace PvPController {
         /// <summary>
         /// Sets all default values in the config and the sql(ite) database.
         /// </summary>
-        public void SetDefaultValues() {
+        public bool SetDefaultValues() {
             if (firstConfigGeneration) {
                 enablePlugin = true;
 
@@ -259,6 +259,8 @@ namespace PvPController {
                 enableBuffDebuff = true;
                 enableBuffSelfBuff = true;
 
+                knockbackMinimum = -1;
+
                 iframeTime = 0.0;
 
                 lowerDamageVariance = 0;
@@ -268,13 +270,17 @@ namespace PvPController {
 
                 normalDeathMessages = MiscData.normalDeathMessages;
                 reflectedDeathMessages = MiscData.reflectedDeathMessages;
-
+                
                 Database.InitDefaultTables();
 
                 firstConfigGeneration = false;
 
                 Database.LoadDatabase();
+
+                return firstConfigGeneration;
             }
+
+            return true;
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using PvPController.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,7 @@ namespace PvPController {
         public static Dictionary<int, ItemInfo> itemInfo = new Dictionary<int, ItemInfo>(Main.maxItemTypes);
         public static Dictionary<int, ItemInfo> projectileInfo = new Dictionary<int, ItemInfo>(Main.maxProjectileTypes);
         public static Dictionary<int, ItemInfo> buffInfo = new Dictionary<int, ItemInfo>(Main.maxBuffTypes);
+        public static bool isMySql { get { return db.GetSqlType() == SqlType.Mysql; } }
 
         public static IDbConnection db;
 
@@ -46,12 +48,12 @@ namespace PvPController {
             } else
                 throw new Exception("Invalid storage type.");
 
-            SqlTableCreator sqlCreator = new SqlTableCreator(db,
+            var sqlCreator = new SqlTableCreator(db,
                 db.GetSqlType() == SqlType.Sqlite
                     ? (IQueryBuilder)new SqliteQueryCreator()
-                    : new MysqlQueryCreator());
-
-            SqlTable table1 = new SqlTable("Items",
+                    : (IQueryBuilder)new MysqlQueryCreator());
+            
+            sqlCreator.EnsureTableStructure(new SqlTable("Items",
                 new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
                 new SqlColumn("Name", MySqlDbType.String),
                 new SqlColumn("Damage", MySqlDbType.Int32),
@@ -63,18 +65,16 @@ namespace PvPController {
                 new SqlColumn("InflictBuffID", MySqlDbType.Int32),
                 new SqlColumn("InflictBuffDuration", MySqlDbType.Int32),
                 new SqlColumn("ReceiveBuffID", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32));
-            sqlCreator.EnsureTableStructure(table1);
-
-            SqlTable table2 = new SqlTable("Projectiles",
+                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32)));
+            
+            sqlCreator.EnsureTableStructure(new SqlTable("Projectiles",
                 new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
                 new SqlColumn("Name", MySqlDbType.String),
                 new SqlColumn("Damage", MySqlDbType.Int32),
                 new SqlColumn("InflictBuffID", MySqlDbType.Int32),
                 new SqlColumn("InflictBuffDuration", MySqlDbType.Int32),
                 new SqlColumn("ReceiveBuffID", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32));
-            sqlCreator.EnsureTableStructure(table2);
+                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32)));
 
             SqlTable table3 = new SqlTable("Buffs",
                 new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
@@ -129,18 +129,19 @@ namespace PvPController {
             
             Query(query, iteminfo.id);
         }
-
         /// <summary>
         /// Creates all the default stats of items, projectiles, and buffs and puts it into
-        /// the sql(ite) file.
+        /// the mysql/sqlite file.
         /// </summary>
         public static void InitDefaultTables() {
-            SqliteConnection conn = new SqliteConnection(db.ConnectionString);
-            
+            var conn = isMySql 
+                ? (DbConnection)new MySqlConnection(db.ConnectionString) 
+                : (DbConnection)new SqliteConnection(db.ConnectionString);
+
             conn.Open();
 
-            using (SqliteCommand cmd = new SqliteCommand(conn)) {
-                using (SqliteTransaction transaction = conn.BeginTransaction()) {
+            using (var cmd = conn.CreateCommand()) {
+                using (var transaction = conn.BeginTransaction()) {
                     for (int x = 0; x < Main.maxItemTypes; x++) {
                         Item item = new Item();
                         item.SetDefaults(x);
@@ -160,7 +161,7 @@ namespace PvPController {
 
                     for (int x = 0; x < Main.maxProjectileTypes; x++) {
                         string name = MiscUtils.SanitizeString(Lang.GetProjectileName(x).Value);
-                        
+
                         int damage = 0;
                         int inflictBuff = 0;
                         int inflictBuffDuration = 0;
@@ -173,7 +174,7 @@ namespace PvPController {
                             inflictBuffDuration = ProjectileUtils.projectileDebuffs[x].buffDuration;
                         }
 
-                        cmd.CommandText = 
+                        cmd.CommandText =
                             "INSERT INTO Projectiles (ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6})"
                             .SFormat(x, name, damage, inflictBuff, inflictBuffDuration, 0, 0);
                         cmd.ExecuteNonQuery();
@@ -189,7 +190,7 @@ namespace PvPController {
                             inflictBuffDuration = MiscData.flaskDebuffs[x].buffDuration;
                         }
 
-                        cmd.CommandText = 
+                        cmd.CommandText =
                             "INSERT INTO Buffs (ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5})"
                             .SFormat(x, name, inflictBuff, inflictBuffDuration, 0, 0);
                         cmd.ExecuteNonQuery();
