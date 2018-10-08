@@ -277,10 +277,10 @@ namespace PvPController {
 
                 Database.LoadDatabase();
 
-                return firstConfigGeneration;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace PvPController {
         public static IDbConnection db;
 
         /// <summary>
-        /// Connects the sql(ite) file to the plugin, creating one if a file doesn't already exist.
+        /// Connects the mysql/sqlite file for the plugin, creating one if a file doesn't already exist.
         /// </summary>
         public static void ConnectDB() {
             if (TShock.Config.StorageType.ToLower() == "sqlite")
@@ -204,7 +204,7 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Loads data from the sql(ite) file to the Dictionaries in this Database.
+        /// Loads data from the mysql/sqlite file to the Dictionaries in this Database.
         /// </summary>
         public static void LoadDatabase() {
             using (var reader = QueryReader("SELECT * FROM Items")) {
