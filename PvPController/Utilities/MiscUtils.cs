@@ -14,7 +14,11 @@ namespace PvPController.Utilities {
         public static string SanitizeString(string s) {
             if (s.Contains("'")) {
                 string[] temp = s.Split('\'');
-                s = temp[0] + "''" + temp[1];
+                s = temp[0];
+
+                for(int x = 1; x < temp.Length; x++) {
+                    s += "''" + temp[x];
+                }
             }
             return s;
         }

@@ -24,7 +24,7 @@ namespace PvPController.Network {
 
         public int inflictedDamage { get; set; }
         public int damageReceived { get; set; }
-        public int knockback { get; set; }
+        public int hitDirection { get; set; }
         public int crit { get; set; }
 
         public PlayerHurtArgs(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
@@ -53,7 +53,7 @@ namespace PvPController.Network {
             this.weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
             this.inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : int1;
             this.damageReceived = target.GetDamageReceived(inflictedDamage);
-            this.knockback = int2 - 1;
+            this.hitDirection = int2 - 1;
             this.crit = attacker.GetCrit(weapon);
             this.playerHitReason = playerHitReason;
         }

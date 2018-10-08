@@ -79,11 +79,17 @@ namespace PvPController.Network {
 
             e.args.Handled = true;
 
-            if (!e.target.CanBeHit()) {
-                return;
-            }
+            if (!e.target.CanBeHit()) return;
 
-            e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.knockback, PvPUtils.IsCrit(e.crit));
+            if (PvPController.config.enableKnockback) {
+                float knockback = e.weapon.GetKnockback(e.attacker);
+                if (knockback >= PvPController.config.knockbackMinimum) {
+                    e.target.KnockBack(e.weapon.GetKnockback(e.attacker), e.attacker.GetAngleFrom(e.target.TPlayer.position), e.target.IsLeftFrom(e.attacker.TPlayer.position) ? -e.hitDirection : e.hitDirection);
+                    e.hitDirection = 0;
+                }
+            }
+            e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.hitDirection, PvPController.config.enableCriticals ? PvPUtils.IsCrit(e.crit) : false);
+
             e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
 
             if (PvPController.config.enableProjectileDebuffs)

@@ -128,19 +128,10 @@ namespace PvPController.Variables {
         public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection, bool isCrit) {
             Color color = Color.DarkTurquoise;
             string star = "*";
-            if (PvPController.config.enableCriticals) {
-                damage *= (isCrit ? 2 : 1);
-                star = isCrit ? "!!" : "*";
-                color = isCrit ? Color.SlateBlue : Color.DarkTurquoise;
-            }
 
-            if (PvPController.config.enableKnockback) {
-                float knockback = weapon.GetKnockback(attacker);
-                if (Math.Abs(knockback) >= PvPController.config.knockbackMinimum) {
-                    this.KnockBack(weapon.GetKnockback(attacker), attacker.GetAngleFrom(this.TPlayer.position), IsLeftFrom(attacker.TPlayer.position) ? -hitDirection : hitDirection);
-                    hitDirection = 0;
-                }
-            }
+            damage *= (isCrit ? 2 : 1);
+            star = isCrit ? "!!" : "*";
+            color = isCrit ? Color.SlateBlue : Color.DarkTurquoise;
 
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon, 1)),
                 damage, hitDirection, false, true, 5);
