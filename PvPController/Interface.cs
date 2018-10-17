@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.Utilities;
+using PvPController.Variables;
 using PvPController.Variables;
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace PvPController {
             sb.AppendLine("Weapon and Armor Stats (/toggletooltip or /tt)");
             sb.AppendLine(new string('-', 40));
 
-            if (weapon.GetPvPDamage(player) > 0)
+            if (weapon.GetPvPDamage(player) > 0 && weapon.netID != 0)
                 sb.AppendLine(weapon.name + ": " + weapon.GetPvPDamage(player) + " damage");
 
             if (PvPController.config.enableWeaponDebuffs)

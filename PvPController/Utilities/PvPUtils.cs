@@ -8,7 +8,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using TShockAPI;
 
-namespace PvPController.Utilities {
+namespace PvPController.Variables {
     public class PvPUtils {
 
         /// <summary>

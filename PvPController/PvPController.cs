@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using PvPController.Variables;
-using PvPController.Utilities;
+using PvPController.Variables;
 using PvPController.Network;
 using System;
 using System.Collections.Generic;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PvPController.Utilities {
+namespace PvPController.Variables {
     public class MinionUtils {
         //Minion IDs
         public static Dictionary<int, int> minionItem = new Dictionary<int, int> {

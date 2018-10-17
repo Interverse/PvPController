@@ -76,7 +76,7 @@
     <Compile Include="Network\PvPHandler.cs" />
     <Compile Include="Network\TogglePvPArgs.cs" />
     <Compile Include="ProjectileTracker.cs" />
-    <Compile Include="Utilities\ItemInfo.cs" />
+    <Compile Include="Variables\ItemInfo.cs" />
     <Compile Include="Utilities\MinionUtils.cs" />
     <Compile Include="Utilities\MiscData.cs" />
     <Compile Include="PluginCommands.cs" />

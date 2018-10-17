@@ -2,7 +2,7 @@
 using System.IO;
 using TShockAPI;
 
-namespace PvPController.Utilities {
+namespace PvPController.Variables {
     class MiscData {
         //Sets a debuff and its duration to a flask buff
         public static Dictionary<int, BuffDuration> flaskDebuffs = new Dictionary<int, BuffDuration> {

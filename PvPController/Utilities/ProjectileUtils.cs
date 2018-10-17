@@ -6,14 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 
-namespace PvPController.Utilities {
+namespace PvPController.Variables {
     public class ProjectileUtils {
         public static PvPItem GetProjectileWeapon(PvPPlayer owner, int type) {
             PvPItem weapon;
             if (ProjectileUtils.presetProjDamage.ContainsKey(type)) {
                 weapon = new PvPItem();
                 weapon.damage = ProjectileUtils.presetProjDamage[type];
-                weapon.name = Lang.GetProjectileName(type).ToString();
+                weapon.specialName = Lang.GetProjectileName(type).ToString();
             } else if (ProjectileUtils.projHooks.ContainsKey(type)) {
                 weapon = new PvPItem(type);
             } else if (ProjectileUtils.fromWhatItem.ContainsKey(type)) {

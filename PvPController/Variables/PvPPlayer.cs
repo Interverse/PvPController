@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.Utilities;
+using PvPController.Variables;
 using System;
 using System.Threading.Tasks;
 using Terraria;
@@ -192,7 +192,7 @@ namespace PvPController.Variables {
             PvPItem reflectType = new PvPItem();
 
             if (PvPController.config.enableTurtle && this.TPlayer.setBonus == Language.GetTextValue("ArmorSetBonus.Turtle") && weapon.melee) {
-                reflectType.name = "Turtle Armor";
+                reflectType.specialName = "Turtle Armor";
                 int turtleDamage = (int)(damage * PvPController.config.turtleMultiplier);
 
                 NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(this, attacker, reflectType, 2)),
@@ -200,7 +200,7 @@ namespace PvPController.Variables {
             }
 
             if (PvPController.config.enableThorns && this.TPlayer.FindBuffIndex(14) != -1) {
-                reflectType.name = "Thorns";
+                reflectType.specialName = "Thorns";
                 int thornDamage = (int)(damage * PvPController.config.thornMultiplier);
 
                 NetMessage.SendPlayerHurt(attacker.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(this, attacker, reflectType, 2)),

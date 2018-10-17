@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿    using Microsoft.Xna.Framework;
 using PvPController.Variables;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 
-namespace PvPController.Utilities {
+namespace PvPController.Variables {
     /// <summary>
     /// Methods ripped off Terraria's source code to be emulated in the plugin.
     /// </summary>

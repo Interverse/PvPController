@@ -1,6 +1,6 @@
 ﻿using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
-using PvPController.Utilities;
+using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -49,9 +49,9 @@ namespace PvPController {
                 throw new Exception("Invalid storage type.");
 
             var sqlCreator = new SqlTableCreator(db,
-                db.GetSqlType() == SqlType.Sqlite
-                    ? (IQueryBuilder)new SqliteQueryCreator()
-                    : (IQueryBuilder)new MysqlQueryCreator());
+                isMySql
+                    ? (IQueryBuilder)new MysqlQueryCreator()
+                    : (IQueryBuilder)new SqliteQueryCreator());
             
             sqlCreator.EnsureTableStructure(new SqlTable("Items",
                 new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
@@ -90,45 +90,59 @@ namespace PvPController {
             return db.QueryReader(query, args);
         }
 
-        public static int Query(string query, params object[] args) {
-            return db.Query(query, args);
+        public static bool Query(string query) {
+            db.Open();
+            bool success = true;
+            try {
+                using (var conn = db.CreateCommand()) {
+                    conn.CommandText = query;
+                    conn.ExecuteNonQuery();
+                }
+            } catch {
+                success = false;
+            }
+            db.Close();
+            return success;
         }
 
         /// <summary>
         /// Writes the changed attribute of an item to the sql(ite) file.
         /// </summary>
-        public static void UpdateItems(ItemInfo iteminfo) {
-            var query =
-                string.Format(
-                    "UPDATE Items SET Name = '{0}', Damage = {1}, Shoot = {2}, IsShootModded = {3}, ShootSpeed = {4}, Knockback = {5}, Defense = {6}, InflictBuffID = {7}, InflictBuffDuration = {8}, ReceiveBuffID = {9}, ReceiveBuffDuration = {10} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.damage, iteminfo.shoot, iteminfo.isShootModded ? 1 : 0, iteminfo.shootSpeed, iteminfo.knockback, iteminfo.defense, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
-                
-            Query(query, iteminfo.id);
+        public static bool Update<T>(string type, int index, string key, T value) {
+            bool selectAll = index <= 0;
+            
+            if (!selectAll) {
+                GetItemInfoByType(type)[index].SetData(key, value);
+            } else {
+                var iteminfoDict = GetItemInfoByType(type);
+
+                for (int x = 0; x < iteminfoDict.Count; x++) {
+                    iteminfoDict[x].SetData(key, value);
+                }
+            }
+
+            if (value is string) value = (T)Convert.ChangeType("'" + value + "'", typeof(T));
+
+            string sourceID = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
+            return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", type, key, value, sourceID));
         }
 
-        /// <summary>
-        /// Writes the changed attribute of a projectile to the sql(ite) file.
-        /// </summary>
-        public static void UpdateProjectiles(ItemInfo iteminfo) {
-            var query =
-                string.Format(
-                    "UPDATE Projectiles SET Name = '{0}', Damage = {1}, InflictBuffID = {2}, InflictBuffDuration = {3}, ReceiveBuffID = {4}, ReceiveBuffDuration = {5} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.damage, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
-            
-            Query(query, iteminfo.id);
+        public static Dictionary<int, ItemInfo> GetItemInfoByType(string type) {
+            switch (type) {
+                case "Items":
+                    return itemInfo;
+
+                case "Projectiles":
+                    return projectileInfo;
+
+                case "Buffs":
+                    return buffInfo;
+
+                default:
+                    return null;
+            }
         }
 
-        /// <summary>
-        /// Writes the changed attribute of a buff to the sql(ite) file.
-        /// </summary>
-        public static void UpdateBuffs(ItemInfo iteminfo) {
-            var query =
-                string.Format(
-                    "UPDATE Buffs SET Name = '{0}', InflictBuffID = {2}, InflictBuffDuration = {3}, ReceiveBuffID = {4}, ReceiveBuffDuration = {5} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
-            
-            Query(query, iteminfo.id);
-        }
         /// <summary>
         /// Creates all the default stats of items, projectiles, and buffs and puts it into
         /// the mysql/sqlite file.
@@ -142,6 +156,13 @@ namespace PvPController {
 
             using (var cmd = conn.CreateCommand()) {
                 using (var transaction = conn.BeginTransaction()) {
+                    cmd.CommandText = "DELETE FROM Items";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "DELETE FROM Projectiles";
+                    cmd.ExecuteNonQuery();
+                    cmd.CommandText = "DELETE FROM Buffs";
+                    cmd.ExecuteNonQuery();
+
                     for (int x = 0; x < Main.maxItemTypes; x++) {
                         Item item = new Item();
                         item.SetDefaults(x);
@@ -154,7 +175,8 @@ namespace PvPController {
                         int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
 
                         cmd.CommandText =
-                            "INSERT INTO Items (ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11})"
+                            "INSERT INTO Items (ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) " +
+                            "VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11})"
                             .SFormat(x, name, damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0);
                         cmd.ExecuteNonQuery();
                     }
@@ -175,7 +197,8 @@ namespace PvPController {
                         }
 
                         cmd.CommandText =
-                            "INSERT INTO Projectiles (ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6})"
+                            "INSERT INTO Projectiles (ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) " +
+                            "VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6})"
                             .SFormat(x, name, damage, inflictBuff, inflictBuffDuration, 0, 0);
                         cmd.ExecuteNonQuery();
                     }
@@ -191,7 +214,8 @@ namespace PvPController {
                         }
 
                         cmd.CommandText =
-                            "INSERT INTO Buffs (ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5})"
+                            "INSERT INTO Buffs (ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) " +
+                            "VALUES ({0}, '{1}', {2}, {3}, {4}, {5})"
                             .SFormat(x, name, inflictBuff, inflictBuffDuration, 0, 0);
                         cmd.ExecuteNonQuery();
                     }
@@ -211,16 +235,16 @@ namespace PvPController {
                 while (reader.Read()) {
                     int id = reader.Get<int>("ID");
                     itemInfo[id] = new ItemInfo();
-                    itemInfo[id].id = id;
-                    itemInfo[id].name = reader.Get<string>("Name");
-                    itemInfo[id].damage = reader.Get<int>("Damage");
-                    itemInfo[id].shoot = reader.Get<int>("Shoot");
-                    itemInfo[id].isShootModded = reader.Get<int>("IsShootModded") == 1 ? true : false;
-                    itemInfo[id].shootSpeed = reader.Get<float>("ShootSpeed");
-                    itemInfo[id].knockback = reader.Get<float>("Knockback");
-                    itemInfo[id].defense = reader.Get<int>("Defense");
-                    itemInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
-                    itemInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));
+                    itemInfo[id].SetData("ID", id);
+                    itemInfo[id].SetData("Name", reader.Get<string>("Name"));
+                    itemInfo[id].SetData("Damage", reader.Get<int>("Damage"));
+                    itemInfo[id].SetData("Shoot", reader.Get<int>("Shoot"));
+                    itemInfo[id].SetData("IsShootModded", reader.Get<int>("IsShootModded") == 1 ? true : false);
+                    itemInfo[id].SetData("ShootSpeed", reader.Get<float>("ShootSpeed"));
+                    itemInfo[id].SetData("Knockback", reader.Get<float>("Knockback"));
+                    itemInfo[id].SetData("Defense", reader.Get<int>("Defense"));
+                    itemInfo[id].SetData("Debuff", new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration")));
+                    itemInfo[id].SetData("SelfBuff", new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration")));
                 }
             }
 
@@ -228,11 +252,11 @@ namespace PvPController {
                 while (reader.Read()) {
                     int id = reader.Get<int>("ID");
                     projectileInfo[id] = new ItemInfo();
-                    projectileInfo[id].id = id;
-                    projectileInfo[id].name = reader.Get<string>("Name");
-                    projectileInfo[id].damage = reader.Get<int>("Damage");
-                    projectileInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
-                    projectileInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));
+                    projectileInfo[id].SetData("ID", id);
+                    projectileInfo[id].SetData("Name", reader.Get<string>("Name"));
+                    projectileInfo[id].SetData("Damage", reader.Get<int>("Damage"));
+                    projectileInfo[id].SetData("Debuff", new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration")));
+                    projectileInfo[id].SetData("SelfBuff", new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration")));
                 }
             }
 
@@ -240,10 +264,10 @@ namespace PvPController {
                 while (reader.Read()) {
                     var id = reader.Get<int>("ID");
                     buffInfo[id] = new ItemInfo();
-                    buffInfo[id].id = id;
-                    buffInfo[id].name = reader.Get<string>("Name");
-                    buffInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
-                    buffInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));
+                    buffInfo[id].SetData("ID", id);
+                    buffInfo[id].SetData("Name", reader.Get<string>("Name"));
+                    buffInfo[id].SetData("Debuff", new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration")));
+                    buffInfo[id].SetData("SelfBuff", new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration")));
                 }
             }
         }

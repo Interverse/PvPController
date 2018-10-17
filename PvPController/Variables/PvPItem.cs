@@ -1,16 +1,16 @@
-﻿using PvPController.Utilities;
+﻿using PvPController.Variables;
 using Terraria;
 using Terraria.ID;
 
 namespace PvPController.Variables {
     public class PvPItem : Item {
-        public string name = "";
+        public string name { get { return specialName == "" ? Database.itemInfo[type].name : specialName; } }
+        public string specialName = "";
         public double damage = 0;
         public float knockback = 0;
 
         public PvPItem() {
             this.SetDefaults();
-            name = this.Name;
         }
 
         public PvPItem(Item item) {
@@ -18,14 +18,12 @@ namespace PvPController.Variables {
             this.prefix = item.prefix;
             this.damage = item.damage;
             this.knockback = item.knockBack;
-            name = this.Name;
         }
 
         public PvPItem(int type) {
             this.SetDefaults(type);
             this.damage = base.damage;
             this.knockback = base.knockBack;
-            name = this.Name;
         }
 
         /// <summary>

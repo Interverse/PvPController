@@ -1,6 +1,7 @@
-﻿using PvPController.Utilities;
+﻿using PvPController.Variables;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace PvPController {
         private static string armorParameters = "Parameters: defense (d), frost (f), nebula (n), vortex (v)";
         private static string projectileParameters = "Parameters: shoot (s), shootspeed (ss)";
         private static string miscParameters = "Parameters: enableplugin (ep), minion (m), deathitemtag (dit), iframetime (ift), deathmessages (dm), knockback (k)";
+        private static string modAllParameters = "Parameters: <Items/Projectiles/Buffs> <ID/Name/Shoot/IsShootModded/ShootSpeed/Knockback/Defense/InflictBuffID/InflictBuffDuration/ReceiveBuffID/ReceiveBuffDuration> <value>";
 
         public static void registerCommands() {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", Reload, "reload", "readconfig") { HelpText = "Sets config settings to server" });
@@ -23,52 +25,20 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteDocumentation, "writedocumentation") { HelpText = "Writes documentation to a .txt file in /tshock" });
 
             Commands.ChatCommands.Add(new Command("pvpcontroller.weapon", ModWeapon, "modweapon", "mw") { HelpText = "Modifies weapon settings. " + weaponParameters });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.buff", ModBuff, "modbuff", "mb") { HelpText = "Modifies buff settings. " +  buffParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.buff", ModBuff, "modbuff", "mb") { HelpText = "Modifies buff settings. " + buffParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.reflect", ModReflect, "modreflect", "mr") { HelpText = "Modifies reflect damage settings. " + reflectParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.armor", ModArmor, "modarmor", "ma") { HelpText = "Modifies armor settings. " + armorParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.projectile", ModProjectile, "modprojectile", "modproj", "mp") { HelpText = "Modifies projectile settings. " + projectileParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.all", ModAll, "modall") { HelpText = "Modifies a setting for all items. " + modAllParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.misc", ModMisc, "modmisc", "mm") { HelpText = "Modifies miscellaneous settings. " + miscParameters });
-            
+
             Commands.ChatCommands.Add(new Command(ToggleTooltip, "toggletooltip", "tt") { HelpText = "Toggles damage/defense tooltip popups." });
-            
-            Commands.ChatCommands.Add(new Command("pvpcontroller.dev", MemesFrom2006, "memesfrom2006") { HelpText = "Writes documentation to a .txt file in /tshock" });
+
+            Commands.ChatCommands.Add(new Command("pvpcontroller.dev", MemesFrom2006, "memesfrom2006") { HelpText = "Brings memes from 2006 lol" });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.dev", SQLInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
         }
 
         private static void MemesFrom2006(CommandArgs args) {
-            float knockback = 0;
-
-            if (args.Parameters.Count == 1) {
-                if (!float.TryParse(args.Parameters[0], out knockback)) {
-                    args.Player.SendErrorMessage("Failed");
-                    return;
-                }
-            }
-
-            Mono.Data.Sqlite.SqliteConnection conn = new Mono.Data.Sqlite.SqliteConnection(Database.db.ConnectionString);
-
-            conn.Open();
-
-            using (Mono.Data.Sqlite.SqliteCommand cmd = new Mono.Data.Sqlite.SqliteCommand(conn)) {
-                using (Mono.Data.Sqlite.SqliteTransaction transaction = conn.BeginTransaction()) {
-                    for (int x = 0; x < Main.maxItemTypes; x++) {
-                        Item item = new Item();
-                        item.SetDefaults(x);
-
-                        if (item.knockBack != 0) {
-                            Database.itemInfo[x].knockback = knockback;
-                            cmd.CommandText = "UPDATE Items SET Knockback = {0} WHERE ID = {1}"
-                                .SFormat(knockback, x);
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-
-                    transaction.Commit();
-                }
-            }
-
-            conn.Close();
-
-            args.Player.SendSuccessMessage("Knockback changed to {0} for all weapons".SFormat(knockback));
         }
 
         private static void ToggleTooltip(CommandArgs args) {
@@ -157,8 +127,7 @@ namespace PvPController {
                                 damage = item.damage;
                             }
 
-                            Database.itemInfo[itemid].damage = damage;
-                            Database.UpdateItems(Database.itemInfo[itemid]);
+                            Database.Update("Items", itemid, "Damage", damage);
 
                             args.Player.SendSuccessMessage("Base damage of " + Lang.GetItemName(itemid).ToString() + " set to " + damage);
                             break;
@@ -190,8 +159,7 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.itemInfo[itemID].knockback = knockback;
-                            Database.UpdateItems(Database.itemInfo[itemID]);
+                            Database.Update("Items", itemID, "Knockback", knockback);
 
                             args.Player.SendSuccessMessage("Base knockback of " + Lang.GetItemName(itemID).ToString() + " set to " + knockback);
                             break;
@@ -218,8 +186,7 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.projectileInfo[projectileid].damage = projectileDamage;
-                            Database.UpdateProjectiles(Database.projectileInfo[projectileid]);
+                            Database.Update("Projectiles", projectileid, "Damage", projectileDamage);
 
                             args.Player.SendSuccessMessage("Base projectile damage of " + Lang.GetProjectileName(projectileid).ToString() + " set to " + projectileDamage);
                             break;
@@ -318,8 +285,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.projectileInfo[projectileID].debuff = new BuffDuration(buffType, buffDuration * 60);
-                            Database.UpdateProjectiles(Database.projectileInfo[projectileID]);
+                            Database.Update("Projectiles", projectileID, "InflictBuffID", buffType);
+                            Database.Update("Projectiles", projectileID, "InflictBuffDuration", buffDuration * 60);
 
                             args.Player.SendSuccessMessage("Projectile " + Lang.GetProjectileName(projectileID).ToString() + " set to buff " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -349,8 +316,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.projectileInfo[projectileID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
-                            Database.UpdateProjectiles(Database.projectileInfo[projectileID]);
+                            Database.Update("Projectiles", projectileID, "ReceiveBuffID", buffType);
+                            Database.Update("Projectiles", projectileID, "ReceiveBuffDuration", buffDuration * 60);
 
                             args.Player.SendSuccessMessage("Projectile " + Lang.GetProjectileName(projectileID).ToString() + " set to buff self " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -384,8 +351,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.itemInfo[weaponID].debuff = new BuffDuration(buffType, buffDuration * 60);
-                            Database.UpdateItems(Database.itemInfo[weaponID]);
+                            Database.Update("Items", projectileID, "InflictBuffID", buffType);
+                            Database.Update("Items", projectileID, "InflictBuffDuration", buffDuration * 60);
 
                             args.Player.SendSuccessMessage("Item " + Lang.GetItemName(weaponID).ToString() + " set to buff " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -420,8 +387,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.itemInfo[weaponID].selfBuff = new BuffDuration(buffType, buffDuration * 60);
-                            Database.UpdateItems(Database.itemInfo[weaponID]);
+                            Database.Update("Items", projectileID, "ReceiveBuffID", buffType);
+                            Database.Update("Items", projectileID, "ReceiveBuffDuration", buffDuration * 60);
 
                             args.Player.SendSuccessMessage("Item " + Lang.GetItemName(weaponID).ToString() + " set to buff self " + Lang.GetBuffName(buffType) + " with a " + buffDuration + "s duration");
                             break;
@@ -451,8 +418,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.buffInfo[buffType].debuff = new BuffDuration(buffType2, buffDuration * 60);
-                            Database.UpdateBuffs(Database.buffInfo[buffType]);
+                            Database.Update("Buffs", projectileID, "InflictBuffID", buffType);
+                            Database.Update("Buffs", projectileID, "InflictBuffDuration", buffDuration * 60);
 
                             args.Player.SendSuccessMessage("Buff " + Lang.GetBuffName(buffType) + " set to debuff others with " + Lang.GetBuffName(buffType2) + " with a " + buffDuration + "s duration");
                             break;
@@ -482,8 +449,8 @@ namespace PvPController {
                                 return;
                             }
 
-                            Database.buffInfo[buffType].selfBuff = new BuffDuration(buffType2, buffDuration * 60);
-                            Database.UpdateBuffs(Database.buffInfo[buffType]);
+                            Database.Update("Buffs", projectileID, "ReceiveBuffID", buffType);
+                            Database.Update("Buffs", projectileID, "ReceiveBuffDuration", buffDuration * 60);
 
                             args.Player.SendSuccessMessage("Buff " + Lang.GetBuffName(buffType) + " set to buff self with " + Lang.GetBuffName(buffType2) + " with a " + buffDuration + "s duration");
                             break;
@@ -530,7 +497,7 @@ namespace PvPController {
                             args.Player.SendErrorMessage("Wrong Syntax. /modreflect enable <turtle, thorns>");
                             break;
                     }
-                    
+
                     break;
 
                 case "turtle":
@@ -644,7 +611,7 @@ namespace PvPController {
                             }
 
                             if (args.Parameters[2] == "normal") {
-                                if (!Int32.TryParse(args.Parameters[3], out selection) ||  selection > PvPController.config.normalDeathMessages.Count) {
+                                if (!Int32.TryParse(args.Parameters[3], out selection) || selection > PvPController.config.normalDeathMessages.Count) {
                                     args.Player.SendErrorMessage("Invalid selection of " + args.Parameters[3]);
                                     return;
                                 }
@@ -852,8 +819,7 @@ namespace PvPController {
                         return;
                     }
 
-                    Database.itemInfo[itemid].defense = defense;
-                    Database.UpdateItems(Database.itemInfo[itemid]);
+                    Database.Update("Items", itemid, "Defense", defense);
                     args.Player.SendSuccessMessage("Set item {0} to {1} defense.".SFormat(Lang.GetItemNameValue(itemid), defense));
                     break;
 
@@ -862,7 +828,7 @@ namespace PvPController {
                     break;
             }
         }
-        
+
         private static void ModProjectile(CommandArgs args) {
             if (args.Parameters.Count == 0) {
                 args.Player.SendErrorMessage("Wrong Syntax. " + projectileParameters);
@@ -887,9 +853,8 @@ namespace PvPController {
                         return;
                     }
 
-                    Database.itemInfo[itemid].shoot = shoot;
-                    Database.itemInfo[itemid].isShootModded = true;
-                    Database.UpdateItems(Database.itemInfo[itemid]);
+                    Database.Update("Items", itemid, "Shoot", shoot);
+                    Database.Update("Items", itemid, "IsShootModded", true);
                     args.Player.SendSuccessMessage("Set item {0} to shoot {1}.".SFormat(Lang.GetItemNameValue(itemid), Lang.GetProjectileName(shoot)));
                     break;
 
@@ -910,8 +875,7 @@ namespace PvPController {
                         return;
                     }
 
-                    Database.itemInfo[itemId].shootSpeed = shootSpeed;
-                    Database.UpdateItems(Database.itemInfo[itemId]);
+                    Database.Update("Items", itemId, "ShootSpeed", shootSpeed);
                     args.Player.SendSuccessMessage("Set item {0} to {1} speed.".SFormat(Lang.GetItemNameValue(itemId), shootSpeed));
                     break;
 
@@ -919,6 +883,22 @@ namespace PvPController {
                     args.Player.SendErrorMessage("Wrong Syntax. " + projectileParameters);
                     break;
             }
+        }
+
+        private static void ModAll(CommandArgs args) {
+            var input = args.Parameters;
+            if (input.Count < 3) {
+                args.Player.SendErrorMessage("Invalid parameters. " + modAllParameters);
+                return;
+            }
+
+            TypeConverter typeConverter = TypeDescriptor.GetConverter(Database.GetItemInfoByType(input[0])[0].FindType(input[1]));
+            object convertedType = typeConverter.ConvertFromString(MiscUtils.SanitizeString(input[2]));
+
+            if (Database.Update(input[0], -1, input[1], convertedType)) 
+                args.Player.SendSuccessMessage("Successfully converted all {0} in {1} to {2}".SFormat(input[1], input[0], input[2]));
+            else 
+                args.Player.SendErrorMessage("Failed to convert all {0} in {1} to {2}".SFormat(input[1], input[0], input[2]));
         }
 
         private static void WriteConfig(CommandArgs args) {
@@ -940,6 +920,15 @@ namespace PvPController {
         private static void WriteDocumentation(CommandArgs args) {
             PvPController.config.WriteDocumentation();
             args.Player.SendSuccessMessage("Wrote documentation in a .txt file in /tshock.");
+        }
+
+        private static void SQLInject(CommandArgs args) {
+            string statement = string.Join(" ", args.Parameters);
+
+            if (!Database.Query(statement))
+                args.Player.SendErrorMessage("SQL statement failed.");
+            else
+                args.Player.SendSuccessMessage("SQL statement was successful.");
         }
     }
 }

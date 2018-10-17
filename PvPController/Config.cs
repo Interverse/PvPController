@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using PvPController.Utilities;
+using PvPController.Variables;
 using System.Collections.Generic;
 using System.IO;
 using Terraria;
@@ -78,18 +78,18 @@ namespace PvPController {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.melee && Database.itemInfo[x].damage > 0)
+                if (item.melee && Database.itemInfo[x].GetData<int>("Damage") > 0)
                     sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage + " damage",
-                        Database.itemInfo[x].shoot > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
-                                Database.itemInfo[x].shootSpeed > 0
-                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                        Database.itemInfo[x].GetData<int>("Damage") + " damage",
+                        Database.itemInfo[x].GetData<int>("Shoot") > 0
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].GetData<int>("Shoot")),
+                                Database.itemInfo[x].GetData<int>("ShootSpeed") > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].GetData<int>("ShootSpeed"))
                                     : "")
                             : "",
-                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].GetData<float>("Knockback"))));
             }
 
             sw.WriteLine("");
@@ -100,18 +100,18 @@ namespace PvPController {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.ranged && Database.itemInfo[x].damage > 0)
+                if (item.ranged && Database.itemInfo[x].GetData<int>("Damage") > 0)
                     sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage + " damage",
-                        Database.itemInfo[x].shoot > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
-                                Database.itemInfo[x].shootSpeed > 0
-                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                        Database.itemInfo[x].GetData<int>("Damage") + " damage",
+                        Database.itemInfo[x].GetData<int>("Shoot") > 0
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].GetData<int>("Shoot")),
+                                Database.itemInfo[x].GetData<int>("ShootSpeed") > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].GetData<int>("ShootSpeed"))
                                     : "")
                             : "",
-                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].GetData<float>("Knockback"))));
             }
 
             sw.WriteLine("");
@@ -122,18 +122,18 @@ namespace PvPController {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.magic && Database.itemInfo[x].damage > 0)
+                if (item.magic && Database.itemInfo[x].GetData<int>("Damage") > 0)
                     sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage + " damage",
-                        Database.itemInfo[x].shoot > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
-                                Database.itemInfo[x].shootSpeed > 0
-                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                        Database.itemInfo[x].GetData<int>("Damage") + " damage",
+                        Database.itemInfo[x].GetData<int>("Shoot") > 0
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].GetData<int>("Shoot")),
+                                Database.itemInfo[x].GetData<int>("ShootSpeed") > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].GetData<int>("ShootSpeed"))
                                     : "")
                             : "",
-                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].GetData<float>("Knockback"))));
             }
 
             sw.WriteLine("");
@@ -144,18 +144,18 @@ namespace PvPController {
                 Item item = new Item();
                 item.SetDefaults(x);
 
-                if (item.thrown && Database.itemInfo[x].damage > 0)
+                if (item.thrown && Database.itemInfo[x].GetData<int>("Damage") > 0)
                     sw.WriteLine("{0} ({1}): {2}{3}{4}"
                         .SFormat(Lang.GetItemName(x).Value,
                         x,
-                        Database.itemInfo[x].damage + " damage",
-                        Database.itemInfo[x].shoot > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].shoot),
-                                Database.itemInfo[x].shootSpeed > 0
-                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].shootSpeed)
+                        Database.itemInfo[x].GetData<int>("Damage") + " damage",
+                        Database.itemInfo[x].GetData<int>("Shoot") > 0
+                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.itemInfo[x].GetData<int>("Shoot")),
+                                Database.itemInfo[x].GetData<int>("ShootSpeed") > 0
+                                    ? " with {0} shootspeed".SFormat(Database.itemInfo[x].GetData<int>("ShootSpeed"))
                                     : "")
                             : "",
-                        ", knockback: {0}".SFormat(Database.itemInfo[x].knockback)));
+                        ", knockback: {0}".SFormat(Database.itemInfo[x].GetData<float>("Knockback"))));
             }
 
             sw.WriteLine("");
@@ -163,8 +163,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.projectileInfo.Count; x++) {
-                if (Database.projectileInfo[x].damage > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetProjectileName(x).Value, x, Database.projectileInfo[x].damage));
+                if (Database.projectileInfo[x].GetData<int>("Damage") > 0)
+                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetProjectileName(x).Value, x, Database.projectileInfo[x].GetData<int>("Damage")));
             }
 
             sw.WriteLine("");
@@ -172,8 +172,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.projectileInfo.Count; x++) {
-                if (Database.projectileInfo[x].debuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts the {2} debuff for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(Database.projectileInfo[x].debuff.buffid), Database.projectileInfo[x].debuff.buffDuration / 60));
+                if (Database.projectileInfo[x].GetData<BuffDuration>("Debuff").buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts the {2} debuff for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(Database.projectileInfo[x].GetData<BuffDuration>("Debuff").buffid), Database.projectileInfo[x].GetData<BuffDuration>("Debuff").buffDuration / 60));
             }
 
             sw.WriteLine("");
@@ -181,8 +181,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.projectileInfo.Count; x++) {
-                if (Database.projectileInfo[x].selfBuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(Database.projectileInfo[x].selfBuff.buffid), Database.projectileInfo[x].selfBuff.buffDuration / 60));
+                if (Database.projectileInfo[x].GetData<BuffDuration>("SelfBuff").buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(Database.projectileInfo[x].GetData<BuffDuration>("SelfBuff").buffid), Database.projectileInfo[x].GetData<BuffDuration>("SelfBuff").buffDuration / 60));
             }
 
             sw.WriteLine("");
@@ -190,8 +190,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.itemInfo.Count; x++) {
-                if (Database.itemInfo[x].debuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(Database.itemInfo[x].debuff.buffid), Database.itemInfo[x].debuff.buffDuration / 60));
+                if (Database.itemInfo[x].GetData<BuffDuration>("Debuff").buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(Database.itemInfo[x].GetData<BuffDuration>("Debuff").buffid), Database.itemInfo[x].GetData<BuffDuration>("Debuff").buffDuration / 60));
             }
 
             sw.WriteLine("");
@@ -199,8 +199,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.itemInfo.Count; x++) {
-                if (Database.itemInfo[x].selfBuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(Database.itemInfo[x].selfBuff.buffid), Database.itemInfo[x].selfBuff.buffDuration / 60));
+                if (Database.itemInfo[x].GetData<BuffDuration>("SelfBuff").buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(Database.itemInfo[x].GetData<BuffDuration>("SelfBuff").buffid), Database.itemInfo[x].GetData<BuffDuration>("SelfBuff").buffDuration / 60));
             }
 
             sw.WriteLine("");
@@ -208,8 +208,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.buffInfo.Count; x++) {
-                if (Database.buffInfo[x].debuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(Database.buffInfo[x].debuff.buffid), Database.itemInfo[x].debuff.buffDuration / 60));
+                if (Database.buffInfo[x].GetData<BuffDuration>("Debuff").buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(Database.buffInfo[x].GetData<BuffDuration>("Debuff").buffid), Database.itemInfo[x].GetData<BuffDuration>("Debuff").buffDuration / 60));
             }
 
             sw.WriteLine("");
@@ -217,8 +217,8 @@ namespace PvPController {
             sw.WriteLine("--------------------");
 
             for (int x = 0; x < Database.buffInfo.Count; x++) {
-                if (Database.buffInfo[x].selfBuff.buffid != 0)
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(Database.buffInfo[x].selfBuff.buffid), Database.buffInfo[x].selfBuff.buffDuration / 60));
+                if (Database.buffInfo[x].GetData<BuffDuration>("SelfBuff").buffid != 0)
+                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(Database.buffInfo[x].GetData<BuffDuration>("SelfBuff").buffid), Database.buffInfo[x].GetData<BuffDuration>("SelfBuff").buffDuration / 60));
             }
 
             sw.Close();

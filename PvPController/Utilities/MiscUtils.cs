@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PvPController.Utilities {
+namespace PvPController.Variables {
     public class MiscUtils {
         /// <summary>
         /// Attempts to sanitize any ' characters in a string to '' for sql(ite) queries.
