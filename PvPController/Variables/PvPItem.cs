@@ -4,7 +4,7 @@ using Terraria.ID;
 
 namespace PvPController.Variables {
     public class PvPItem : Item {
-        public string name { get { return specialName == "" ? Database.itemInfo[type].name : specialName; } }
+        public string name { get { return specialName == "" ? Database.GetData<string>(DBConsts.ItemTable, type, DBConsts.Name) : specialName; } }
         public string specialName = "";
         public double damage = 0;
         public float knockback = 0;
@@ -31,7 +31,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public int GetConfigDamage() {
-            return Database.itemInfo[type].damage;
+            return Database.GetData<int>(DBConsts.ItemTable, type, DBConsts.Damage);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public PvPProjectile GetItemShoot() {
-            return new PvPProjectile(Database.itemInfo[type].shoot);
+            return new PvPProjectile(Database.GetData<int>(DBConsts.ProjectileTable, type, DBConsts.Shoot));
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace PvPController.Variables {
         /// <param name="owner"></param>
         /// <returns></returns>
         public float GetKnockback(PvPPlayer owner) {
-            return owner.TPlayer.GetWeaponKnockback(this, Database.itemInfo[netID].knockback);
+            return owner.TPlayer.GetWeaponKnockback(this, Database.GetData<float>(DBConsts.ItemTable, type, DBConsts.Knockback));
         }
 
         /// <summary>
@@ -65,7 +65,8 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public BuffDuration GetDebuffInfo() {
-            return Database.itemInfo[type].debuff;
+            return new BuffDuration(Database.GetData<int>(DBConsts.ItemTable, type, DBConsts.InflictBuffID),
+                Database.GetData<int>(DBConsts.ItemTable, type, DBConsts.InflictBuffDuration));
         }
 
         /// <summary>
@@ -73,7 +74,8 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public BuffDuration GetSelfBuffInfo() {
-            return Database.itemInfo[type].selfBuff;
+            return new BuffDuration(Database.GetData<int>(DBConsts.ItemTable, type, DBConsts.ReceiveBuffID),
+                Database.GetData<int>(DBConsts.ItemTable, type, DBConsts.ReceiveBuffDuration));
         }
     }
 }

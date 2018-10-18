@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +22,10 @@ namespace PvPController.Variables {
                 }
             }
             return s;
+        }
+
+        public static string SQLString(string s) {
+            return "'" + SanitizeString(s) + "'";
         }
 
         /// <summary>
@@ -50,6 +55,11 @@ namespace PvPController.Variables {
             }
 
             return sb.ToString();
+        }
+
+        public static object ConvertStringToType(Type referenceType, string input) {
+            TypeConverter typeConverter = TypeDescriptor.GetConverter(referenceType);
+            return typeConverter.ConvertFromString(MiscUtils.SanitizeString(input));
         }
     }
 }

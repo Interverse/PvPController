@@ -18,7 +18,7 @@ namespace PvPController {
         /// Stats include damage, projectile, debuffs and buffs, knockback, criticals, and defense.
         /// </summary>
         /// <param name="player"></param>
-        public static void DisplayInterface(PvPPlayer player) {
+        public static void DisplayInterface(PvPPlayer player) { //TODO: Fix Interface
             StringBuilder sb = new StringBuilder();
 
             PvPItem weapon = player.GetPlayerItem();
@@ -62,17 +62,18 @@ namespace PvPController {
 
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 int buffType = player.TPlayer.buffType[x];
-                ItemInfo buffInfo = Database.buffInfo[buffType];
+                var debuffInfo = Database.GetBuffDuration(DBConsts.BuffTable, x, true);
+                var selfBuffInfo = Database.GetBuffDuration(DBConsts.BuffTable, x, false);
 
                 if (PvPController.config.enableBuffDebuff)
-                    if (buffInfo.debuff.buffid != 0)
+                    if (debuffInfo.buffid != 0)
                         sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} ({2}s) to weapons."
-                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.debuff.buffid), buffInfo.debuff.buffDuration / 60.0)));
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(debuffInfo.buffid), debuffInfo.buffDuration / 60.0)));
 
                 if (PvPController.config.enableBuffSelfBuff)
-                    if (buffInfo.selfBuff.buffid != 0)
+                    if (selfBuffInfo.buffid != 0)
                         sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} to self for {2}s on attack."
-                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.selfBuff.buffid), buffInfo.selfBuff.buffDuration / 60.0)));
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(selfBuffInfo.buffid), selfBuffInfo.buffDuration / 60.0)));
             }
 
             if (PvPController.config.enableKnockback)

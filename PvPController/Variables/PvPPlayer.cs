@@ -60,7 +60,7 @@ namespace PvPController.Variables {
         /// <param name="projectile"></param>
         /// <returns></returns>
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || Database.projectileInfo[projectile.type].damage < 1) 
+            int damage = (projectile == null || Database.GetData<int>(DBConsts.ProjectileTable, projectile.type, DBConsts.Damage) < 1) 
                 ? weapon.GetPvPDamage(attacker) 
                 : projectile.GetConfigDamage();
 
@@ -83,7 +83,7 @@ namespace PvPController.Variables {
 
             for (int x = 0; x < 9; x++) {
                 vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += Database.itemInfo[this.TPlayer.armor[x].netID].defense;
+                moddedArmorDefense += Database.GetData<int>(DBConsts.ItemTable, this.TPlayer.armor[x].netID, DBConsts.Defense);
             }
             
             return this.TPlayer.statDefense - vanillaArmorDefense + moddedArmorDefense;
@@ -116,7 +116,7 @@ namespace PvPController.Variables {
 
             for (int x = 0; x < 9; x++) {
                 vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += Database.itemInfo[this.TPlayer.armor[x].netID].defense;
+                moddedArmorDefense += Database.GetData<int>(DBConsts.ItemTable, this.TPlayer.armor[x].netID, DBConsts.Defense);
             }
 
             return moddedArmorDefense - vanillaArmorDefense;
@@ -262,11 +262,11 @@ namespace PvPController.Variables {
                 buffType = attacker.TPlayer.buffType[x];
                 if (MiscData.flaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
-                        this.SetBuff(Database.buffInfo[buffType].debuff);
+                        this.SetBuff(Database.GetBuffDuration(DBConsts.BuffTable, buffType, true));
                     }
                     continue;
                 }
-                this.SetBuff(Database.buffInfo[buffType].debuff);
+                this.SetBuff(Database.GetBuffDuration(DBConsts.BuffTable, buffType, true));
             }
         }
 
@@ -300,7 +300,7 @@ namespace PvPController.Variables {
             int buffType;
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 buffType = this.TPlayer.buffType[x];
-                this.SetBuff(Database.buffInfo[buffType].selfBuff);
+                this.SetBuff(Database.GetBuffDuration(DBConsts.BuffTable, buffType, false));
             }
         }
 
@@ -339,6 +339,23 @@ namespace PvPController.Variables {
             }
 
             return true;
+        }
+    }
+
+    public class ProjectileTracker {
+        public PvPProjectile[] projectiles = new PvPProjectile[Main.maxProjectileTypes];
+
+        public ProjectileTracker() {
+            for (int x = 0; x < projectiles.Length; x++) {
+                projectiles[x] = new PvPProjectile(0);
+            }
+        }
+
+        public void InsertProjectile(int index, int projectileType, int ownerIndex, PvPItem item) {
+            projectiles[projectileType] = new PvPProjectile(projectileType);
+            projectiles[projectileType].identity = index;
+            projectiles[projectileType].SetOwner(ownerIndex);
+            projectiles[projectileType].SetOriginatedItem(item);
         }
     }
 }

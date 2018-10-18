@@ -40,14 +40,14 @@ namespace PvPController.Network {
             int index = ProjectileUtils.FindFreeIndex();
 
             if (e.attacker == null || !e.attacker.TPlayer.hostile) return;
-
-            if (Database.itemInfo[e.weapon.netID].shoot > 0 && Database.itemInfo[e.weapon.netID].isShootModded) {
-                e.type = Database.itemInfo[e.weapon.netID].shoot;
+            
+            if (Database.GetData<int>(DBConsts.ItemTable, e.weapon.netID, DBConsts.Shoot) > 0 && Database.GetData<bool>(DBConsts.ItemTable, e.weapon.netID, DBConsts.IsShootModded)) {
+                e.type = Database.GetData<int>(DBConsts.ItemTable, e.weapon.netID, DBConsts.Shoot);
                 isModified = true;
             }
             
-            if (Database.itemInfo[e.weapon.netID].shootSpeed > 0) {
-                e.velocity = Vector2.Normalize(e.velocity) * Database.itemInfo[e.weapon.netID].shootSpeed;
+            if (Database.GetData<float>(DBConsts.ItemTable, e.weapon.netID, DBConsts.ShootSpeed) > 0) {
+                e.velocity = Vector2.Normalize(e.velocity) * Database.GetData<float>(DBConsts.ItemTable, e.weapon.netID, DBConsts.ShootSpeed);
                 isModified = true;
             }
             
@@ -93,16 +93,16 @@ namespace PvPController.Network {
             e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
 
             if (PvPController.config.enableProjectileDebuffs)
-                e.target.SetBuff(Database.projectileInfo[e.playerHitReason.SourceProjectileType].debuff);
+                e.target.SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, e.playerHitReason.SourceProjectileType, true));
 
             if (PvPController.config.enableProjectileSelfBuffs)
-                e.attacker.SetBuff(Database.projectileInfo[e.playerHitReason.SourceProjectileType].selfBuff);
+                e.attacker.SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, e.playerHitReason.SourceProjectileType, false));
 
             if (PvPController.config.enableWeaponDebuffs)
-                e.target.SetBuff(Database.itemInfo[e.attacker.GetPlayerItem().netID].debuff);
+                e.target.SetBuff(Database.GetBuffDuration(DBConsts.ItemTable, e.attacker.GetPlayerItem().netID, true));
 
             if (PvPController.config.enableWeaponSelfBuffs)
-                e.attacker.SetBuff(Database.itemInfo[e.attacker.GetPlayerItem().netID].selfBuff);
+                e.attacker.SetBuff(Database.GetBuffDuration(DBConsts.ItemTable, e.attacker.GetPlayerItem().netID, false));
 
             if (PvPController.config.enableBuffDebuff)
                 e.target.ApplyBuffDebuffs(e.attacker, e.weapon);

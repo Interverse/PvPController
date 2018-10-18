@@ -189,8 +189,8 @@ namespace PvPController.Variables {
                 damage = 0.8f;
             else if (prefix == 51)
                 damage = 1.05f;
-
-            return (int)Math.Round(Database.itemInfo[weapon.netID].damage * (double)damage);
+            
+            return (int)Math.Round(Database.GetData<int>(DBConsts.ItemTable, weapon.netID, DBConsts.Damage) * (double)damage);
         }
 
         /// <summary>

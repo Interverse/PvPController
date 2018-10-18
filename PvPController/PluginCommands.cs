@@ -891,9 +891,8 @@ namespace PvPController {
                 args.Player.SendErrorMessage("Invalid parameters. " + modAllParameters);
                 return;
             }
-
-            TypeConverter typeConverter = TypeDescriptor.GetConverter(Database.GetItemInfoByType(input[0])[0].FindType(input[1]));
-            object convertedType = typeConverter.ConvertFromString(MiscUtils.SanitizeString(input[2]));
+            
+            object convertedType = MiscUtils.ConvertStringToType(Database.GetType(input[0], input[1]), input[2]);
 
             if (Database.Update(input[0], -1, input[1], convertedType)) 
                 args.Player.SendSuccessMessage("Successfully converted all {0} in {1} to {2}".SFormat(input[1], input[0], input[2]));

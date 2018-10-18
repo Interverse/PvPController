@@ -47,7 +47,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public int GetConfigDamage() {
-            return Database.projectileInfo[type].damage;
+            return Database.GetData<int>(DBConsts.ProjectileTable, type, DBConsts.Damage);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public BuffDuration GetDebuffInfo() {
-            return Database.projectileInfo[type].debuff;
+            return Database.GetBuffDuration(DBConsts.ProjectileTable, type, true);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public BuffDuration GetSelfBuffInfo() {
-            return Database.projectileInfo[type].selfBuff;
+            return Database.GetBuffDuration(DBConsts.ProjectileTable, type, false);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace PvPController.Variables {
                         if (Vector2.Distance(ownerProjectile.TPlayer.position, PvPController.pvpers[x].TPlayer.position) <= 300) {
                             if (PvPController.pvpers[x].CheckMedusa()) {
                                 PvPController.pvpers[x].DamagePlayer(ownerProjectile, itemOriginated, PvPController.pvpers[x].GetDamageDealt(ownerProjectile, itemOriginated, this), 0, PvPUtils.IsCrit(ownerProjectile.GetCrit(itemOriginated)));
-                                PvPController.pvpers[x].SetBuff(Database.projectileInfo[535].debuff);
+                                PvPController.pvpers[x].SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, 535, true));
                             }
                         }
                     }
