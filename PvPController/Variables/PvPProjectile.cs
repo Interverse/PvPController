@@ -87,7 +87,7 @@ namespace PvPController.Variables {
                         if (Vector2.Distance(ownerProjectile.TPlayer.position, PvPController.pvpers[x].TPlayer.position) <= 300) {
                             if (PvPController.pvpers[x].CheckMedusa()) {
                                 PvPController.pvpers[x].DamagePlayer(ownerProjectile, itemOriginated, PvPController.pvpers[x].GetDamageDealt(ownerProjectile, itemOriginated, this), 0, PvPUtils.IsCrit(ownerProjectile.GetCrit(itemOriginated)));
-                                PvPController.pvpers[x].SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, 536, true));
+                                PvPController.pvpers[x].SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, 535, true));
                             }
                         }
                     }
