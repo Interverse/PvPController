@@ -89,19 +89,19 @@ namespace PvPController {
         }
 
         public static bool Query(string query) {
-            db.Open();
             bool success = true;
+            db.Open();
             try {
                 using (var conn = db.CreateCommand()) {
                     conn.CommandText = query;
                     conn.ExecuteNonQuery();
                 }
-                db.Close();
-                return true;
             } catch {
-                db.Close();
-                return false;
+                success = false;
             }
+            
+            db.Close();
+            return success;
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace PvPController {
         public static bool Update<T>(string type, int index, string key, T value) {
             bool selectAll = index <= 0;
 
-            if (value is string) value = (T)Convert.ChangeType("'" + value + "'", typeof(T));
+            if (value is string) value = (T)Convert.ChangeType(MiscUtils.SQLString(value.ToString()), typeof(T));
 
             string sourceID = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
             return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", type, key, value, sourceID));
