@@ -67,13 +67,13 @@ namespace PvPController {
 
                 if (PvPController.config.enableBuffDebuff)
                     if (debuffInfo.buffid != 0)
-                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} ({2}s) to weapons."
-                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(debuffInfo.buffid), debuffInfo.buffDuration / 60.0)));
+                        sb.AppendLine("Buff {0} applies {1} ({2}s) to weapons."
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(debuffInfo.buffid), debuffInfo.buffDuration / 60.0).SeparateToLines());
 
                 if (PvPController.config.enableBuffSelfBuff)
                     if (selfBuffInfo.buffid != 0)
-                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} to self for {2}s on attack."
-                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(selfBuffInfo.buffid), selfBuffInfo.buffDuration / 60.0)));
+                        sb.AppendLine("Buff {0} applies {1} to self for {2}s on attack."
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(selfBuffInfo.buffid), selfBuffInfo.buffDuration / 60.0).SeparateToLines());
             }
 
             if (PvPController.config.enableKnockback)

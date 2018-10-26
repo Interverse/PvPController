@@ -21,6 +21,38 @@ namespace PvPController.Network {
         public static event EventHandler<TogglePvPArgs> PvPToggled;
         public static event EventHandler<PlayerSlotArgs> PlayerSlotUpdated;
 
+        public static void HandleData(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
+            switch (args.MsgID) {
+                case PacketTypes.PlayerHurtV2:
+                    DataHandler.OnPlayerHurt(args, data, attacker);
+                    break;
+
+                case PacketTypes.TogglePvp:
+                    DataHandler.OnPvPToggled(attacker);
+                    break;
+
+                case PacketTypes.PlayerSlot:
+                    DataHandler.OnPlayerSlotUpdated(data, attacker);
+                    break;
+
+                case PacketTypes.PlayerDeathV2:
+                    DataHandler.OnPlayerDead(attacker);
+                    break;
+
+                case PacketTypes.ProjectileNew:
+                    DataHandler.OnProjectileNew(args, data, attacker);
+                    break;
+
+                case PacketTypes.ProjectileDestroy:
+                    DataHandler.OnProjectileDestroyed(data);
+                    break;
+
+                case PacketTypes.PlayerUpdate:
+                    DataHandler.OnPlayerUpdated(data, attacker);
+                    break;
+            }
+        }
+
         public static void OnPlayerHurt(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
             if (PlayerHurt != null)
                 PlayerHurt(typeof(DataHandler), new PlayerHurtArgs(args, data, attacker));

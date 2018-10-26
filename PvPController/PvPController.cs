@@ -128,35 +128,7 @@ namespace PvPController {
             if (attacker == null || !attacker.TPlayer.active || !attacker.ConnectionAlive) return;
             if (!attacker.TPlayer.hostile) return;
 
-            switch (args.MsgID) {
-                case PacketTypes.PlayerHurtV2:
-                    DataHandler.OnPlayerHurt(args, data, attacker);
-                    break;
-
-                case PacketTypes.TogglePvp:
-                    DataHandler.OnPvPToggled(attacker);
-                    break;
-
-                case PacketTypes.PlayerSlot:
-                    DataHandler.OnPlayerSlotUpdated(data, attacker);
-                    break;
-
-                case PacketTypes.PlayerDeathV2:
-                    DataHandler.OnPlayerDead(attacker);
-                    break;
-
-                case PacketTypes.ProjectileNew:
-                    DataHandler.OnProjectileNew(args, data, attacker);
-                    break;
-
-                case PacketTypes.ProjectileDestroy:
-                    DataHandler.OnProjectileDestroyed(data);
-                    break;
-
-                case PacketTypes.PlayerUpdate:
-                    DataHandler.OnPlayerUpdated(data, attacker);
-                    break;
-            }
+            DataHandler.HandleData(args, data, attacker);
         }
     }
 }

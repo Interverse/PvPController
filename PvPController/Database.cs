@@ -110,7 +110,7 @@ namespace PvPController {
         public static bool Update<T>(string type, int index, string key, T value) {
             bool selectAll = index <= 0;
 
-            if (value is string) value = (T)Convert.ChangeType(MiscUtils.SQLString(value.ToString()), typeof(T));
+            if (value is string) value = (T)Convert.ChangeType(value.ToString().SQLString(), typeof(T));
 
             string sourceID = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
             return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", type, key, value, sourceID));
@@ -149,7 +149,7 @@ namespace PvPController {
                             "INSERT INTO {0} ({1}) VALUES ({2})"
                             .SFormat(DBConsts.ItemTable,
                                 string.Join(", ", ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
-                                string.Join(", ", x, MiscUtils.SQLString(name), damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0));
+                                string.Join(", ", x, name.SQLString(), damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0));
                         cmd.ExecuteNonQuery();
                     }
 
@@ -171,7 +171,7 @@ namespace PvPController {
                             "INSERT INTO {0} ({1}) VALUES ({2})"
                             .SFormat(DBConsts.ProjectileTable,
                                 string.Join(", ", ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
-                                string.Join(", ", x, MiscUtils.SQLString(name), damage, inflictBuff, inflictBuffDuration, 0, 0));
+                                string.Join(", ", x, name.SQLString(), damage, inflictBuff, inflictBuffDuration, 0, 0));
                         cmd.ExecuteNonQuery();
                     }
 
@@ -188,7 +188,7 @@ namespace PvPController {
                             "INSERT INTO {0} ({1}) VALUES ({2})"
                             .SFormat(DBConsts.BuffTable,
                                 string.Join(", ", ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
-                                string.Join(", ", x, MiscUtils.SQLString(name), inflictBuff, inflictBuffDuration, 0, 0));
+                                string.Join(", ", x, name.SQLString(), inflictBuff, inflictBuffDuration, 0, 0));
                         cmd.ExecuteNonQuery();
                     }
 
