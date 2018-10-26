@@ -67,8 +67,8 @@ namespace PvPController {
             
             sqlCreator.EnsureTableStructure(new SqlTable(DBConsts.ProjectileTable,
                 new SqlColumn(ID, MySqlDbType.Int32) { Primary = true },
-                new SqlColumn(Name, MySqlDbType.String) { Length = 255 },
-                new SqlColumn(Damage, MySqlDbType.Text),
+                new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
+                new SqlColumn(Damage, MySqlDbType.Int32),
                 new SqlColumn(InflictBuffID, MySqlDbType.Int32),
                 new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffID, MySqlDbType.Int32),

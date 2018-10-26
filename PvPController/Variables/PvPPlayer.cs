@@ -60,7 +60,7 @@ namespace PvPController.Variables {
         /// <param name="projectile"></param>
         /// <returns></returns>
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || Database.GetData<int>(DBConsts.ProjectileTable, projectile.type, DBConsts.Damage) < 1) 
+            int damage = (projectile == null || projectile.GetConfigDamage() < 1) 
                 ? weapon.GetPvPDamage(attacker) 
                 : projectile.GetConfigDamage();
 

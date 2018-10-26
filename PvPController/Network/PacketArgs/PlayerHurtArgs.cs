@@ -45,6 +45,9 @@ namespace PvPController.Network.PacketArgs {
                 return;
             }
 
+            this.projectile = playerHitReason.SourceProjectileIndex == -1 ?
+                null : attacker.projTracker.projectiles[playerHitReason.SourceProjectileType];
+
             int int1 = data.ReadInt16(); //damage
             int int2 = data.ReadByte(); //knockback
 
@@ -55,8 +58,6 @@ namespace PvPController.Network.PacketArgs {
             this.attacker = attacker;
             this.target = target;
 
-            this.projectile = playerHitReason.SourceProjectileIndex == -1 ?
-                null : attacker.projTracker.projectiles[playerHitReason.SourceProjectileType];
             this.weapon = projectile == null ? attacker.GetPlayerItem() : projectile.itemOriginated;
             this.inflictedDamage = PvPController.config.enableDamageChanges ? target.GetDamageDealt(attacker, weapon, projectile) : int1;
             this.damageReceived = target.GetDamageReceived(inflictedDamage);
