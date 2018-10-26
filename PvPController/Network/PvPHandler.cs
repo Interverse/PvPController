@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using PvPController.Network.PacketArgs;
 using PvPController.Variables;
 using PvPController.Variables;
 using System;
@@ -50,20 +51,24 @@ namespace PvPController.Network {
                 e.velocity = Vector2.Normalize(e.velocity) * Database.GetData<float>(DBConsts.ItemTable, e.weapon.netID, DBConsts.ShootSpeed);
                 isModified = true;
             }
-            
-            var projectile = Main.projectile[index];
-            projectile.SetDefaults(e.type);
-            projectile.identity = index;
-            projectile.damage = e.damage;
-            projectile.active = true;
-            projectile.owner = e.owner;
-            projectile.velocity = e.velocity;
-            projectile.position = e.position;
+
+            if (isModified) {
+                e.args.Handled = true;
+
+                var projectile = Main.projectile[index];
+                projectile.SetDefaults(e.type);
+                projectile.identity = index;
+                projectile.damage = e.damage;
+                projectile.active = true;
+                projectile.owner = e.owner;
+                projectile.velocity = e.velocity;
+                projectile.position = e.position;
+
+                NetMessage.SendData(27, -1, -1, null, index);
+            }
 
             e.attacker.projTracker.InsertProjectile(index, e.type, e.owner, e.weapon);
-
-            e.args.Handled = isModified;
-            if (isModified) NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+            e.attacker.projTracker.projectiles[e.type].PerformProjectileAction();
         }
 
         /// <summary>
@@ -75,7 +80,7 @@ namespace PvPController.Network {
         private void OnPlayerHurt(object sender, PlayerHurtArgs e) {
             if (!PvPController.config.enablePlugin) return;
 
-            if (e.target == null || !e.target.ConnectionAlive || !e.target.Active) return;
+            if (!e.isPvPDamage) return;
 
             e.args.Handled = true;
 

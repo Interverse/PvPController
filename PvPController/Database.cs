@@ -159,12 +159,12 @@ namespace PvPController {
                         int inflictBuff = 0;
                         int inflictBuffDuration = 0;
 
-                        if (ProjectileUtils.presetProjDamage.ContainsKey(x)) {
-                            damage = ProjectileUtils.presetProjDamage[x];
+                        if (PresetData.PresetProjDamage.ContainsKey(x)) {
+                            damage = PresetData.PresetProjDamage[x];
                         }
-                        if (ProjectileUtils.projectileDebuffs.ContainsKey(x)) {
-                            inflictBuff = ProjectileUtils.projectileDebuffs[x].buffid;
-                            inflictBuffDuration = ProjectileUtils.projectileDebuffs[x].buffDuration;
+                        if (PresetData.ProjectileDebuffs.ContainsKey(x)) {
+                            inflictBuff = PresetData.ProjectileDebuffs[x].buffid;
+                            inflictBuffDuration = PresetData.ProjectileDebuffs[x].buffDuration;
                         }
 
                         cmd.CommandText =
@@ -179,9 +179,9 @@ namespace PvPController {
                         string name = Lang.GetBuffName(x);
                         int inflictBuff = 0;
                         int inflictBuffDuration = 0;
-                        if (MiscData.flaskDebuffs.ContainsKey(x)) {
-                            inflictBuff = MiscData.flaskDebuffs[x].buffid;
-                            inflictBuffDuration = MiscData.flaskDebuffs[x].buffDuration;
+                        if (PresetData.FlaskDebuffs.ContainsKey(x)) {
+                            inflictBuff = PresetData.FlaskDebuffs[x].buffid;
+                            inflictBuffDuration = PresetData.FlaskDebuffs[x].buffDuration;
                         }
 
                         cmd.CommandText =

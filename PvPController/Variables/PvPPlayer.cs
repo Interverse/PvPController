@@ -260,7 +260,7 @@ namespace PvPController.Variables {
             int buffType;
             for(int x = 0; x < Terraria.Player.maxBuffs; x++) {
                 buffType = attacker.TPlayer.buffType[x];
-                if (MiscData.flaskDebuffs.ContainsKey(buffType)) {
+                if (PresetData.FlaskDebuffs.ContainsKey(buffType)) {
                     if (weapon.melee) {
                         this.SetBuff(Database.GetBuffDuration(DBConsts.BuffTable, buffType, true));
                     }

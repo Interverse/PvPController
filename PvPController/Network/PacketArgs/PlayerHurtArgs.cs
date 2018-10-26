@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Terraria.DataStructures;
 using TerrariaApi.Server;
 
-namespace PvPController.Network {
+namespace PvPController.Network.PacketArgs {
     public class PlayerHurtArgs : EventArgs {
         public GetDataEventArgs args { get; set; }
 
@@ -27,13 +27,20 @@ namespace PvPController.Network {
         public int hitDirection { get; set; }
         public int crit { get; set; }
 
+        public bool isPvPDamage { get; set; }
+
         public PlayerHurtArgs(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
             this.args = args;
             
             PvPPlayer target = PvPController.pvpers[data.ReadByte()];
             PlayerDeathReason playerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
-            if (target == null || !target.ConnectionAlive || !target.Active) return;
+            if (target == null || !target.ConnectionAlive || !target.Active) {
+                isPvPDamage = false;
+                return;
+            }
+
             if (playerHitReason.SourcePlayerIndex == -1) {
+                isPvPDamage = false;
                 target.lastHitBy = null;
                 return;
             }
@@ -56,6 +63,7 @@ namespace PvPController.Network {
             this.hitDirection = int2 - 1;
             this.crit = attacker.GetCrit(weapon);
             this.playerHitReason = playerHitReason;
+            this.isPvPDamage = true;
         }
     }
 }

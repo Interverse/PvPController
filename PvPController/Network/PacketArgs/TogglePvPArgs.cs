@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PvPController.Network {
+namespace PvPController.Network.PacketArgs {
     public class TogglePvPArgs : EventArgs {
         public PvPPlayer player;
 

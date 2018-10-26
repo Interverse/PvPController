@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using Terraria;
 using TerrariaApi.Server;
 
-namespace PvPController.Network {
+namespace PvPController.Network.PacketArgs {
     public class ProjectileNewArgs : EventArgs {
-
+        
         public GetDataEventArgs args;
         public PvPPlayer attacker;
         public PvPItem weapon;

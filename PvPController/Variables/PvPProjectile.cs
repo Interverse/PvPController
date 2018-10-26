@@ -81,13 +81,13 @@ namespace PvPController.Variables {
             switch (type) {
                 //Medusa Ray projectile
                 case 536:
-                    for (int x = 0; x < PvPController.pvpers.Length; x++) {
-                        if (ownerProjectile.Index == PvPController.pvpers[x].Index) continue;
-                        if (!PvPController.pvpers[x].TPlayer.hostile || PvPController.pvpers[x].Dead) continue;
-                        if (Vector2.Distance(ownerProjectile.TPlayer.position, PvPController.pvpers[x].TPlayer.position) <= 300) {
-                            if (PvPController.pvpers[x].CheckMedusa()) {
-                                PvPController.pvpers[x].DamagePlayer(ownerProjectile, itemOriginated, PvPController.pvpers[x].GetDamageDealt(ownerProjectile, itemOriginated, this), 0, PvPUtils.IsCrit(ownerProjectile.GetCrit(itemOriginated)));
-                                PvPController.pvpers[x].SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, 535, true));
+                    foreach (PvPPlayer pvper in PvPController.pvpers.Where(c => c != null)) {
+                        if (ownerProjectile.Index == pvper.Index) continue;
+                        if (!pvper.TPlayer.hostile || pvper.Dead) continue;
+                        if (Vector2.Distance(ownerProjectile.TPlayer.position, pvper.TPlayer.position) <= 300) {
+                            if (pvper.CheckMedusa()) {
+                                pvper.DamagePlayer(ownerProjectile, itemOriginated, pvper.GetDamageDealt(ownerProjectile, itemOriginated, this), 0, PvPUtils.IsCrit(ownerProjectile.GetCrit(itemOriginated)));
+                                pvper.SetBuff(Database.GetBuffDuration(DBConsts.ProjectileTable, 535, true));
                             }
                         }
                     }

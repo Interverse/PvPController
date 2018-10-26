@@ -1,4 +1,5 @@
-﻿using PvPController.Variables;
+﻿using PvPController.Network.PacketArgs;
+using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.IO;

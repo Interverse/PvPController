@@ -48,7 +48,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public PvPProjectile GetItemShoot() {
-            return new PvPProjectile(Database.GetData<int>(DBConsts.ProjectileTable, type, DBConsts.Shoot));
+            return new PvPProjectile(Database.GetData<int>(DBConsts.ItemTable, type, DBConsts.Shoot));
         }
 
         /// <summary>

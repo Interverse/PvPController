@@ -280,8 +280,8 @@ namespace PvPController {
 
                 deathItemTag = "";
 
-                normalDeathMessages = MiscData.normalDeathMessages;
-                reflectedDeathMessages = MiscData.reflectedDeathMessages;
+                normalDeathMessages = PresetData.NormalDeathMessages;
+                reflectedDeathMessages = PresetData.ReflectedDeathMessages;
                 
                 Database.InitDefaultTables();
 

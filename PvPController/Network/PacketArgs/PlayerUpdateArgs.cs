@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TerrariaApi.Server;
 
-namespace PvPController.Network {
+namespace PvPController.Network.PacketArgs {
     public class PlayerUpdateArgs : EventArgs {
         public PvPPlayer player { get; set; }
 
