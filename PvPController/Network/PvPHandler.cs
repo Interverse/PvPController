@@ -32,7 +32,6 @@ namespace PvPController.Network {
             if (Main.projectile[e.Identity].active && Main.projectile[e.Identity].type == e.Type) return;
 
             var isModified = false;
-            int index = ProjectileUtils.FindFreeIndex();
 
             if (e.Attacker == null || !e.Attacker.TPlayer.hostile) return;
 
@@ -51,19 +50,19 @@ namespace PvPController.Network {
             if (isModified) {
                 e.Args.Handled = true;
 
-                var projectile = Main.projectile[index];
+                var projectile = Main.projectile[e.Identity];
                 projectile.SetDefaults(e.Type);
-                projectile.identity = index;
+                projectile.identity = e.Identity;
                 projectile.damage = e.Damage;
                 projectile.active = true;
                 projectile.owner = e.Owner;
                 projectile.velocity = e.Velocity;
                 projectile.position = e.Position;
 
-                NetMessage.SendData(27, -1, -1, null, index);
+                NetMessage.SendData(27, -1, -1, null, e.Identity);
             }
 
-            e.Attacker.ProjTracker.InsertProjectile(index, e.Type, e.Owner, e.Weapon);
+            e.Attacker.ProjTracker.InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon);
             e.Attacker.ProjTracker.Projectiles[e.Type].PerformProjectileAction();
         }
 

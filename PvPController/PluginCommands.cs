@@ -164,7 +164,7 @@ namespace PvPController {
             if (Database.Update(type, id, stat, value)) {
                 args.Player.SendSuccessMessage("Successfully converted ({0}){1}'s {2} to {3}".SFormat(type, MiscUtils.GetNameFromInput(type, id), stat, value));
                 if (modifyProjectile) {
-                    Database.Update(type, id, DbConsts.IsShootModded, true);
+                    Database.Update(type, id, DbConsts.IsShootModded, 1);
                 }
             } else {
                 args.Player.SendErrorMessage("Failed to convert ({0}){1}'s {2} to {3}".SFormat(type, MiscUtils.GetNameFromInput(type, id), stat, value));
@@ -384,7 +384,6 @@ namespace PvPController {
                 return;
             }
 
-            int id;
             string table;
 
             switch (args.Parameters[0].ToLower()) {
@@ -422,7 +421,7 @@ namespace PvPController {
             }
 
 
-            if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
+            if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out int id)) {
                 args.Player.SendErrorMessage("Please provide a valid id.");
                 return;
             }

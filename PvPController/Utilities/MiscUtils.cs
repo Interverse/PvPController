@@ -23,7 +23,7 @@ namespace PvPController.Utilities {
         }
 
         /// <summary>
-        /// Converts a string that is friendly with sql inputs.
+        /// Converts a string to be friendly with sql inputs.
         /// </summary>
         public static string SqlString(this string s) => "'" + SanitizeString(s) + "'";
 
