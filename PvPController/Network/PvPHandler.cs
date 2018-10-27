@@ -24,8 +24,8 @@ namespace PvPController.Network {
         /// Stores projectiles to an array with its originated weapon.
         /// Changes projectile types and shootspeed based off server config.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="args"></param>
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPController.Config.EnablePlugin) return;
 
@@ -71,8 +71,8 @@ namespace PvPController.Network {
         /// Calculates pvp damage and performs interactions with players,
         /// such as buffs and other miscellaneous broken vanilla pvp mechanics.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="e"></param>
         private void OnPlayerHurt(object sender, PlayerHurtArgs e) {
             if (!PvPController.Config.EnablePlugin) return;
 
@@ -109,8 +109,7 @@ namespace PvPController.Network {
                 e.Target.SetBuff(Database.GetBuffInfo(DbConsts.ItemTable, e.Attacker.GetPlayerItem.netID, true));
 
             if (PvPController.Config.EnableWeaponSelfBuffs)
-                e.Attacker.SetBuff(
-                    Database.GetBuffInfo(DbConsts.ItemTable, e.Attacker.GetPlayerItem.netID, false));
+                e.Attacker.SetBuff(Database.GetBuffInfo(DbConsts.ItemTable, e.Attacker.GetPlayerItem.netID, false));
 
             if (PvPController.Config.EnableBuffDebuff)
                 e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
@@ -122,8 +121,8 @@ namespace PvPController.Network {
         /// <summary>
         /// Updates a player's vortex status.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="e"></param>
         private void OnPlayerUpdated(object sender, PlayerUpdateArgs e) {
             e.Player.TPlayer.vortexStealthActive = (e.Pulley & 8) == 8;
 
@@ -137,8 +136,8 @@ namespace PvPController.Network {
         /// This only activates if a person turns off pvp, not when
         /// they turn it on.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="e"></param>
         private void OnPvPToggled(object sender, TogglePvPArgs e) {
             Interface.ClearInterface(e.Player);
         }

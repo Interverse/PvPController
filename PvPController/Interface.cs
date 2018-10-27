@@ -14,7 +14,7 @@ namespace PvPController {
         /// Displays the stats of a player and weapon on the right side of their screen.
         /// Stats include damage, projectile, debuffs and buffs, knockback, criticals, and defense.
         /// </summary>
-        /// <param name="player"></param>
+        /// <param Name="player"></param>
         public static void DisplayInterface(PvPPlayer player) {
             StringBuilder sb = new StringBuilder();
 
@@ -30,7 +30,7 @@ namespace PvPController {
             sb.AppendLine(new string('-', 40));
 
             if (weapon.GetPvPDamage(player) > 0 && weapon.netID != 0)
-                sb.AppendLine(weapon.name + ": " + weapon.GetPvPDamage(player) + " damage");
+                sb.AppendLine(weapon.Name + ": " + weapon.GetPvPDamage(player) + " damage");
 
             if (PvPController.Config.EnableWeaponDebuffs)
                 if (weapon.GetDebuffInfo.BuffId != 0)
@@ -89,7 +89,7 @@ namespace PvPController {
         /// <summary>
         /// Sends a empty string to clear the player interface on the right side of the screen.
         /// </summary>
-        /// <param name="player"></param>
+        /// <param Name="player"></param>
         public static void ClearInterface(PvPPlayer player) {
             player.SendData(PacketTypes.Status, String.Empty);
         }
@@ -97,9 +97,9 @@ namespace PvPController {
         /// <summary>
         /// Brings a brief text pop-up above a person displaying a message.
         /// </summary>
-        /// <param name="player"></param>
-        /// <param name="message"></param>
-        /// <param name="color"></param>
+        /// <param Name="player"></param>
+        /// <param Name="message"></param>
+        /// <param Name="color"></param>
         public static void PlayerTextPopup(PvPPlayer player, string message, Color color) {
             NetMessage.SendData(119, player.Index, -1, NetworkText.FromLiteral(message), (int)color.PackedValue, player.X, player.Y + 10);
         }
@@ -107,10 +107,10 @@ namespace PvPController {
         /// <summary>
         /// Brings a brief text pop-up above a person displaying a message.
         /// </summary>
-        /// <param name="player"></param>
-        /// <param name="target"></param>
-        /// <param name="message"></param>
-        /// <param name="color"></param>
+        /// <param Name="player"></param>
+        /// <param Name="target"></param>
+        /// <param Name="message"></param>
+        /// <param Name="color"></param>
         public static void PlayerTextPopup(PvPPlayer player, PvPPlayer target, string message, Color color) {
             NetMessage.SendData(119, player.Index, -1, NetworkText.FromLiteral(message), (int)color.PackedValue, target.X, target.Y + 10);
         }

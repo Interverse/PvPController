@@ -88,7 +88,7 @@ namespace PvPController {
         /// <summary>
         /// Performs an SQL query
         /// </summary>
-        /// <param name="query">The SQL statement</param>
+        /// <param Name="query">The SQL statement</param>
         /// <returns>
         /// Returns true if the statement was successful.
         /// Returns false if the statement failed.
@@ -263,8 +263,8 @@ namespace PvPController {
         /// <summary>
         /// Deletes the contents of an entire row.
         /// </summary>
-        /// <param name="table">The table to delete from</param>
-        /// <param name="id">The ID of the data being deleted</param>
+        /// <param Name="table">The table to delete from</param>
+        /// <param Name="id">The ID of the data being deleted</param>
         public static void DeleteRow(string table, int id) {
             Query("DELETE FROM {0} WHERE ID = {1}".SFormat(table, id));
         }

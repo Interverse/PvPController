@@ -40,7 +40,7 @@ namespace PvPController.Variables {
         /// <summary>
         /// Finds the player's item from its inventory.
         /// </summary>
-        /// <param name="type">Type of item being found</param>
+        /// <param Name="type">Type of item being found</param>
         /// <returns>The item in the player's inventory</returns>
         public PvPItem FindPlayerItem(int type) => PvPUtils.ConvertToPvPItem(TPlayer.inventory[TPlayer.FindItem(type)]);
 
@@ -269,7 +269,7 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the first available ammo for a weapon.
         /// </summary>
-        /// <param name="weapon">The weapon to find ammo for.</param>
+        /// <param Name="weapon">The weapon to find ammo for.</param>
         /// <returns></returns>
         public PvPItem GetFirstAvailableAmmo(PvPItem weapon) {
             int useAmmo = weapon.useAmmo;

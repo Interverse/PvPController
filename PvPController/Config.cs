@@ -58,7 +58,7 @@ namespace PvPController {
         /// <summary>
         /// Writes the current internal server config to the external .json file
         /// </summary>
-        /// <param name="path"></param>
+        /// <param Name="path"></param>
         public void Write(string path) {
             File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
         }

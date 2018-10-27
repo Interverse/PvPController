@@ -9,10 +9,10 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Generates a death message for a person based off the weapon and type of death.
         /// </summary>
-        /// <param name="attacker">The person inflicting the hit.</param>
-        /// <param name="deadplayer">The target receiving the death message.</param>
-        /// <param name="weapon">The weapon used to hit the target.</param>
-        /// <param name="type">1 for normal hits, 2 for reflection hits such as thorns and turtle.</param>
+        /// <param Name="attacker">The person inflicting the hit.</param>
+        /// <param Name="deadplayer">The target receiving the death message.</param>
+        /// <param Name="weapon">The weapon used to hit the target.</param>
+        /// <param Name="type">1 for normal hits, 2 for reflection hits such as thorns and turtle.</param>
         /// <returns>A string of the death message.</returns>
         public static string GetPvPDeathMessage(PvPPlayer attacker, PvPPlayer deadplayer, PvPItem weapon, int type = 1) {
             Random random = new Random();
@@ -27,7 +27,7 @@ namespace PvPController.Utilities {
             if (PvPController.Config.DeathItemTag == "weapon" && type == 1) tag = weapon.netID != 0 ? "[i/p{0}:{1}] ".SFormat(weapon.prefix, weapon.netID) : "";
             else if (PvPController.Config.DeathItemTag == "weapon" && type == 2) tag = "[i:1150] ";
 
-            return tag + deadplayer.Name + deathmessage + attacker.Name + "'s " + weapon.name + ".";
+            return tag + deadplayer.Name + deathmessage + attacker.Name + "'s " + weapon.Name + ".";
         }
 
         /// <summary>
@@ -42,8 +42,8 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Gets the damage dealt from the ammo based off the attacker's stats.
         /// </summary>
-        /// <param name="attacker">The person to calculate the ammo damage for.</param>
-        /// <param name="weapon">The weapon the ammo is used for.</param>
+        /// <param Name="attacker">The person to calculate the ammo damage for.</param>
+        /// <param Name="weapon">The weapon the ammo is used for.</param>
         /// <returns></returns>
         public static int GetAmmoDamage(PvPPlayer attacker, PvPItem weapon) {
             int ammoDamage = TerrariaUtils.GetWeaponDamage(attacker, attacker.GetFirstAvailableAmmo(weapon));
@@ -67,7 +67,7 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Generates a boolean for a critical based off the percentage.
         /// </summary>
-        /// <param name="percentage"></param>
+        /// <param Name="percentage"></param>
         /// <returns></returns>
         public static bool IsCrit(int percentage) {
             Random random = new Random();
@@ -77,7 +77,7 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Primarily plugin use. Shortcut method to allow the plugin to display a message to the server.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param Name="message"></param>
         public static void PrintDebugValue(object message) {
             TShock.Utils.Broadcast(message.ToString(), 123, 123, 123);
         }
@@ -85,7 +85,7 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Converts a regular Terraria <see cref="Item"/> into a <see cref="PvPItem"/>.
         /// </summary>
-        /// <param name="item"></param>
+        /// <param Name="item"></param>
         /// <returns></returns>
         public static PvPItem ConvertToPvPItem(Item item) {
             return new PvPItem(item);

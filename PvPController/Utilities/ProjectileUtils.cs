@@ -10,8 +10,8 @@ namespace PvPController.Utilities {
         /// projectile-to-weapon-mapping Dictionaries and returns
         /// the weapon based off the dictionary mapping.
         /// </summary>
-        /// <param name="owner">Owner of projectile.</param>
-        /// <param name="type">Type of projectile.</param>
+        /// <param Name="owner">Owner of projectile.</param>
+        /// <param Name="type">Type of projectile.</param>
         /// <returns>Returns the item the projectile came from.</returns>
         public static PvPItem GetProjectileWeapon(PvPPlayer owner, int type) {
             PvPItem weapon;
@@ -47,9 +47,9 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Gets the projectile from the Main's projectile array
         /// </summary>
-        /// <param name="identity">Identity of projectile</param>
-        /// <param name="type">Type of projectile</param>
-        /// <param name="owner">Owner Id</param>
+        /// <param Name="identity">Identity of projectile</param>
+        /// <param Name="type">Type of projectile</param>
+        /// <param Name="owner">Owner Id</param>
         /// <returns>A projectile from Main.projectile</returns>
         public static Projectile GetMainProjectile(int identity, int type, int owner) {
             return Main.projectile.Where(c => c != null)

@@ -30,7 +30,7 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Generates a string with a specified amount of line breaks.
         /// </summary>
-        /// <param name="amount">The amount of line breaks.</param>
+        /// <param Name="amount">The amount of line breaks.</param>
         public static string LineBreaks(int amount) {
             StringBuilder sb = new StringBuilder();
             for (int x = 0; x < amount; x++) {
@@ -76,7 +76,7 @@ namespace PvPController.Utilities {
         }
 
         /// <summary>
-        /// Gets a list of projectiles based off the given name query.
+        /// Gets a list of projectiles based off the given Name query.
         /// </summary>
         public static List<int> GetProjectileByName(this TShockAPI.Utils util, string name) {
             string nameLower = name.ToLower();
@@ -108,7 +108,7 @@ namespace PvPController.Utilities {
         }
 
         /// <summary>
-        /// Gets the name of a item, projectile, or buff.
+        /// Gets the Name of a item, projectile, or buff.
         /// </summary>
         public static string GetNameFromInput(string input, int id) {
             if (input == DbConsts.ItemTable) {

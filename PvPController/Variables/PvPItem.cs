@@ -3,7 +3,7 @@ using Terraria;
 
 namespace PvPController.Variables {
     public class PvPItem : Item {
-        public string name => SpecialName == "" ? Database.GetData<string>(DbConsts.ItemTable, type, DbConsts.Name) : SpecialName;
+        public string Name => SpecialName == "" ? Database.GetData<string>(DbConsts.ItemTable, type, DbConsts.Name) : SpecialName;
         public string SpecialName = "";
         public double Damage;
         public float Knockback;
@@ -34,7 +34,7 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets raw damage based off Terraria damage calculations.
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param Name="owner"></param>
         /// <returns></returns>
         public int GetPvPDamage(PvPPlayer owner) => TerrariaUtils.GetWeaponDamage(owner, this);
 
@@ -47,7 +47,7 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the knockback of an item.
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param Name="owner"></param>
         /// <returns></returns>
         public float GetKnockback(PvPPlayer owner) =>
             owner.TPlayer.GetWeaponKnockback(this, Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Knockback));

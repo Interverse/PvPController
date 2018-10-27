@@ -6,7 +6,7 @@ namespace PvPController {
         private static readonly string ModAllParameters = "Parameters: <Items/Projectiles/Buffs> <Name/Shoot/IsShootModded/ShootSpeed/Knockback/Defense/InflictBuffID/InflictBuffDuration/ReceiveBuffID/ReceiveBuffDuration> <value>";
 
         private static readonly string TableList = "<{0}>".SFormat(string.Join("/", DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable));
-        private static readonly string ItemIdParam = "<\"item name\"/id>";
+        private static readonly string ItemIdParam = "<\"item Name\"/id>";
         private static readonly string StatList = "<{0}>".SFormat(string.Join("/", DbConsts.Name, DbConsts.Shoot, DbConsts.IsShootModded, DbConsts.ShootSpeed, DbConsts.Knockback, DbConsts.Defense, DbConsts.InflictBuffId, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffId, DbConsts.ReceiveBuffDuration).SeparateToLines(60, "/"));
         private static readonly string ModStatParameters = "Parameters: {0} {1}\r\n{2} <value>".SFormat(TableList, ItemIdParam, StatList);
 
@@ -31,12 +31,8 @@ namespace PvPController {
             Commands.ChatCommands.Add(new Command("pvpcontroller.all", ModAll, "modall", "ma") { HelpText = "Modifies a setting for all items. " + ModAllParameters });
 
             Commands.ChatCommands.Add(new Command(ToggleTooltip, "toggletooltip", "tt") { HelpText = "Toggles damage/defense tooltip popups." });
-
-            Commands.ChatCommands.Add(new Command("pvpcontroller.dev", MemesFrom2006, "memesfrom2006") { HelpText = "Brings memes from 2006 lol" });
+            
             Commands.ChatCommands.Add(new Command("pvpcontroller.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
-        }
-
-        private static void MemesFrom2006(CommandArgs args) {
         }
 
         private static void ModStat(CommandArgs args) {
@@ -83,9 +79,9 @@ namespace PvPController {
                     id = foundSearches[0];
                 } else {
                     if (foundSearches.Count == 0) {
-                        player.SendErrorMessage("Found no {0} of name {1}".SFormat(type, input[1]));
+                        player.SendErrorMessage("Found no {0} of Name {1}".SFormat(type, input[1]));
                     } else {
-                        player.SendErrorMessage("Found multiple {0} of name {1}".SFormat(type, input[1]));
+                        player.SendErrorMessage("Found multiple {0} of Name {1}".SFormat(type, input[1]));
                         foreach(int foundId in foundSearches) {
                             player.SendErrorMessage(MiscUtils.GetNameFromInput(type, foundId));
                         }
@@ -95,7 +91,7 @@ namespace PvPController {
             }
 
             switch (input[2].ToLower()) {
-                case "name":
+                case "Name":
                 case "n":
                     stat = DbConsts.Name;
                     break;
@@ -161,7 +157,7 @@ namespace PvPController {
             }
 
             if (!MiscUtils.TryConvertStringToType(Database.GetType(type, stat), input[3], out var value)) {
-                player.SendErrorMessage("{0} do not have the {1} stat.".SFormat(type, stat));
+                player.SendErrorMessage("{0} does not have the {1} stat.".SFormat(type, stat));
                 return;
             }
 
@@ -389,6 +385,7 @@ namespace PvPController {
             }
 
             int id;
+            string table;
 
             switch (args.Parameters[0].ToLower()) {
                 case "database":
@@ -406,44 +403,33 @@ namespace PvPController {
 
                 case "item":
                 case "i":
-                    if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
-                        args.Player.SendErrorMessage("Please provide a valid id.");
-                        return;
-                    }
-
-                    Database.DeleteRow(DbConsts.ItemTable, id);
-                    Database.Query(Database.GetDefaultValueSqlString(DbConsts.ItemTable, id));
-                    args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(DbConsts.ItemTable, id)));
-                    return;
+                    table = DbConsts.ItemTable;
+                    break;
 
                 case "projectile":
                 case "p":
-                    if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
-                        args.Player.SendErrorMessage("Please provide a valid id.");
-                        return;
-                    }
-
-                    Database.DeleteRow(DbConsts.ProjectileTable, id);
-                    Database.Query(Database.GetDefaultValueSqlString(DbConsts.ProjectileTable, id));
-                    args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(DbConsts.ProjectileTable, id)));
-                    return;
+                    table = DbConsts.ProjectileTable;
+                    break;
 
                 case "buff":
                 case "b":
-                    if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
-                        args.Player.SendErrorMessage("Please provide a valid id.");
-                        return;
-                    }
-
-                    Database.DeleteRow(DbConsts.BuffTable, id);
-                    Database.Query(Database.GetDefaultValueSqlString(DbConsts.BuffTable, id));
-                    args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(DbConsts.BuffTable, id)));
-                    return;
+                    table = DbConsts.BuffTable;
+                    break;
 
                 default:
                     args.Player.SendErrorMessage("Invalid parameters. " + ResetList);
                     return;
             }
+
+
+            if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
+                args.Player.SendErrorMessage("Please provide a valid id.");
+                return;
+            }
+
+            Database.DeleteRow(table, id);
+            Database.Query(Database.GetDefaultValueSqlString(table, id));
+            args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(table, id)));
         }
 
         private static void Reload(CommandArgs args) {
