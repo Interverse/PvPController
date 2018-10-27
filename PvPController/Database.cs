@@ -136,59 +136,17 @@ namespace PvPController {
                     }
 
                     for (int x = 0; x < Main.maxItemTypes; x++) {
-                        Item item = new Item();
-                        item.SetDefaults(x);
-
-                        string name = item.Name;
-                        int damage = item.damage;
-                        int defense = item.defense;
-                        float knockback = item.knockBack;
-                        int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
-
-                        cmd.CommandText =
-                            "INSERT INTO {0} ({1}) VALUES ({2})"
-                            .SFormat(DBConsts.ItemTable,
-                                string.Join(", ", ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
-                                string.Join(", ", x, name.SQLString(), damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0));
+                        cmd.CommandText = GetDefaultValueSQLString(ItemTable, x);
                         cmd.ExecuteNonQuery();
                     }
 
                     for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                        string name = Lang.GetProjectileName(x).Value;
-                        int damage = 0;
-                        int inflictBuff = 0;
-                        int inflictBuffDuration = 0;
-
-                        if (PresetData.PresetProjDamage.ContainsKey(x)) {
-                            damage = PresetData.PresetProjDamage[x];
-                        }
-                        if (PresetData.ProjectileDebuffs.ContainsKey(x)) {
-                            inflictBuff = PresetData.ProjectileDebuffs[x].buffid;
-                            inflictBuffDuration = PresetData.ProjectileDebuffs[x].buffDuration;
-                        }
-
-                        cmd.CommandText =
-                            "INSERT INTO {0} ({1}) VALUES ({2})"
-                            .SFormat(DBConsts.ProjectileTable,
-                                string.Join(", ", ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
-                                string.Join(", ", x, name.SQLString(), damage, inflictBuff, inflictBuffDuration, 0, 0));
+                        cmd.CommandText = GetDefaultValueSQLString(ProjectileTable, x);
                         cmd.ExecuteNonQuery();
                     }
 
                     for (int x = 0; x < Main.maxBuffTypes; x++) {
-                        string name = Lang.GetBuffName(x);
-                        int inflictBuff = 0;
-                        int inflictBuffDuration = 0;
-                        if (PresetData.FlaskDebuffs.ContainsKey(x)) {
-                            inflictBuff = PresetData.FlaskDebuffs[x].buffid;
-                            inflictBuffDuration = PresetData.FlaskDebuffs[x].buffDuration;
-                        }
-
-                        cmd.CommandText =
-                            "INSERT INTO {0} ({1}) VALUES ({2})"
-                            .SFormat(DBConsts.BuffTable,
-                                string.Join(", ", ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
-                                string.Join(", ", x, name.SQLString(), inflictBuff, inflictBuffDuration, 0, 0));
+                        cmd.CommandText = GetDefaultValueSQLString(BuffTable, x);
                         cmd.ExecuteNonQuery();
                     }
 
@@ -223,6 +181,71 @@ namespace PvPController {
             return isInflictDebuff
                 ? new BuffDuration(GetData<int>(table, id, InflictBuffID), GetData<int>(table, id, InflictBuffDuration))
                 : new BuffDuration(GetData<int>(table, id, ReceiveBuffID), GetData<int>(table, id, ReceiveBuffDuration));
+        }
+
+        public static string GetDefaultValueSQLString(string table, int id) {
+            string name;
+            int damage;
+            int defense;
+            int inflictBuff;
+            int inflictBuffDuration;
+
+            switch (table) {
+                case "Items":
+                    Item item = new Item();
+                    item.SetDefaults(id);
+
+                    name = item.Name;
+                    damage = item.damage;
+                    defense = item.defense;
+                    float knockback = item.knockBack;
+                    int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
+
+                    return "INSERT INTO {0} ({1}) VALUES ({2})"
+                        .SFormat(DBConsts.ItemTable,
+                            string.Join(", ", ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SQLString(), damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0));
+
+                case "Projectiles":
+                    name = Lang.GetProjectileName(id).Value;
+                    damage = 0;
+                    inflictBuff = 0;
+                    inflictBuffDuration = 0;
+
+                    if (PresetData.PresetProjDamage.ContainsKey(id)) {
+                        damage = PresetData.PresetProjDamage[id];
+                    }
+                    if (PresetData.ProjectileDebuffs.ContainsKey(id)) {
+                        inflictBuff = PresetData.ProjectileDebuffs[id].buffid;
+                        inflictBuffDuration = PresetData.ProjectileDebuffs[id].buffDuration;
+                    }
+
+                    return "INSERT INTO {0} ({1}) VALUES ({2})"
+                        .SFormat(DBConsts.ProjectileTable,
+                            string.Join(", ", ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SQLString(), damage, inflictBuff, inflictBuffDuration, 0, 0));
+
+                case "Buffs":
+                    name = Lang.GetBuffName(id);
+                    inflictBuff = 0;
+                    inflictBuffDuration = 0;
+                    if (PresetData.FlaskDebuffs.ContainsKey(id)) {
+                        inflictBuff = PresetData.FlaskDebuffs[id].buffid;
+                        inflictBuffDuration = PresetData.FlaskDebuffs[id].buffDuration;
+                    }
+
+                    return "INSERT INTO {0} ({1}) VALUES ({2})"
+                        .SFormat(DBConsts.BuffTable,
+                            string.Join(", ", ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SQLString(), inflictBuff, inflictBuffDuration, 0, 0));
+
+                default:
+                    return "";
+            }
+        }
+
+        public static void DeleteRow(string table, int id) {
+            Query("DELETE FROM {0} WHERE ID = {1}".SFormat(table, id));
         }
     }
 

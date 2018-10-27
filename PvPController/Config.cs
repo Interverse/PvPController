@@ -282,8 +282,6 @@ namespace PvPController {
 
                 normalDeathMessages = PresetData.NormalDeathMessages;
                 reflectedDeathMessages = PresetData.ReflectedDeathMessages;
-                
-                Database.InitDefaultTables();
 
                 firstConfigGeneration = false;
 

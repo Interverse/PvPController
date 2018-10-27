@@ -25,11 +25,13 @@ namespace PvPController {
             "deathitemtag").SeparateToLines(60, "/"));
         private static string modConfigParameters = "Parameters: {0}".SFormat(configList);
 
+        private static string resetList = "Parameters: <config/database/item/projectile/buff>";
+
         public static void registerCommands() {
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", ModConfig, "modconfig", "mc") { HelpText = "Sets config settings to server" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", Reload, "reload", "readconfig") { HelpText = "Sets config settings to server" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteConfig, "writeconfig") { HelpText = "Writes server settings to config" });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.config", ResetConfig, "resetconfig") { HelpText = "Reset server config to default values" });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.config", ResetPvP, "resetpvp", "rpvp") { HelpText = "Reset values to default" });
             Commands.ChatCommands.Add(new Command("pvpcontroller.config", WriteDocumentation, "writedocumentation") { HelpText = "Writes documentation to a .txt file in /tshock" });
 
             Commands.ChatCommands.Add(new Command("pvpcontroller.stats", ModStat, "modstat", "ms") { HelpText = "Modifies item/projectile/buff stats. " + modStatParameters });
@@ -390,10 +392,71 @@ namespace PvPController {
             args.Player.SendSuccessMessage("Written server pvp changes to config.");
         }
 
-        private static void ResetConfig(CommandArgs args) {
-            PvPController.config.ResetConfigValues();
-            PvPController.config.Write(Config.configPath);
-            args.Player.SendSuccessMessage("Reset config values to default.");
+        private static void ResetPvP(CommandArgs args) {
+            if (args.Parameters.Count < 1) {
+                args.Player.SendErrorMessage("Invalid Syntax: " + resetList);
+                return;
+            }
+
+            int id;
+
+            switch (args.Parameters[0].ToLower()) {
+                case "database":
+                case "d":
+                    Database.InitDefaultTables();
+                    args.Player.SendSuccessMessage("Reset database to default.");
+                    return;
+
+                case "config":
+                case "c":
+                    PvPController.config.ResetConfigValues();
+                    PvPController.config.Write(Config.configPath);
+                    args.Player.SendSuccessMessage("Reset config values to default.");
+                    return;
+
+                case "item":
+                case "i":
+                    if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
+                        args.Player.SendErrorMessage("Please provide a valid id.");
+                        return;
+                    }
+
+                    Database.DeleteRow(DBConsts.ItemTable, id);
+                    Database.Query(Database.GetDefaultValueSQLString(DBConsts.ItemTable, id));
+                    args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(DBConsts.ItemTable, id)));
+                    return;
+
+                case "projectile":
+                case "p":
+                    if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
+                        args.Player.SendErrorMessage("Please provide a valid id.");
+                        return;
+                    }
+
+                    Database.DeleteRow(DBConsts.ProjectileTable, id);
+                    Database.Query(Database.GetDefaultValueSQLString(DBConsts.ProjectileTable, id));
+                    args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(DBConsts.ProjectileTable, id)));
+                    return;
+
+                case "buff":
+                case "b":
+                    if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out id)) {
+                        args.Player.SendErrorMessage("Please provide a valid id.");
+                        return;
+                    }
+
+                    Database.DeleteRow(DBConsts.BuffTable, id);
+                    Database.Query(Database.GetDefaultValueSQLString(DBConsts.BuffTable, id));
+                    args.Player.SendSuccessMessage("Reset the values of {0}".SFormat(MiscUtils.GetNameFromInput(DBConsts.BuffTable, id)));
+                    return;
+
+                default:
+                    args.Player.SendErrorMessage("Invalid parameters. " + resetList);
+                    return;
+            }
+        }
+
+        private static void ResetDatabase(CommandArgs args) {
         }
 
         private static void Reload(CommandArgs args) {

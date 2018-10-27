@@ -100,7 +100,9 @@ namespace PvPController {
         /// </summary>
         /// <param name="args"></param>
         private void OnGamePostInitialize(EventArgs args) {
-            config.SetDefaultValues();
+            if (config.SetDefaultValues()) {
+                Database.InitDefaultTables();
+            }
             config.Write(Config.configPath);
         }
 
