@@ -1,15 +1,11 @@
-﻿    using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using PvPController.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 
-namespace PvPController.Variables {
+namespace PvPController.Utilities {
     /// <summary>
     /// Methods ripped off Terraria's source code to be emulated in the plugin.
     /// </summary>
@@ -18,21 +14,21 @@ namespace PvPController.Variables {
         /// <summary>
         /// Calculates the amount of damage dealt to a player after factoring in their defense stats.
         /// </summary>
-        public static double GetHurtDamage(PvPPlayer damagedPlayer, int Damage) {
+        public static double GetHurtDamage(PvPPlayer damagedPlayer, int damage) {
             damagedPlayer.TPlayer.stealth = 1f;
-            int Damage1 = Damage;
-            double dmg = Main.CalculatePlayerDamage(Damage1, damagedPlayer.TPlayer.statDefense);
+            int damage1 = damage;
+            double dmg = Main.CalculatePlayerDamage(damage1, damagedPlayer.TPlayer.statDefense);
             if (dmg >= 1.0) {
-                dmg = (double)(int)((1.0 - (double)damagedPlayer.TPlayer.endurance) * dmg);
+                dmg = (int)((1.0 - damagedPlayer.TPlayer.endurance) * dmg);
                 if (dmg < 1.0)
                     dmg = 1.0;
                 if (damagedPlayer.TPlayer.ConsumeSolarFlare()) {
-                    dmg = (double)(int)(0.7 * dmg);
+                    dmg = (int)(0.7 * dmg);
                     if (dmg < 1.0)
                         dmg = 1.0;
                 }
                 if (damagedPlayer.TPlayer.beetleDefense && damagedPlayer.TPlayer.beetleOrbs > 0) {
-                    dmg = (double)(int)((1.0 - (double)(0.15f * (float)damagedPlayer.TPlayer.beetleOrbs)) * dmg);
+                    dmg = (int)((1.0 - 0.15f * damagedPlayer.TPlayer.beetleOrbs) * dmg);
                     damagedPlayer.TPlayer.beetleOrbs = damagedPlayer.TPlayer.beetleOrbs - 1;
                     if (dmg < 1.0)
                         dmg = 1.0;
@@ -43,12 +39,12 @@ namespace PvPController.Variables {
                             Player player = Main.player[Main.myPlayer];
                             if (player.team == damagedPlayer.TPlayer.team && damagedPlayer.TPlayer.team != 0) {
                                 float num1 = player.Distance(damagedPlayer.TPlayer.Center);
-                                bool flag3 = (double)num1 < 800.0;
+                                bool flag3 = num1 < 800.0;
                                 if (flag3) {
                                     for (int index = 0; index < (int)byte.MaxValue; ++index) {
-                                        if (index != Main.myPlayer && Main.player[index].active && (!Main.player[index].dead && !Main.player[index].immune) && (Main.player[index].hasPaladinShield && Main.player[index].team == damagedPlayer.TPlayer.team && (double)Main.player[index].statLife > (double)Main.player[index].statLifeMax2 * 0.25)) {
+                                        if (index != Main.myPlayer && Main.player[index].active && (!Main.player[index].dead && !Main.player[index].immune) && (Main.player[index].hasPaladinShield && Main.player[index].team == damagedPlayer.TPlayer.team && Main.player[index].statLife > Main.player[index].statLifeMax2 * 0.25)) {
                                             float num2 = Main.player[index].Distance(damagedPlayer.TPlayer.Center);
-                                            if ((double)num1 > (double)num2 || (double)num1 == (double)num2 && index < Main.myPlayer) {
+                                            if ((double)num1 > num2 || num1 == num2 && index < Main.myPlayer) {
                                                 flag3 = false;
                                                 break;
                                             }
@@ -56,22 +52,22 @@ namespace PvPController.Variables {
                                     }
                                 }
                                 if (flag3) {
-                                    int Damage2 = (int)(dmg * 0.25);
-                                    dmg = (double)(int)(dmg * 0.75);
-                                    player.Hurt(PlayerDeathReason.LegacyEmpty(), Damage2, 0, false, false, false, -1);
+                                    int damage2 = (int)(dmg * 0.25);
+                                    dmg = (int)(dmg * 0.75);
+                                    player.Hurt(PlayerDeathReason.LegacyEmpty(), damage2, 0);
                                 }
                             }
                         }
                     } else {
                         bool flag3 = false;
                         for (int index = 0; index < (int)byte.MaxValue; ++index) {
-                            if (index != Main.myPlayer && Main.player[index].active && (!Main.player[index].dead && !Main.player[index].immune) && (Main.player[index].hasPaladinShield && Main.player[index].team == damagedPlayer.TPlayer.team && (double)Main.player[index].statLife > (double)Main.player[index].statLifeMax2 * 0.25)) {
+                            if (index != Main.myPlayer && Main.player[index].active && (!Main.player[index].dead && !Main.player[index].immune) && Main.player[index].hasPaladinShield && Main.player[index].team == damagedPlayer.TPlayer.team && Main.player[index].statLife > Main.player[index].statLifeMax2 * 0.25) {
                                 flag3 = true;
                                 break;
                             }
                         }
                         if (flag3)
-                            dmg = (double)(int)(dmg * 0.75);
+                            dmg = (int)(dmg * 0.75);
                     }
                 }
             }
@@ -190,7 +186,7 @@ namespace PvPController.Variables {
             else if (prefix == 51)
                 damage = 1.05f;
             
-            return (int)Math.Round(Database.GetData<int>(DBConsts.ItemTable, weapon.netID, DBConsts.Damage) * (double)damage);
+            return (int)Math.Round(Database.GetData<int>(DbConsts.ItemTable, weapon.netID, DbConsts.Damage) * (double)damage);
         }
 
         /// <summary>
@@ -217,25 +213,21 @@ namespace PvPController.Variables {
             if (attacker.TPlayer.yoyoGlove && num1 < 2) {
                 if (index1 < 0)
                     return;
-                int index;
-                Vector2 vector2_1 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
-                vector2_1.Normalize();
-                Vector2 vector2_2 = Vector2.Multiply(vector2_1, 16f);
-                index = Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector2_2.X, vector2_2.Y, Main.projectile[index1].type, Main.projectile[index1].damage, Main.projectile[index1].knockBack, attacker.TPlayer.whoAmI, 1f, 0.0f);
-                NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                Vector2 vector21 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
+                vector21.Normalize();
+                Vector2 vector22 = Vector2.Multiply(vector21, 16f);
+                int index = Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, Main.projectile[index1].type, Main.projectile[index1].damage, Main.projectile[index1].knockBack, attacker.TPlayer.whoAmI, 1f);
+                NetMessage.SendData(27, -1, -1, null, index);
             } else {
                 if (num2 >= num1)
                     return;
                 int index;
-                Vector2 vector2_1 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
-                vector2_1.Normalize();
-                Vector2 vector2_2 = Vector2.Multiply(vector2_1, 16f);
-                float KnockBack = (float)((kb + 6.0) / 2.0);
-                if (num2 > 0)
-                    index = Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector2_2.X, vector2_2.Y, attacker.TPlayer.counterWeight, (int)(dmg * 0.8), KnockBack, attacker.TPlayer.whoAmI, 1f, 0.0f);
-                else
-                    index = Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector2_2.X, vector2_2.Y, attacker.TPlayer.counterWeight, (int)(dmg * 0.8), KnockBack, attacker.TPlayer.whoAmI, 0.0f, 0.0f);
-                NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                Vector2 vector21 = Vector2.Subtract(target.LastNetPosition, attacker.TPlayer.Center);
+                vector21.Normalize();
+                Vector2 vector22 = Vector2.Multiply(vector21, 16f);
+                float knockBack = (float)((kb + 6.0) / 2.0);
+                index = num2 > 0 ? Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, attacker.TPlayer.counterWeight, (int)(dmg * 0.8), knockBack, attacker.TPlayer.whoAmI, 1f) : Projectile.NewProjectile(attacker.TPlayer.Center.X, attacker.TPlayer.Center.Y, vector22.X, vector22.Y, attacker.TPlayer.counterWeight, (int)(dmg * 0.8), knockBack, attacker.TPlayer.whoAmI);
+                NetMessage.SendData(27, -1, -1, null, index);
             }
         }
     }

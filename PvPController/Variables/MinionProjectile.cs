@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PvPController.Variables {
+﻿namespace PvPController.Variables {
     public class MinionProjectile {
-        public int projectile;
-        public double fireRate;
-        public double radius;
-        public double velocity;
-        public int offsetX;
-        public int offsetY;
+        public int Projectile;
+        public double FireRate;
+        public double Radius;
+        public double Velocity;
+        public int OffsetX;
+        public int OffsetY;
 
         public MinionProjectile(int projectile, double fireRate, double radius, double velocity, int offsetX = 0, int offsetY = 0) {
-            this.projectile = projectile;
-            this.fireRate = fireRate;
-            this.radius = radius;
-            this.velocity = velocity;
-            this.offsetX = offsetX;
-            this.offsetY = offsetY;
+            Projectile = projectile;
+            FireRate = fireRate;
+            Radius = radius;
+            Velocity = velocity;
+            OffsetX = offsetX;
+            OffsetY = offsetY;
         }
     }
 }

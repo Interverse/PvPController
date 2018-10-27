@@ -1,31 +1,30 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using TShockAPI;
+using PvPController.Variables;
 
-namespace PvPController.Variables {
+namespace PvPController.Utilities {
     class PresetData {
         //Sets a debuff and its duration to a flask buff
-        public static Dictionary<int, BuffDuration> FlaskDebuffs = new Dictionary<int, BuffDuration> {
+        public static Dictionary<int, BuffInfo> FlaskDebuffs = new Dictionary<int, BuffInfo> {
             //Weapon Imbue Venom
-            { 71, new BuffDuration(70, 210) },
+            { 71, new BuffInfo(70, 210) },
 
             //Weapon Imbue Cursed Flames
-            { 73, new BuffDuration(39, 150) },
+            { 73, new BuffInfo(39, 150) },
 
             //Weapon Imbue Fire
-            { 74, new BuffDuration(24, 150) },
+            { 74, new BuffInfo(24, 150) },
                             
             //Weapon Imbue Gold
-            { 75,  new BuffDuration(72, 300) },
+            { 75,  new BuffInfo(72, 300) },
                          
             //Weapon Imbue Ichor
-            { 76, new BuffDuration(69, 300) },
+            { 76, new BuffInfo(69, 300) },
                        
             //Weapon Imbue Nanites
-            { 77, new BuffDuration(31, 90) },
+            { 77, new BuffInfo(31, 90) },
                     
             //Weapon Imbue Poison
-            { 79, new BuffDuration(20, 300) },
+            { 79, new BuffInfo(20, 300) },
         };
 
         //Minion IDs
@@ -202,138 +201,138 @@ namespace PvPController.Variables {
         };
 
         //Sets a debuff and its duration to a projectile id
-        public static Dictionary<int, BuffDuration> ProjectileDebuffs = new Dictionary<int, BuffDuration> {
+        public static Dictionary<int, BuffInfo> ProjectileDebuffs = new Dictionary<int, BuffInfo> {
             //Flaming Arrow
-            { 2, new BuffDuration(24, 90) },
+            { 2, new BuffInfo(24, 90) },
 
             //Flamarang, Sunfury
-            { 19, new BuffDuration(24, 90) },
-            { 35, new BuffDuration(24, 90) },
+            { 19, new BuffInfo(24, 90) },
+            { 35, new BuffInfo(24, 90) },
 
             //Thorn Chakram
-            { 33, new BuffDuration(20, 210) },
+            { 33, new BuffInfo(20, 210) },
 
             //Poisoned Knife
-            { 54, new BuffDuration(20, 300) },
+            { 54, new BuffInfo(20, 300) },
 
             //Dao of Pow
-            { 63, new BuffDuration(31, 60) },
+            { 63, new BuffInfo(31, 60) },
 
             //Cursed Flames
-            { 95, new BuffDuration(39, 210) },
+            { 95, new BuffInfo(39, 210) },
 
             //Cursed Arrow
-            { 103, new BuffDuration(39, 210) },
+            { 103, new BuffInfo(39, 210) },
 
             //Cursed Bullet
-            { 104, new BuffDuration(39, 210) },
+            { 104, new BuffInfo(39, 210) },
 
             //Frostburn Arrow
-            { 172, new BuffDuration(44, 120) },
+            { 172, new BuffInfo(44, 120) },
 
             //Poison Dart
-            { 184, new BuffDuration(20, 450) },
+            { 184, new BuffInfo(20, 450) },
 
             //Flower of Frost
-            { 253, new BuffDuration(44, 120) },
+            { 253, new BuffInfo(44, 120) },
 
             //Poison Staff
-            { 265, new BuffDuration(20, 210) },
+            { 265, new BuffInfo(20, 210) },
 
             //Poison Dart
-            { 267, new BuffDuration(20, 450) },
+            { 267, new BuffInfo(20, 450) },
 
             //Ichor Arrow
-            { 278, new BuffDuration(69, 450) },
+            { 278, new BuffInfo(69, 450) },
 
             //Ichor Bullet
-            { 279, new BuffDuration(69, 450) },
+            { 279, new BuffInfo(69, 450) },
 
             //Golden Shower
-            { 280, new BuffDuration(69, 300) },
+            { 280, new BuffInfo(69, 300) },
 
             //Venom Arrow
-            { 282, new BuffDuration(70, 150) },
+            { 282, new BuffInfo(70, 150) },
 
             //Venom Bullet
-            { 283, new BuffDuration(70, 150) },
+            { 283, new BuffInfo(70, 150) },
 
             //Nano Bullet
-            { 285, new BuffDuration(31, 60) },
+            { 285, new BuffInfo(31, 60) },
 
             //Golden Bullet
-            { 287, new BuffDuration(72, 300) },
+            { 287, new BuffInfo(72, 300) },
 
             //Inferno Fork Fireball
-            { 295, new BuffDuration(24, 360) },
+            { 295, new BuffInfo(24, 360) },
 
             //Inferno Fork Blast
-            { 296, new BuffDuration(24, 360) },
+            { 296, new BuffInfo(24, 360) },
 
             //Baby Spider
-            { 379, new BuffDuration(70, 150) },
+            { 379, new BuffInfo(70, 150) },
 
             //Venom Staff
-            { 355, new BuffDuration(70, 150) },
+            { 355, new BuffInfo(70, 150) },
 
             //Molotov Cocktail/Fires
-            { 399, new BuffDuration(24, 150) },
-            { 400, new BuffDuration(24, 150) },
-            { 401, new BuffDuration(24, 150) },
-            { 402, new BuffDuration(24, 150) },
+            { 399, new BuffInfo(24, 150) },
+            { 400, new BuffInfo(24, 150) },
+            { 401, new BuffInfo(24, 150) },
+            { 402, new BuffInfo(24, 150) },
 
             //Life Drain
-            { 476, new BuffDuration(151, 30) },
+            { 476, new BuffInfo(151, 30) },
 
             //Cursed Dart
-            { 478, new BuffDuration(39, 210) },
-            { 480, new BuffDuration(39, 210) },
+            { 478, new BuffInfo(39, 210) },
+            { 480, new BuffInfo(39, 210) },
 
             //Ichor Dart
-            { 479, new BuffDuration(69, 150) },
+            { 479, new BuffInfo(69, 150) },
 
             //Clinger Staff
-            { 482, new BuffDuration(39, 210) },
+            { 482, new BuffInfo(39, 210) },
 
             //Shadowflame Arrow
-            { 495, new BuffDuration(153, 150) },
+            { 495, new BuffInfo(153, 150) },
 
             //Shadowflame Hex Doll
-            { 496, new BuffDuration(153, 240) },
+            { 496, new BuffInfo(153, 240) },
 
             //Shadowflame Knife
-            { 497, new BuffDuration(153, 90) },
+            { 497, new BuffInfo(153, 90) },
 
             //Wand of Sparking
-            { 504, new BuffDuration(24, 90) },
+            { 504, new BuffInfo(24, 90) },
 
             //Butcher's Chainsaw
-            { 509, new BuffDuration(24, 90) },
+            { 509, new BuffInfo(24, 90) },
 
             //Toxikarp
-            { 523, new BuffDuration(20, 300) },
+            { 523, new BuffInfo(20, 300) },
 
             //Medusa Head
-            { 535, new BuffDuration(156, 30) },
+            { 535, new BuffInfo(156, 30) },
 
             //Cascade
-            { 545, new BuffDuration(24, 90) },
+            { 545, new BuffInfo(24, 90) },
 
             //Amarok
-            { 552, new BuffDuration(44, 120) },
+            { 552, new BuffInfo(44, 120) },
 
             //Hel-Fire
-            { 553, new BuffDuration(24, 180) },
+            { 553, new BuffInfo(24, 180) },
 
             //Spore Sac
-            { 567, new BuffDuration(20, 210) },
-            { 568, new BuffDuration(20, 210) },
-            { 569, new BuffDuration(20, 210) },
-            { 570, new BuffDuration(20, 210) },
-            { 571, new BuffDuration(20, 210) },
+            { 567, new BuffInfo(20, 210) },
+            { 568, new BuffInfo(20, 210) },
+            { 569, new BuffInfo(20, 210) },
+            { 570, new BuffInfo(20, 210) },
+            { 571, new BuffInfo(20, 210) },
 
             //Betsy's Wrath
-            { 711, new BuffDuration(203, 300) }
+            { 711, new BuffInfo(203, 300) }
         };
 
         //Death Message List

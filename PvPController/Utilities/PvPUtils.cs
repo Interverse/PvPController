@@ -1,14 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
 using PvPController.Variables;
-using System;
-using System.Text;
 using Terraria;
-using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.Localization;
 using TShockAPI;
 
-namespace PvPController.Variables {
+namespace PvPController.Utilities {
     public class PvPUtils {
 
         /// <summary>
@@ -24,13 +19,13 @@ namespace PvPController.Variables {
             string deathmessage = "";
 
             if (type == 1)
-                deathmessage = PvPController.config.normalDeathMessages[random.Next(PvPController.config.normalDeathMessages.Count)];
+                deathmessage = PvPController.Config.NormalDeathMessages[random.Next(PvPController.Config.NormalDeathMessages.Count)];
             else if (type == 2)
-                deathmessage = PvPController.config.reflectedDeathMessages[random.Next(PvPController.config.reflectedDeathMessages.Count)];
+                deathmessage = PvPController.Config.ReflectedDeathMessages[random.Next(PvPController.Config.ReflectedDeathMessages.Count)];
 
-            string tag = PvPController.config.deathItemTag;
-            if (PvPController.config.deathItemTag == "weapon" && type == 1) tag = weapon.netID != 0 ? "[i/p{0}:{1}] ".SFormat(weapon.prefix, weapon.netID) : "";
-            else if (PvPController.config.deathItemTag == "weapon" && type == 2) tag = "[i:1150] ";
+            string tag = PvPController.Config.DeathItemTag;
+            if (PvPController.Config.DeathItemTag == "weapon" && type == 1) tag = weapon.netID != 0 ? "[i/p{0}:{1}] ".SFormat(weapon.prefix, weapon.netID) : "";
+            else if (PvPController.Config.DeathItemTag == "weapon" && type == 2) tag = "[i:1150] ";
 
             return tag + deadplayer.Name + deathmessage + attacker.Name + "'s " + weapon.name + ".";
         }
@@ -41,7 +36,7 @@ namespace PvPController.Variables {
         /// <returns></returns>
         public static int GenerateDamageVariance() {
             Random random = new Random();
-            return random.Next(PvPController.config.lowerDamageVariance, PvPController.config.upperDamageVariance + 1);
+            return random.Next(PvPController.Config.LowerDamageVariance, PvPController.Config.UpperDamageVariance + 1);
         }
 
         /// <summary>
@@ -63,7 +58,7 @@ namespace PvPController.Variables {
             double vanillaVortexMultiplier = 1.36;
 
             if (weapon.ranged && attacker.TPlayer.vortexStealthActive) {
-                return (int)(((double)damage / vanillaVortexMultiplier * PvPController.config.vortexMultiplier) - damage);
+                return (int)(damage / vanillaVortexMultiplier * PvPController.Config.VortexMultiplier - damage);
             }
 
             return 0;

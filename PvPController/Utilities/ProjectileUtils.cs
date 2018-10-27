@@ -1,19 +1,25 @@
-﻿using PvPController.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using PvPController.Variables;
 using Terraria;
 
-namespace PvPController.Variables {
+namespace PvPController.Utilities {
     public class ProjectileUtils {
+        /// <summary>
+        /// Gets the weapon of a projectile.
+        /// For certain projectiles, it will pull from a list of
+        /// projectile-to-weapon-mapping Dictionaries and returns
+        /// the weapon based off the dictionary mapping.
+        /// </summary>
+        /// <param name="owner">Owner of projectile.</param>
+        /// <param name="type">Type of projectile.</param>
+        /// <returns>Returns the item the projectile came from.</returns>
         public static PvPItem GetProjectileWeapon(PvPPlayer owner, int type) {
             PvPItem weapon;
             if (PresetData.PresetProjDamage.ContainsKey(type)) {
-                weapon = new PvPItem();
-                weapon.damage = PresetData.PresetProjDamage[type];
-                weapon.specialName = Lang.GetProjectileName(type).ToString();
+                weapon = new PvPItem {
+                    Damage = PresetData.PresetProjDamage[type],
+                    SpecialName = Lang.GetProjectileName(type).ToString()
+                };
             } else if (PresetData.ProjHooks.ContainsKey(type)) {
                 weapon = new PvPItem(type);
             } else if (PresetData.FromWhatItem.ContainsKey(type)) {
@@ -21,11 +27,14 @@ namespace PvPController.Variables {
             } else if (PresetData.MinionItem.ContainsKey(type)) {
                 weapon = owner.FindPlayerItem(PresetData.MinionItem[type]);
             } else {
-                weapon = owner.GetPlayerItem();
+                weapon = owner.GetPlayerItem;
             }
             return weapon;
         }
 
+        /// <summary>
+        /// Finds a free projectile index from Main's projectile array.
+        /// </summary>
         public static int FindFreeIndex() {
             for (int x = 0; x < Main.projectile.Length; x++) {
                 if (!Main.projectile[x].active)
@@ -35,6 +44,13 @@ namespace PvPController.Variables {
             return -1;
         }
 
+        /// <summary>
+        /// Gets the projectile from the Main's projectile array
+        /// </summary>
+        /// <param name="identity">Identity of projectile</param>
+        /// <param name="type">Type of projectile</param>
+        /// <param name="owner">Owner Id</param>
+        /// <returns>A projectile from Main.projectile</returns>
         public static Projectile GetMainProjectile(int identity, int type, int owner) {
             return Main.projectile.Where(c => c != null)
                 .Where(c => c.active)

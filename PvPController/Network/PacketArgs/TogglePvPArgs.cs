@@ -1,16 +1,12 @@
 ﻿using PvPController.Variables;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PvPController.Network.PacketArgs {
     public class TogglePvPArgs : EventArgs {
-        public PvPPlayer player;
+        public PvPPlayer Player;
 
         public TogglePvPArgs(PvPPlayer player) {
-            this.player = player;
+            Player = player;
         }
     }
 }

@@ -1,27 +1,22 @@
 ﻿using PvPController.Variables;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TerrariaApi.Server;
 
 namespace PvPController.Network.PacketArgs {
     public class PlayerUpdateArgs : EventArgs {
-        public PvPPlayer player { get; set; }
+        public PvPPlayer Player { get; set; }
 
-        public int playerAction { get; set; }
-        public int pulley { get; set; }
-        public int selectedSlot { get; set; }
+        public int PlayerAction { get; set; }
+        public int Pulley { get; set; }
+        public int SelectedSlot { get; set; }
 
         public PlayerUpdateArgs(MemoryStream data, PvPPlayer player) {
-            this.player = player;
+            Player = player;
 
             data.ReadByte();
-            playerAction = data.ReadByte();
-            pulley = data.ReadByte();
-            this.selectedSlot = data.ReadByte();
+            PlayerAction = data.ReadByte();
+            Pulley = data.ReadByte();
+            SelectedSlot = data.ReadByte();
         }
     }
 }

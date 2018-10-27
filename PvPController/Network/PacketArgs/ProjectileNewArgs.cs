@@ -1,57 +1,54 @@
 ﻿using Microsoft.Xna.Framework;
 using PvPController.Variables;
-using PvPController.Variables;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Streams;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PvPController.Utilities;
 using Terraria;
 using TerrariaApi.Server;
 
 namespace PvPController.Network.PacketArgs {
     public class ProjectileNewArgs : EventArgs {
         
-        public GetDataEventArgs args;
-        public PvPPlayer attacker;
-        public PvPItem weapon;
+        public GetDataEventArgs Args;
+        public PvPPlayer Attacker;
+        public PvPItem Weapon;
 
-        public int identity;
-        public Vector2 position;
-        public Vector2 velocity;
-        public Single knockback;
-        public int damage;
-        public int owner;
-        public int type;
-        public BitsByte aiFlags;
-        public float ai0;
-        public float ai1;
+        public int Identity;
+        public Vector2 Position;
+        public Vector2 Velocity;
+        public Single Knockback;
+        public int Damage;
+        public int Owner;
+        public int Type;
+        public BitsByte AiFlags;
+        public float Ai0;
+        public float Ai1;
+        public float[] Ai;
 
         public ProjectileNewArgs(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
-            this.args = args;
-            this.attacker = attacker;
+            Args = args;
+            Attacker = attacker;
 
-            identity = data.ReadInt16();
-            position = new Vector2(data.ReadSingle(), data.ReadSingle());
-            velocity = new Vector2(data.ReadSingle(), data.ReadSingle());
-            knockback = data.ReadSingle();
-            damage = data.ReadInt16();
-            owner = data.ReadByte();
-            type = data.ReadInt16();
-            aiFlags = (BitsByte)data.ReadByte();
-            ai0 = 0;
-            ai1 = 0;
-            if (aiFlags[0]) {
-                ai0 = data.ReadSingle();
+            Identity = data.ReadInt16();
+            Position = new Vector2(data.ReadSingle(), data.ReadSingle());
+            Velocity = new Vector2(data.ReadSingle(), data.ReadSingle());
+            Knockback = data.ReadSingle();
+            Damage = data.ReadInt16();
+            Owner = data.ReadByte();
+            Type = data.ReadInt16();
+            AiFlags = (BitsByte)data.ReadByte();
+            Ai0 = 0;
+            Ai1 = 0;
+            if (AiFlags[0]) {
+                Ai0 = data.ReadSingle();
             }
-            if (aiFlags[1]) {
-                ai1 = data.ReadSingle();
+            if (AiFlags[1]) {
+                Ai1 = data.ReadSingle();
             }
-            float[] ai = new float[Projectile.maxAI];
+            Ai = new float[Projectile.maxAI];
             
-            weapon = ProjectileUtils.GetProjectileWeapon(attacker, type);
+            Weapon = ProjectileUtils.GetProjectileWeapon(attacker, Type);
         }
     }
 }
