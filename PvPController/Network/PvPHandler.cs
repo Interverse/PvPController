@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using PvPController.Network.PacketArgs;
 using PvPController.Utilities;
-using PvPController.Variables;
 using Terraria;
 
 namespace PvPController.Network {

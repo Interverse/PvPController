@@ -1,4 +1,5 @@
-﻿using PvPController.Utilities;
+﻿using System;
+using PvPController.Utilities;
 using TShockAPI;
 
 namespace PvPController {
@@ -38,8 +39,6 @@ namespace PvPController {
         private static void ModStat(CommandArgs args) {
             var player = args.Player;
             var input = args.Parameters;
-            string type;
-            string stat;
             bool modifyProjectile = false;
 
             if (input.Count < 4) {
@@ -47,29 +46,9 @@ namespace PvPController {
                 return;
             }
 
-            switch (input[0].ToLower()) {
-                case "items":
-                case "item":
-                case "i":
-                    type = DbConsts.ItemTable;
-                    break;
-
-                case "projectiles":
-                case "projectile":
-                case "proj":
-                case "p":
-                    type = DbConsts.ProjectileTable;
-                    break;
-
-                case "buffs":
-                case "buff":
-                case "b":
-                    type = DbConsts.BuffTable;
-                    break;
-
-                default:
-                    player.SendErrorMessage("Invalid Type. Possible values are: {0}. You typed {1}.".SFormat(TableList), input[1]);
-                    return;
+            if (!TryGetTableFromString(input[0], out string type)) {
+                player.SendErrorMessage("Invalid Type. Possible values are: {0}. You typed {1}.".SFormat(TableList), input[1]);
+                return;
             }
 
             if (!int.TryParse(input[1], out int id)) {
@@ -90,74 +69,22 @@ namespace PvPController {
                 }
             }
 
-            switch (input[2].ToLower()) {
-                case "Name":
-                case "n":
-                    stat = DbConsts.Name;
-                    break;
+            if (!TryGetAttributeFromString(input[2], out string stat)) {
+                player.SendErrorMessage("Invalid stat of " + input[2] + ". Parameters: " + StatList);
+                return;
+            }
 
-                case "damage":
-                case "dmg":
-                case "d":
-                    stat = DbConsts.Damage;
-                    break;
+            if (stat == DbConsts.Shoot || stat == DbConsts.ShootSpeed) modifyProjectile = true;
 
-                case "shoot":
-                case "s":
-                    stat = DbConsts.Shoot;
-                    modifyProjectile = true;
-                    break;
+            Type sqlType = Database.GetType(type, stat);
 
-                case "isshootmodded":
-                case "ism":
-                    stat = DbConsts.IsShootModded;
-                    break;
-
-                case "shootspeed":
-                case "ss":
-                    stat = DbConsts.ShootSpeed;
-                    modifyProjectile = true;
-                    break;
-
-                case "knockback":
-                case "kb":
-                    stat = DbConsts.Knockback;
-                    break;
-
-                case "defense":
-                case "def":
-                    stat = DbConsts.Defense;
-                    break;
-
-                case "inflictbuffid":
-                case "ibid":
-                case "ibi":
-                    stat = DbConsts.InflictBuffId;
-                    break;
-
-                case "inflictbuffduration":
-                case "ibd":
-                    stat = DbConsts.InflictBuffDuration;
-                    break;
-
-                case "receivebuffid":
-                case "rbid":
-                case "rbi":
-                    stat = DbConsts.ReceiveBuffId;
-                    break;
-
-                case "receivebuffduration":
-                case "rbd":
-                    stat = DbConsts.ReceiveBuffDuration;
-                    break;
-
-                default:
-                    player.SendErrorMessage("Invalid stat of " + input[2] + ". Parameters: " + StatList);
-                    return;
+            if (sqlType == default(Type)) {
+                player.SendErrorMessage("{0} do not have the {1} stat.".SFormat(type, stat));
+                return;
             }
 
             if (!MiscUtils.TryConvertStringToType(Database.GetType(type, stat), input[3], out var value)) {
-                player.SendErrorMessage("{0} does not have the {1} stat.".SFormat(type, stat));
+                player.SendErrorMessage("{0} is incompatible with the value of {1}.".SFormat(stat, input[3]));
                 return;
             }
 
@@ -365,12 +292,25 @@ namespace PvPController {
                 return;
             }
 
-            MiscUtils.TryConvertStringToType(Database.GetType(input[0], input[1]), input[2], out var convertedType);
+            if (!TryGetTableFromString(input[0], out string table)) {
+                args.Player.SendErrorMessage("Invalid Type. Possible values are: {0}. You typed {1}.".SFormat(TableList), input[1]);
+                return;
+            }
 
-            if (Database.Update(input[0], -1, input[1], convertedType)) 
-                args.Player.SendSuccessMessage("Successfully converted all {0} in {1} to {2}".SFormat(input[1], input[0], input[2]));
+            if (!TryGetAttributeFromString(input[1], out string attribute)) {
+                args.Player.SendErrorMessage("Invalid stat of " + input[1] + ". Parameters: " + StatList);
+                return;
+            }
+
+            if (!MiscUtils.TryConvertStringToType(Database.GetType(table, attribute), input[2], out var convertedType)) {
+                args.Player.SendErrorMessage($"{attribute} is incompatible with the value {input[2]}");
+                return;
+            }
+
+            if (Database.Update(table, -1, attribute, convertedType)) 
+                args.Player.SendSuccessMessage($"Successfully converted all {attribute} in {table} to {convertedType}");
             else 
-                args.Player.SendErrorMessage("Failed to convert all {0} in {1} to {2}".SFormat(input[1], input[0], input[2]));
+                args.Player.SendErrorMessage($"Failed to convert all {attribute} in {table} to {convertedType}");
         }
 
         private static void WriteConfig(CommandArgs args) {
@@ -448,6 +388,109 @@ namespace PvPController {
                 args.Player.SendErrorMessage("SQL statement failed.");
             else
                 args.Player.SendSuccessMessage("SQL statement was successful.");
+        }
+
+        /// <summary>
+        /// Gets the table name from a string.
+        /// </summary>
+        private static bool TryGetTableFromString(string input, out string table) {
+            switch (input.ToLower()) {
+                case "items":
+                case "item":
+                case "i":
+                    table = DbConsts.ItemTable;
+                    break;
+
+                case "projectiles":
+                case "projectile":
+                case "proj":
+                case "p":
+                    table = DbConsts.ProjectileTable;
+                    break;
+
+                case "buffs":
+                case "buff":
+                case "b":
+                    table = DbConsts.BuffTable;
+                    break;
+
+                default:
+                    table = input;
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Gets an attribute's sql column name from a string.
+        /// </summary>
+        private static bool TryGetAttributeFromString(string input, out string attribute) {
+            switch (input.ToLower()) {
+                case "name":
+                case "n":
+                    attribute = DbConsts.Name;
+                    break;
+
+                case "damage":
+                case "dmg":
+                case "d":
+                    attribute = DbConsts.Damage;
+                    break;
+
+                case "shoot":
+                case "s":
+                    attribute = DbConsts.Shoot;
+                    break;
+
+                case "isshootmodded":
+                case "ism":
+                    attribute = DbConsts.IsShootModded;
+                    break;
+
+                case "shootspeed":
+                case "ss":
+                    attribute = DbConsts.ShootSpeed;
+                    break;
+
+                case "knockback":
+                case "kb":
+                    attribute = DbConsts.Knockback;
+                    break;
+
+                case "defense":
+                case "def":
+                    attribute = DbConsts.Defense;
+                    break;
+
+                case "inflictbuffid":
+                case "ibid":
+                case "ibi":
+                    attribute = DbConsts.InflictBuffId;
+                    break;
+
+                case "inflictbuffduration":
+                case "ibd":
+                    attribute = DbConsts.InflictBuffDuration;
+                    break;
+
+                case "receivebuffid":
+                case "rbid":
+                case "rbi":
+                    attribute = DbConsts.ReceiveBuffId;
+                    break;
+
+                case "receivebuffduration":
+                case "rbd":
+                    attribute = DbConsts.ReceiveBuffDuration;
+                    break;
+
+                default:
+                    attribute = "";
+                    return false;
+            }
+
+            return true;
         }
     }
 }

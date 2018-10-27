@@ -33,18 +33,6 @@ namespace PvPController.Utilities {
         }
 
         /// <summary>
-        /// Finds a free projectile index from Main's projectile array.
-        /// </summary>
-        public static int FindFreeIndex() {
-            for (int x = 0; x < Main.projectile.Length; x++) {
-                if (!Main.projectile[x].active)
-                    return x;
-            }
-
-            return -1;
-        }
-
-        /// <summary>
         /// Gets the projectile from the Main's projectile array
         /// </summary>
         /// <param Name="identity">Identity of projectile</param>

@@ -29,15 +29,27 @@ namespace PvPController.Utilities {
 
             return tag + deadplayer.Name + deathmessage + attacker.Name + "'s " + weapon.Name + ".";
         }
+        
+        /// <summary>
+        /// Generates a boolean for a critical based off the percentage.
+        /// </summary>
+        /// <param Name="percentage"></param>
+        /// <returns></returns>
+        public static bool IsCrit(int percentage) => percentage > Main.rand.Next(0, 101);
+
+        /// <summary>
+        /// Converts a regular Terraria <see cref="Item"/> into a <see cref="PvPItem"/>.
+        /// </summary>
+        /// <param Name="item"></param>
+        /// <returns></returns>
+        public static PvPItem ConvertToPvPItem(Item item) => new PvPItem(item);
 
         /// <summary>
         /// Generates a random int between the lower and upper bounds of damage variance.
         /// </summary>
         /// <returns></returns>
-        public static int GenerateDamageVariance() {
-            Random random = new Random();
-            return random.Next(PvPController.Config.LowerDamageVariance, PvPController.Config.UpperDamageVariance + 1);
-        }
+        public static int GenerateDamageVariance() =>
+            Main.rand.Next(PvPController.Config.LowerDamageVariance, PvPController.Config.UpperDamageVariance + 1);
 
         /// <summary>
         /// Gets the damage dealt from the ammo based off the attacker's stats.
@@ -62,33 +74,6 @@ namespace PvPController.Utilities {
             }
 
             return 0;
-        }
-
-        /// <summary>
-        /// Generates a boolean for a critical based off the percentage.
-        /// </summary>
-        /// <param Name="percentage"></param>
-        /// <returns></returns>
-        public static bool IsCrit(int percentage) {
-            Random random = new Random();
-            return percentage > random.Next(0, 101);
-        }
-
-        /// <summary>
-        /// Primarily plugin use. Shortcut method to allow the plugin to display a message to the server.
-        /// </summary>
-        /// <param Name="message"></param>
-        public static void PrintDebugValue(object message) {
-            TShock.Utils.Broadcast(message.ToString(), 123, 123, 123);
-        }
-
-        /// <summary>
-        /// Converts a regular Terraria <see cref="Item"/> into a <see cref="PvPItem"/>.
-        /// </summary>
-        /// <param Name="item"></param>
-        /// <returns></returns>
-        public static PvPItem ConvertToPvPItem(Item item) {
-            return new PvPItem(item);
         }
     }
 }

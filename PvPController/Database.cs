@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using PvPController.Variables;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
@@ -110,48 +111,31 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Writes the changed attribute of an item to the sql database.
+        /// Deletes the contents of an entire row.
         /// </summary>
-        public static bool Update<T>(string type, int index, string key, T value) {
-            bool selectAll = index <= 0;
-
-            if (value is string) value = (T)Convert.ChangeType(value.ToString().SqlString(), typeof(T));
-
-            string sourceId = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
-            return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", type, key, value, sourceId));
+        /// <param Name="table">The table to delete from</param>
+        /// <param Name="id">The ID of the data being deleted</param>
+        public static void DeleteRow(string table, int id) {
+            Query("DELETE FROM {0} WHERE ID = {1}".SFormat(table, id));
         }
 
         /// <summary>
-        /// Creates all the default stats of items, projectiles, and buffs and puts it into
-        /// the mysql/sqlite database.
+        /// Performs a series of sql statements in a transaction.
+        /// This allows for fast mass querying as opposed to querying
+        /// one statement at a time.
         /// </summary>
-        public static void InitDefaultTables() {
-            var conn = IsMySql 
-                ? (DbConnection)new MySqlConnection(db.ConnectionString) 
-                : (DbConnection)new SqliteConnection(db.ConnectionString);
+        /// <param name="queries"></param>
+        public static void PerformTransaction(string[] queries) {
+            var conn = IsMySql
+                ? (DbConnection)new MySqlConnection(db.ConnectionString)
+                : new SqliteConnection(db.ConnectionString);
 
             conn.Open();
 
             using (var cmd = conn.CreateCommand()) {
                 using (var transaction = conn.BeginTransaction()) {
-                    var tableList = new[] { DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable };
-                    foreach(string table in tableList) {
-                        cmd.CommandText = "DELETE FROM {0}".SFormat(table);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    for (int x = 0; x < Main.maxItemTypes; x++) {
-                        cmd.CommandText = GetDefaultValueSqlString(ItemTable, x);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                        cmd.CommandText = GetDefaultValueSqlString(ProjectileTable, x);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    for (int x = 0; x < Main.maxBuffTypes; x++) {
-                        cmd.CommandText = GetDefaultValueSqlString(BuffTable, x);
+                    foreach (string query in queries) {
+                        cmd.CommandText = query;
                         cmd.ExecuteNonQuery();
                     }
 
@@ -160,6 +144,45 @@ namespace PvPController {
             }
 
             conn.Close();
+        }
+
+        /// <summary>
+        /// Writes the changed attribute of an item to the sql database.
+        /// </summary>
+        public static bool Update<T>(string table, int index, string column, T value) {
+            bool selectAll = index <= 0;
+
+            if (value is string) value = (T)Convert.ChangeType(value.ToString().SqlString(), typeof(T));
+
+            string sourceId = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
+            return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", table, column, value, sourceId));
+        }
+
+        /// <summary>
+        /// Creates all the default stats of items, projectiles, and buffs and puts it into
+        /// the mysql/sqlite database.
+        /// </summary>
+        public static void InitDefaultTables() {
+            List<string> queries = new List<string>();
+
+            var tableList = new[] { DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable };
+            foreach(string table in tableList) {
+                queries.Add("DELETE FROM {0}".SFormat(table));
+            }
+
+            for (int x = 0; x < Main.maxItemTypes; x++) {
+                queries.Add(GetDefaultValueSqlString(ItemTable, x));
+            }
+
+            for (int x = 0; x < Main.maxProjectileTypes; x++) {
+                queries.Add(GetDefaultValueSqlString(ProjectileTable, x));
+            }
+
+            for (int x = 0; x < Main.maxBuffTypes; x++) {
+                queries.Add(GetDefaultValueSqlString(BuffTable, x));
+            }
+
+            PerformTransaction(queries.ToArray());
         }
 
         /// <summary>
@@ -179,11 +202,13 @@ namespace PvPController {
         /// Gets the type of the sql column.
         /// </summary>
         public static Type GetType(string table, string column) {
-            using (var reader = QueryReader(string.Format("SELECT {0} FROM {1}", column, table))) {
-                while (reader.Read()) {
-                    return reader.Reader.GetFieldType(0);
+            try {
+                using (var reader = QueryReader(string.Format("SELECT {0} FROM {1}", column, table))) {
+                    while (reader.Read()) {
+                        return reader.Reader.GetFieldType(0);
+                    }
                 }
-            }
+            } catch { }
 
             return default(Type);
         }
@@ -259,19 +284,10 @@ namespace PvPController {
                     return "";
             }
         }
-
-        /// <summary>
-        /// Deletes the contents of an entire row.
-        /// </summary>
-        /// <param Name="table">The table to delete from</param>
-        /// <param Name="id">The ID of the data being deleted</param>
-        public static void DeleteRow(string table, int id) {
-            Query("DELETE FROM {0} WHERE ID = {1}".SFormat(table, id));
-        }
     }
 
     /// <summary>
-    /// Mapped database names into constants.
+    /// Mapped database table/column names into constants.
     /// </summary>
     public static class DbConsts {
         public const string ItemTable = "Items";
