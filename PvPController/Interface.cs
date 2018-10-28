@@ -1,11 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.Utilities;
 using PvPController.Variables;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using PvPController.Utilities;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -17,68 +14,69 @@ namespace PvPController {
         /// Displays the stats of a player and weapon on the right side of their screen.
         /// Stats include damage, projectile, debuffs and buffs, knockback, criticals, and defense.
         /// </summary>
-        /// <param name="player"></param>
+        /// <param Name="player"></param>
         public static void DisplayInterface(PvPPlayer player) {
             StringBuilder sb = new StringBuilder();
 
-            PvPItem weapon = player.GetPlayerItem();
+            PvPItem weapon = player.GetPlayerItem;
             PvPProjectile projectile = weapon.useAmmo == AmmoID.None
-                ? player.GetPlayerItem().GetItemShoot()
-                : weapon.GetItemShoot().type > 0
-                    ? weapon.GetItemShoot()
-                    : player.GetFirstAvailableAmmo(weapon).GetItemShoot();
+                ? player.GetPlayerItem.GetItemShoot
+                : weapon.GetItemShoot.type > 0
+                    ? weapon.GetItemShoot
+                    : player.GetFirstAvailableAmmo(weapon).GetItemShoot;
 
             sb.AppendLine(MiscUtils.LineBreaks(8));
             sb.AppendLine("Weapon and Armor Stats (/toggletooltip or /tt)");
             sb.AppendLine(new string('-', 40));
 
-            if (weapon.GetPvPDamage(player) > 0)
-                sb.AppendLine(weapon.name + ": " + weapon.GetPvPDamage(player) + " damage");
+            if (weapon.GetPvPDamage(player) > 0 && weapon.netID != 0)
+                sb.AppendLine(weapon.Name + ": " + weapon.GetPvPDamage(player) + " damage");
 
-            if (PvPController.config.enableWeaponDebuffs)
-                if (weapon.GetDebuffInfo().buffid != 0)
+            if (PvPController.Config.EnableWeaponDebuffs)
+                if (weapon.GetDebuffInfo.BuffId != 0)
                     sb.AppendLine("  Inflicts {0} for {1}s."
-                        .SFormat(Lang.GetBuffName(weapon.GetDebuffInfo().buffid), weapon.GetDebuffInfo().buffDuration / 60.0));
+                        .SFormat(Lang.GetBuffName(weapon.GetDebuffInfo.BuffId), weapon.GetDebuffInfo.BuffDuration / 60.0));
 
-            if (PvPController.config.enableWeaponSelfBuffs)
-                if (weapon.GetSelfBuffInfo().buffid != 0)
+            if (PvPController.Config.EnableWeaponSelfBuffs)
+                if (weapon.GetSelfBuffInfo.BuffId != 0)
                     sb.AppendLine("  Inflicts {0} to self for {1}s."
-                        .SFormat(Lang.GetBuffName(weapon.GetSelfBuffInfo().buffid), weapon.GetSelfBuffInfo().buffDuration / 60.0));
+                        .SFormat(Lang.GetBuffName(weapon.GetSelfBuffInfo.BuffId), weapon.GetSelfBuffInfo.BuffDuration / 60.0));
 
             if (projectile.type > 0) {
                 int shoot = projectile.type;
-                sb.AppendLine("  Shoots " + Lang.GetProjectileName(shoot).ToString());
+                sb.AppendLine("  Shoots " + Lang.GetProjectileName(shoot));
 
-                if (PvPController.config.enableProjectileDebuffs)
-                    if (projectile.GetDebuffInfo().buffid != 0)
+                if (PvPController.Config.EnableProjectileDebuffs)
+                    if (projectile.GetDebuffInfo().BuffId != 0)
                         sb.AppendLine("    Inflicts {0} for {1}s."
-                            .SFormat(Lang.GetBuffName(projectile.GetDebuffInfo().buffid), projectile.GetDebuffInfo().buffDuration / 60.0));
+                            .SFormat(Lang.GetBuffName(projectile.GetDebuffInfo().BuffId), projectile.GetDebuffInfo().BuffDuration / 60.0));
 
-                if (PvPController.config.enableProjectileSelfBuffs)
-                    if (projectile.GetSelfBuffInfo().buffid != 0)
+                if (PvPController.Config.EnableProjectileSelfBuffs)
+                    if (projectile.GetSelfBuffInfo().BuffId != 0)
                         sb.AppendLine("    Inflicts {0} to self for {1}s."
-                            .SFormat(Lang.GetBuffName(projectile.GetSelfBuffInfo().buffid), projectile.GetSelfBuffInfo().buffDuration / 60.0));
+                            .SFormat(Lang.GetBuffName(projectile.GetSelfBuffInfo().BuffId), projectile.GetSelfBuffInfo().BuffDuration / 60.0));
             }
 
-            for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
+            for (int x = 0; x < Player.maxBuffs; x++) {
                 int buffType = player.TPlayer.buffType[x];
-                ItemInfo buffInfo = Database.buffInfo[buffType];
+                var debuffInfo = Database.GetBuffInfo(DbConsts.BuffTable, x, true);
+                var selfBuffInfo = Database.GetBuffInfo(DbConsts.BuffTable, x, false);
 
-                if (PvPController.config.enableBuffDebuff)
-                    if (buffInfo.debuff.buffid != 0)
-                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} ({2}s) to weapons."
-                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.debuff.buffid), buffInfo.debuff.buffDuration / 60.0)));
+                if (PvPController.Config.EnableBuffDebuff)
+                    if (debuffInfo.BuffId != 0)
+                        sb.AppendLine("Buff {0} applies {1} ({2}s) to weapons."
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(debuffInfo.BuffId), debuffInfo.BuffDuration / 60.0).SeparateToLines());
 
-                if (PvPController.config.enableBuffSelfBuff)
-                    if (buffInfo.selfBuff.buffid != 0)
-                        sb.AppendLine(MiscUtils.SeparateToLines("Buff {0} applies {1} to self for {2}s on attack."
-                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(buffInfo.selfBuff.buffid), buffInfo.selfBuff.buffDuration / 60.0)));
+                if (PvPController.Config.EnableBuffSelfBuff)
+                    if (selfBuffInfo.BuffId != 0)
+                        sb.AppendLine("Buff {0} applies {1} to self for {2}s on attack."
+                            .SFormat(Lang.GetBuffName(buffType), Lang.GetBuffName(selfBuffInfo.BuffId), selfBuffInfo.BuffDuration / 60.0).SeparateToLines());
             }
 
-            if (PvPController.config.enableKnockback)
-                sb.AppendLine("Knockback: " + player.GetPlayerItem().GetKnockback(player));
+            if (PvPController.Config.EnableKnockback)
+                sb.AppendLine("Knockback: " + player.GetPlayerItem.GetKnockback(player));
 
-            if (PvPController.config.enableCriticals)
+            if (PvPController.Config.EnableCriticals)
                 if (player.GetCrit(weapon) > 0)
                     sb.AppendLine("Critical: " + player.GetCrit(weapon) + "%");
 
@@ -91,7 +89,7 @@ namespace PvPController {
         /// <summary>
         /// Sends a empty string to clear the player interface on the right side of the screen.
         /// </summary>
-        /// <param name="player"></param>
+        /// <param Name="player"></param>
         public static void ClearInterface(PvPPlayer player) {
             player.SendData(PacketTypes.Status, String.Empty);
         }
@@ -99,9 +97,9 @@ namespace PvPController {
         /// <summary>
         /// Brings a brief text pop-up above a person displaying a message.
         /// </summary>
-        /// <param name="player"></param>
-        /// <param name="message"></param>
-        /// <param name="color"></param>
+        /// <param Name="player"></param>
+        /// <param Name="message"></param>
+        /// <param Name="color"></param>
         public static void PlayerTextPopup(PvPPlayer player, string message, Color color) {
             NetMessage.SendData(119, player.Index, -1, NetworkText.FromLiteral(message), (int)color.PackedValue, player.X, player.Y + 10);
         }
@@ -109,10 +107,10 @@ namespace PvPController {
         /// <summary>
         /// Brings a brief text pop-up above a person displaying a message.
         /// </summary>
-        /// <param name="player"></param>
-        /// <param name="target"></param>
-        /// <param name="message"></param>
-        /// <param name="color"></param>
+        /// <param Name="player"></param>
+        /// <param Name="target"></param>
+        /// <param Name="message"></param>
+        /// <param Name="color"></param>
         public static void PlayerTextPopup(PvPPlayer player, PvPPlayer target, string message, Color color) {
             NetMessage.SendData(119, player.Index, -1, NetworkText.FromLiteral(message), (int)color.PackedValue, target.X, target.Y + 10);
         }

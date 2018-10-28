@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.Utilities;
-using System.Timers;
 using Terraria;
-using System;
 using System.Linq;
+using PvPController.Utilities;
 
 namespace PvPController.Variables {
     /// <summary>
@@ -12,8 +10,8 @@ namespace PvPController.Variables {
     /// </summary>
     public class PvPProjectile : Projectile {
         
-        public PvPItem itemOriginated;
-        public PvPPlayer ownerProjectile;
+        public PvPItem ItemOriginated;
+        public PvPPlayer OwnerProjectile;
 
         public PvPProjectile(int type) {
             this.SetDefaults(type);
@@ -26,44 +24,27 @@ namespace PvPController.Variables {
         }
 
         /// <summary>
-        /// Sets the owner of the projectile with the owner's index to the server.
-        /// </summary>
-        /// <param name="owner"></param>
-        public void SetOwner(int owner) {
-            this.owner = owner;
-            ownerProjectile = PvPController.pvpers[owner];
-        }
-
-        /// <summary>
-        /// Stores the item the projectile was shot from.
-        /// </summary>
-        /// <param name="item"></param>
-        public void SetOriginatedItem(PvPItem item) {
-            itemOriginated = item;
-        }
-
-        /// <summary>
         /// Gets the projectile damage based off the database.
         /// </summary>
         /// <returns></returns>
         public int GetConfigDamage() {
-            return Database.projectileInfo[type].damage;
+            return Database.GetData<int>(DbConsts.ProjectileTable, type, DbConsts.Damage);
         }
 
         /// <summary>
         /// Gets the debuff information from the database.
         /// </summary>
         /// <returns></returns>
-        public BuffDuration GetDebuffInfo() {
-            return Database.projectileInfo[type].debuff;
+        public BuffInfo GetDebuffInfo() {
+            return Database.GetBuffInfo(DbConsts.ProjectileTable, type, true);
         }
 
         /// <summary>
         /// Gets the self buff information from the database.
         /// </summary>
         /// <returns></returns>
-        public BuffDuration GetSelfBuffInfo() {
-            return Database.projectileInfo[type].selfBuff;
+        public BuffInfo GetSelfBuffInfo() {
+            return Database.GetBuffInfo(DbConsts.ProjectileTable, type, false);
         }
 
         /// <summary>
@@ -71,7 +52,7 @@ namespace PvPController.Variables {
         /// </summary>
         /// <returns></returns>
         public Vector2 GetPosition() {
-            return ProjectileUtils.GetMainProjectile(this.identity, this.type, this.ownerProjectile.Index).position;
+            return ProjectileUtils.GetMainProjectile(this.identity, this.type, this.OwnerProjectile.Index).position;
         }
 
         /// <summary>
@@ -81,13 +62,13 @@ namespace PvPController.Variables {
             switch (type) {
                 //Medusa Ray projectile
                 case 536:
-                    for (int x = 0; x < PvPController.pvpers.Length; x++) {
-                        if (ownerProjectile.Index == PvPController.pvpers[x].Index) continue;
-                        if (!PvPController.pvpers[x].TPlayer.hostile || PvPController.pvpers[x].Dead) continue;
-                        if (Vector2.Distance(ownerProjectile.TPlayer.position, PvPController.pvpers[x].TPlayer.position) <= 300) {
-                            if (PvPController.pvpers[x].CheckMedusa()) {
-                                PvPController.pvpers[x].DamagePlayer(ownerProjectile, itemOriginated, PvPController.pvpers[x].GetDamageDealt(ownerProjectile, itemOriginated, this), 0, PvPUtils.IsCrit(ownerProjectile.GetCrit(itemOriginated)));
-                                PvPController.pvpers[x].SetBuff(Database.projectileInfo[535].debuff);
+                    foreach (PvPPlayer pvper in PvPController.PvPers.Where(c => c != null)) {
+                        if (OwnerProjectile.Index == pvper.Index) continue;
+                        if (!pvper.TPlayer.hostile || pvper.Dead) continue;
+                        if (Vector2.Distance(OwnerProjectile.TPlayer.position, pvper.TPlayer.position) <= 300) {
+                            if (pvper.CheckMedusa()) {
+                                pvper.DamagePlayer(OwnerProjectile, ItemOriginated, pvper.GetDamageDealt(OwnerProjectile, ItemOriginated, this), 0, PvPUtils.IsCrit(OwnerProjectile.GetCrit(ItemOriginated)));
+                                pvper.SetBuff(Database.GetBuffInfo(DbConsts.ProjectileTable, 535, true));
                             }
                         }
                     }

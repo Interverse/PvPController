@@ -1,13 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using PvPController.Variables;
+using PvPController.Network.PacketArgs;
 using PvPController.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
-using TShockAPI;
 
 namespace PvPController.Network {
     public class PvPHandler {
@@ -29,101 +23,110 @@ namespace PvPController.Network {
         /// Stores projectiles to an array with its originated weapon.
         /// Changes projectile types and shootspeed based off server config.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="args"></param>
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
-            if (!PvPController.config.enablePlugin) return;
+            if (!PvPController.Config.EnablePlugin) return;
 
-            if (Main.projectile[e.identity].active && Main.projectile[e.identity].type == e.type) return;
+            if (Main.projectile[e.Identity].active && Main.projectile[e.Identity].type == e.Type) return;
 
-            bool isModified = false;
-            int index = ProjectileUtils.FindFreeIndex();
+            var isModified = false;
 
-            if (e.attacker == null || !e.attacker.TPlayer.hostile) return;
+            if (e.Attacker == null || !e.Attacker.TPlayer.hostile) return;
 
-            if (Database.itemInfo[e.weapon.netID].shoot > 0 && Database.itemInfo[e.weapon.netID].isShootModded) {
-                e.type = Database.itemInfo[e.weapon.netID].shoot;
+            if (Database.GetData<int>(DbConsts.ItemTable, e.Weapon.netID, DbConsts.Shoot) > 0 &&
+                Database.GetData<bool>(DbConsts.ItemTable, e.Weapon.netID, DbConsts.IsShootModded)) {
+                e.Type = Database.GetData<int>(DbConsts.ItemTable, e.Weapon.netID, DbConsts.Shoot);
                 isModified = true;
             }
-            
-            if (Database.itemInfo[e.weapon.netID].shootSpeed > 0) {
-                e.velocity = Vector2.Normalize(e.velocity) * Database.itemInfo[e.weapon.netID].shootSpeed;
+
+            if (Database.GetData<float>(DbConsts.ItemTable, e.Weapon.netID, DbConsts.ShootSpeed) > 0) {
+                e.Velocity = Vector2.Normalize(e.Velocity) *
+                             Database.GetData<float>(DbConsts.ItemTable, e.Weapon.netID, DbConsts.ShootSpeed);
                 isModified = true;
             }
-            
-            var projectile = Main.projectile[index];
-            projectile.SetDefaults(e.type);
-            projectile.identity = index;
-            projectile.damage = e.damage;
-            projectile.active = true;
-            projectile.owner = e.owner;
-            projectile.velocity = e.velocity;
-            projectile.position = e.position;
 
-            e.attacker.projTracker.InsertProjectile(index, e.type, e.owner, e.weapon);
+            if (isModified) {
+                e.Args.Handled = true;
 
-            e.args.Handled = isModified;
-            if (isModified) NetMessage.SendData(27, -1, -1, null, index, 0.0f, 0.0f, 0.0f, 0, 0, 0);
+                var projectile = Main.projectile[e.Identity];
+                projectile.SetDefaults(e.Type);
+                projectile.identity = e.Identity;
+                projectile.damage = e.Damage;
+                projectile.active = true;
+                projectile.owner = e.Owner;
+                projectile.velocity = e.Velocity;
+                projectile.position = e.Position;
+
+                NetMessage.SendData(27, -1, -1, null, e.Identity);
+            }
+
+            e.Attacker.ProjTracker.InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon);
+            e.Attacker.ProjTracker.Projectiles[e.Type].PerformProjectileAction();
         }
 
         /// <summary>
-        /// Calculates pvp damage and performs interactions with players, 
+        /// Calculates pvp damage and performs interactions with players,
         /// such as buffs and other miscellaneous broken vanilla pvp mechanics.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="e"></param>
         private void OnPlayerHurt(object sender, PlayerHurtArgs e) {
-            if (!PvPController.config.enablePlugin) return;
+            if (!PvPController.Config.EnablePlugin) return;
 
-            if (e.target == null || !e.target.ConnectionAlive || !e.target.Active) return;
+            if (!e.IsPvPDamage) return;
 
-            e.args.Handled = true;
+            e.Args.Handled = true;
 
-            if (!e.target.CanBeHit()) return;
+            if (!e.Target.CanBeHit()) return;
 
-            if (PvPController.config.enableKnockback) {
-                float knockback = e.weapon.GetKnockback(e.attacker);
-                if (knockback >= PvPController.config.knockbackMinimum) {
-                    e.target.KnockBack(e.weapon.GetKnockback(e.attacker), e.attacker.GetAngleFrom(e.target.TPlayer.position), e.target.IsLeftFrom(e.attacker.TPlayer.position) ? -e.hitDirection : e.hitDirection);
-                    e.hitDirection = 0;
+            if (PvPController.Config.EnableKnockback) {
+                float knockback = e.Weapon.GetKnockback(e.Attacker);
+                if (knockback >= PvPController.Config.KnockbackMinimum) {
+                    e.Target.KnockBack(e.Weapon.GetKnockback(e.Attacker),
+                        e.Attacker.GetAngleFrom(e.Target.TPlayer.position),
+                        e.Target.IsLeftFrom(e.Attacker.TPlayer.position) ? -e.HitDirection : e.HitDirection);
+                    e.HitDirection = 0;
                 }
             }
-            e.target.DamagePlayer(e.attacker, e.weapon, e.inflictedDamage, e.hitDirection, PvPController.config.enableCriticals ? PvPUtils.IsCrit(e.crit) : false);
 
-            e.target.ApplyPvPEffects(e.attacker, e.weapon, e.projectile, e.inflictedDamage);
+            e.Target.DamagePlayer(e.Attacker, e.Weapon, e.InflictedDamage, e.HitDirection,
+                PvPController.Config.EnableCriticals && PvPUtils.IsCrit(e.Crit));
 
-            if (PvPController.config.enableProjectileDebuffs)
-                e.target.SetBuff(Database.projectileInfo[e.playerHitReason.SourceProjectileType].debuff);
+            e.Target.ApplyPvPEffects(e.Attacker, e.Weapon, e.Projectile, e.InflictedDamage);
 
-            if (PvPController.config.enableProjectileSelfBuffs)
-                e.attacker.SetBuff(Database.projectileInfo[e.playerHitReason.SourceProjectileType].selfBuff);
+            if (PvPController.Config.EnableProjectileDebuffs)
+                e.Target.SetBuff(Database.GetBuffInfo(DbConsts.ProjectileTable,
+                    e.PlayerHitReason.SourceProjectileType, true));
 
-            if (PvPController.config.enableWeaponDebuffs)
-                e.target.SetBuff(Database.itemInfo[e.attacker.GetPlayerItem().netID].debuff);
+            if (PvPController.Config.EnableProjectileSelfBuffs)
+                e.Attacker.SetBuff(Database.GetBuffInfo(DbConsts.ProjectileTable,
+                    e.PlayerHitReason.SourceProjectileType, false));
 
-            if (PvPController.config.enableWeaponSelfBuffs)
-                e.attacker.SetBuff(Database.itemInfo[e.attacker.GetPlayerItem().netID].selfBuff);
+            if (PvPController.Config.EnableWeaponDebuffs)
+                e.Target.SetBuff(Database.GetBuffInfo(DbConsts.ItemTable, e.Attacker.GetPlayerItem.netID, true));
 
-            if (PvPController.config.enableBuffDebuff)
-                e.target.ApplyBuffDebuffs(e.attacker, e.weapon);
+            if (PvPController.Config.EnableWeaponSelfBuffs)
+                e.Attacker.SetBuff(Database.GetBuffInfo(DbConsts.ItemTable, e.Attacker.GetPlayerItem.netID, false));
 
-            if (PvPController.config.enableBuffSelfBuff)
-                e.attacker.ApplyBuffSelfBuff();
+            if (PvPController.Config.EnableBuffDebuff)
+                e.Target.ApplyBuffDebuffs(e.Attacker, e.Weapon);
+
+            if (PvPController.Config.EnableBuffSelfBuff)
+                e.Attacker.ApplyBuffSelfBuff();
         }
 
         /// <summary>
         /// Updates a player's vortex status.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="e"></param>
         private void OnPlayerUpdated(object sender, PlayerUpdateArgs e) {
-            e.player.TPlayer.vortexStealthActive = (e.pulley & 8) == 8;
+            e.Player.TPlayer.vortexStealthActive = (e.Pulley & 8) == 8;
 
-            if (!PvPController.config.enablePlugin) return;
+            if (!PvPController.Config.EnablePlugin) return;
 
-            if (e.player.previousSelectedItem != e.selectedSlot) {
-                e.player.previousSelectedItem = e.selectedSlot;
-            }
+            if (e.Player.PreviousSelectedItem != e.SelectedSlot) e.Player.PreviousSelectedItem = e.SelectedSlot;
         }
 
         /// <summary>
@@ -131,10 +134,10 @@ namespace PvPController.Network {
         /// This only activates if a person turns off pvp, not when
         /// they turn it on.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param Name="sender"></param>
+        /// <param Name="e"></param>
         private void OnPvPToggled(object sender, TogglePvPArgs e) {
-            Interface.ClearInterface(e.player);
+            Interface.ClearInterface(e.Player);
         }
     }
 }

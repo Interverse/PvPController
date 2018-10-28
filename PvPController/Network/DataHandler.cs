@@ -1,11 +1,7 @@
-﻿using PvPController.Variables;
+﻿using PvPController.Network.PacketArgs;
+using PvPController.Variables;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria.DataStructures;
 using TerrariaApi.Server;
 
 namespace PvPController.Network {
@@ -21,39 +17,36 @@ namespace PvPController.Network {
         public static event EventHandler<TogglePvPArgs> PvPToggled;
         public static event EventHandler<PlayerSlotArgs> PlayerSlotUpdated;
 
-        public static void OnPlayerHurt(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
-            if (PlayerHurt != null)
-                PlayerHurt(typeof(DataHandler), new PlayerHurtArgs(args, data, attacker));
-        }
+        public static void HandleData(GetDataEventArgs args, MemoryStream data, PvPPlayer player) {
+            switch (args.MsgID) {
+                case PacketTypes.PlayerHurtV2:
+                    PlayerHurt?.Invoke(typeof(DataHandler), new PlayerHurtArgs(args, data, player));
+                    return;
 
-        public static void OnPlayerUpdated(MemoryStream data, PvPPlayer player) {
-            if (PlayerUpdated != null)
-                PlayerUpdated(typeof(DataHandler), new PlayerUpdateArgs(data, player));
-        }
+                case PacketTypes.TogglePvp:
+                    PvPToggled?.Invoke(typeof(DataHandler), new TogglePvPArgs(player));
+                    return;
 
-        public static void OnProjectileNew(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
-            if (ProjectileNew != null)
-                ProjectileNew(typeof(DataHandler), new ProjectileNewArgs(args, data, attacker));
-        }
+                case PacketTypes.PlayerSlot:
+                    PlayerSlotUpdated?.Invoke(typeof(DataHandler), new PlayerSlotArgs(data, player));
+                    return;
 
-        public static void OnProjectileDestroyed(MemoryStream data) {
-            if (ProjectileDestroyed != null)
-                ProjectileDestroyed(typeof(DataHandler), new ProjectileDestroyArgs(data));
-        }
+                case PacketTypes.PlayerDeathV2:
+                    PlayerDied?.Invoke(typeof(DataHandler), new PlayerDeathArgs(player));
+                    return;
 
-        public static void OnPlayerDead(PvPPlayer dead) {
-            if (PlayerDied != null)
-                PlayerDied(typeof(DataHandler), new PlayerDeathArgs(dead));
-        }
+                case PacketTypes.ProjectileNew:
+                    ProjectileNew?.Invoke(typeof(DataHandler), new ProjectileNewArgs(args, data, player));
+                    return;
 
-        public static void OnPvPToggled(PvPPlayer player) {
-            if (PvPToggled != null)
-                PvPToggled(typeof(DataHandler), new TogglePvPArgs(player));
-        }
+                case PacketTypes.ProjectileDestroy:
+                    ProjectileDestroyed?.Invoke(typeof(DataHandler), new ProjectileDestroyArgs(data));
+                    return;
 
-        public static void OnPlayerSlotUpdated(MemoryStream data, PvPPlayer player) {
-            if (PlayerSlotUpdated != null)
-                PlayerSlotUpdated(typeof(DataHandler), new PlayerSlotArgs(data, player));
+                case PacketTypes.PlayerUpdate:
+                    PlayerUpdated?.Invoke(typeof(DataHandler), new PlayerUpdateArgs(data, player));
+                    return;
+            }
         }
     }
 }

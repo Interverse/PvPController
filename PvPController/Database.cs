@@ -1,30 +1,26 @@
 ﻿using Mono.Data.Sqlite;
 using MySql.Data.MySqlClient;
-using PvPController.Utilities;
+using PvPController.Variables;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PvPController.Utilities;
 using Terraria;
 using Terraria.ID;
 using TShockAPI;
 using TShockAPI.DB;
+using static PvPController.DbConsts;
 
 namespace PvPController {
     public static class Database {
-        public static Dictionary<int, ItemInfo> itemInfo = new Dictionary<int, ItemInfo>(Main.maxItemTypes);
-        public static Dictionary<int, ItemInfo> projectileInfo = new Dictionary<int, ItemInfo>(Main.maxProjectileTypes);
-        public static Dictionary<int, ItemInfo> buffInfo = new Dictionary<int, ItemInfo>(Main.maxBuffTypes);
-        public static bool isMySql { get { return db.GetSqlType() == SqlType.Mysql; } }
+        public static bool IsMySql => db.GetSqlType() == SqlType.Mysql;
 
         public static IDbConnection db;
 
         /// <summary>
-        /// Connects the mysql/sqlite file for the plugin, creating one if a file doesn't already exist.
+        /// Connects the mysql/sqlite database for the plugin, creating one if the database doesn't already exist.
         /// </summary>
         public static void ConnectDB() {
             if (TShock.Config.StorageType.ToLower() == "sqlite")
@@ -49,40 +45,40 @@ namespace PvPController {
                 throw new Exception("Invalid storage type.");
 
             var sqlCreator = new SqlTableCreator(db,
-                db.GetSqlType() == SqlType.Sqlite
-                    ? (IQueryBuilder)new SqliteQueryCreator()
-                    : (IQueryBuilder)new MysqlQueryCreator());
+                IsMySql
+                    ? (IQueryBuilder)new MysqlQueryCreator()
+                    : (IQueryBuilder)new SqliteQueryCreator());
             
-            sqlCreator.EnsureTableStructure(new SqlTable("Items",
-                new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
-                new SqlColumn("Name", MySqlDbType.String),
-                new SqlColumn("Damage", MySqlDbType.Int32),
-                new SqlColumn("Shoot", MySqlDbType.Int32),
-                new SqlColumn("IsShootModded", MySqlDbType.Int32),
-                new SqlColumn("ShootSpeed", MySqlDbType.Float),
-                new SqlColumn("Knockback", MySqlDbType.Float),
-                new SqlColumn("Defense", MySqlDbType.Int32),
-                new SqlColumn("InflictBuffID", MySqlDbType.Int32),
-                new SqlColumn("InflictBuffDuration", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffID", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32)));
+            sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ItemTable,
+                new SqlColumn(Id, MySqlDbType.Int32) { Primary = true },
+                new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
+                new SqlColumn(Damage, MySqlDbType.Int32),
+                new SqlColumn(Shoot, MySqlDbType.Int32),
+                new SqlColumn(IsShootModded, MySqlDbType.Int32),
+                new SqlColumn(ShootSpeed, MySqlDbType.Float),
+                new SqlColumn(Knockback, MySqlDbType.Float),
+                new SqlColumn(Defense, MySqlDbType.Int32),
+                new SqlColumn(InflictBuffId, MySqlDbType.Int32),
+                new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
+                new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
+                new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32)));
             
-            sqlCreator.EnsureTableStructure(new SqlTable("Projectiles",
-                new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
-                new SqlColumn("Name", MySqlDbType.String),
-                new SqlColumn("Damage", MySqlDbType.Int32),
-                new SqlColumn("InflictBuffID", MySqlDbType.Int32),
-                new SqlColumn("InflictBuffDuration", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffID", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32)));
+            sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ProjectileTable,
+                new SqlColumn(Id, MySqlDbType.Int32) { Primary = true },
+                new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
+                new SqlColumn(Damage, MySqlDbType.Int32),
+                new SqlColumn(InflictBuffId, MySqlDbType.Int32),
+                new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
+                new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
+                new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32)));
 
-            SqlTable table3 = new SqlTable("Buffs",
-                new SqlColumn("ID", MySqlDbType.Int32) { Primary = true },
-                new SqlColumn("Name", MySqlDbType.String),
-                new SqlColumn("InflictBuffID", MySqlDbType.Int32),
-                new SqlColumn("InflictBuffDuration", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffID", MySqlDbType.Int32),
-                new SqlColumn("ReceiveBuffDuration", MySqlDbType.Int32));
+            SqlTable table3 = new SqlTable(DbConsts.BuffTable,
+                new SqlColumn(Id, MySqlDbType.Int32) { Primary = true },
+                new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
+                new SqlColumn(InflictBuffId, MySqlDbType.Int32),
+                new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
+                new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
+                new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32));
             sqlCreator.EnsureTableStructure(table3);
         }
 
@@ -90,109 +86,56 @@ namespace PvPController {
             return db.QueryReader(query, args);
         }
 
-        public static int Query(string query, params object[] args) {
-            return db.Query(query, args);
-        }
-
         /// <summary>
-        /// Writes the changed attribute of an item to the sql(ite) file.
+        /// Performs an SQL query
         /// </summary>
-        public static void UpdateItems(ItemInfo iteminfo) {
-            var query =
-                string.Format(
-                    "UPDATE Items SET Name = '{0}', Damage = {1}, Shoot = {2}, IsShootModded = {3}, ShootSpeed = {4}, Knockback = {5}, Defense = {6}, InflictBuffID = {7}, InflictBuffDuration = {8}, ReceiveBuffID = {9}, ReceiveBuffDuration = {10} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.damage, iteminfo.shoot, iteminfo.isShootModded ? 1 : 0, iteminfo.shootSpeed, iteminfo.knockback, iteminfo.defense, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
-                
-            Query(query, iteminfo.id);
-        }
-
-        /// <summary>
-        /// Writes the changed attribute of a projectile to the sql(ite) file.
-        /// </summary>
-        public static void UpdateProjectiles(ItemInfo iteminfo) {
-            var query =
-                string.Format(
-                    "UPDATE Projectiles SET Name = '{0}', Damage = {1}, InflictBuffID = {2}, InflictBuffDuration = {3}, ReceiveBuffID = {4}, ReceiveBuffDuration = {5} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.damage, iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
+        /// <param Name="query">The SQL statement</param>
+        /// <returns>
+        /// Returns true if the statement was successful.
+        /// Returns false if the statement failed.
+        /// </returns>
+        public static bool Query(string query) {
+            bool success = true;
+            db.Open();
+            try {
+                using (var conn = db.CreateCommand()) {
+                    conn.CommandText = query;
+                    conn.ExecuteNonQuery();
+                }
+            } catch {
+                success = false;
+            }
             
-            Query(query, iteminfo.id);
+            db.Close();
+            return success;
         }
 
         /// <summary>
-        /// Writes the changed attribute of a buff to the sql(ite) file.
+        /// Deletes the contents of an entire row.
         /// </summary>
-        public static void UpdateBuffs(ItemInfo iteminfo) {
-            var query =
-                string.Format(
-                    "UPDATE Buffs SET Name = '{0}', InflictBuffID = {2}, InflictBuffDuration = {3}, ReceiveBuffID = {4}, ReceiveBuffDuration = {5} WHERE ID = @0",
-                    MiscUtils.SanitizeString(iteminfo.name), iteminfo.debuff.buffid, iteminfo.debuff.buffDuration, iteminfo.selfBuff.buffid, iteminfo.selfBuff.buffDuration);
-            
-            Query(query, iteminfo.id);
+        /// <param Name="table">The table to delete from</param>
+        /// <param Name="id">The ID of the data being deleted</param>
+        public static void DeleteRow(string table, int id) {
+            Query("DELETE FROM {0} WHERE ID = {1}".SFormat(table, id));
         }
+
         /// <summary>
-        /// Creates all the default stats of items, projectiles, and buffs and puts it into
-        /// the mysql/sqlite file.
+        /// Performs a series of sql statements in a transaction.
+        /// This allows for fast mass querying as opposed to querying
+        /// one statement at a time.
         /// </summary>
-        public static void InitDefaultTables() {
-            var conn = isMySql 
-                ? (DbConnection)new MySqlConnection(db.ConnectionString) 
-                : (DbConnection)new SqliteConnection(db.ConnectionString);
+        /// <param name="queries"></param>
+        public static void PerformTransaction(string[] queries) {
+            var conn = IsMySql
+                ? (DbConnection)new MySqlConnection(db.ConnectionString)
+                : new SqliteConnection(db.ConnectionString);
 
             conn.Open();
 
             using (var cmd = conn.CreateCommand()) {
                 using (var transaction = conn.BeginTransaction()) {
-                    for (int x = 0; x < Main.maxItemTypes; x++) {
-                        Item item = new Item();
-                        item.SetDefaults(x);
-
-                        string name = MiscUtils.SanitizeString(item.Name);
-
-                        int damage = item.damage;
-                        int defense = item.defense;
-                        float knockback = item.knockBack;
-                        int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
-
-                        cmd.CommandText =
-                            "INSERT INTO Items (ID, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11})"
-                            .SFormat(x, name, damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                        string name = MiscUtils.SanitizeString(Lang.GetProjectileName(x).Value);
-
-                        int damage = 0;
-                        int inflictBuff = 0;
-                        int inflictBuffDuration = 0;
-
-                        if (ProjectileUtils.presetProjDamage.ContainsKey(x)) {
-                            damage = ProjectileUtils.presetProjDamage[x];
-                        }
-                        if (ProjectileUtils.projectileDebuffs.ContainsKey(x)) {
-                            inflictBuff = ProjectileUtils.projectileDebuffs[x].buffid;
-                            inflictBuffDuration = ProjectileUtils.projectileDebuffs[x].buffDuration;
-                        }
-
-                        cmd.CommandText =
-                            "INSERT INTO Projectiles (ID, Name, Damage, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5}, {6})"
-                            .SFormat(x, name, damage, inflictBuff, inflictBuffDuration, 0, 0);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    for (int x = 0; x < Main.maxBuffTypes; x++) {
-                        string name = MiscUtils.SanitizeString(Lang.GetBuffName(x));
-
-                        int inflictBuff = 0;
-                        int inflictBuffDuration = 0;
-                        if (MiscData.flaskDebuffs.ContainsKey(x)) {
-                            inflictBuff = MiscData.flaskDebuffs[x].buffid;
-                            inflictBuffDuration = MiscData.flaskDebuffs[x].buffDuration;
-                        }
-
-                        cmd.CommandText =
-                            "INSERT INTO Buffs (ID, Name, InflictBuffID, InflictBuffDuration, ReceiveBuffID, ReceiveBuffDuration) VALUES ({0}, '{1}', {2}, {3}, {4}, {5})"
-                            .SFormat(x, name, inflictBuff, inflictBuffDuration, 0, 0);
+                    foreach (string query in queries) {
+                        cmd.CommandText = query;
                         cmd.ExecuteNonQuery();
                     }
 
@@ -204,48 +147,164 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Loads data from the mysql/sqlite file to the Dictionaries in this Database.
+        /// Writes the changed attribute of an item to the sql database.
         /// </summary>
-        public static void LoadDatabase() {
-            using (var reader = QueryReader("SELECT * FROM Items")) {
+        public static bool Update<T>(string table, int index, string column, T value) {
+            bool selectAll = index <= 0;
+
+            if (value is string) value = (T)Convert.ChangeType(value.ToString().SqlString(), typeof(T));
+
+            string sourceId = !selectAll ? " WHERE ID = {0}".SFormat(index) : "";
+            return Query(string.Format("UPDATE {0} SET {1} = {2}{3}", table, column, value, sourceId));
+        }
+
+        /// <summary>
+        /// Creates all the default stats of items, projectiles, and buffs and puts it into
+        /// the mysql/sqlite database.
+        /// </summary>
+        public static void InitDefaultTables() {
+            List<string> queries = new List<string>();
+
+            var tableList = new[] { DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable };
+            foreach(string table in tableList) {
+                queries.Add("DELETE FROM {0}".SFormat(table));
+            }
+
+            for (int x = 0; x < Main.maxItemTypes; x++) {
+                queries.Add(GetDefaultValueSqlString(ItemTable, x));
+            }
+
+            for (int x = 0; x < Main.maxProjectileTypes; x++) {
+                queries.Add(GetDefaultValueSqlString(ProjectileTable, x));
+            }
+
+            for (int x = 0; x < Main.maxBuffTypes; x++) {
+                queries.Add(GetDefaultValueSqlString(BuffTable, x));
+            }
+
+            PerformTransaction(queries.ToArray());
+        }
+
+        /// <summary>
+        /// Gets the value of an item, projectile, or buff based off id.
+        /// </summary>
+        public static T GetData<T> (string table, int id, string column) {
+            using (var reader = QueryReader(string.Format("SELECT {0} FROM {1} WHERE ID = {2}", column, table, id.ToString()))) {
                 while (reader.Read()) {
-                    int id = reader.Get<int>("ID");
-                    itemInfo[id] = new ItemInfo();
-                    itemInfo[id].id = id;
-                    itemInfo[id].name = reader.Get<string>("Name");
-                    itemInfo[id].damage = reader.Get<int>("Damage");
-                    itemInfo[id].shoot = reader.Get<int>("Shoot");
-                    itemInfo[id].isShootModded = reader.Get<int>("IsShootModded") == 1 ? true : false;
-                    itemInfo[id].shootSpeed = reader.Get<float>("ShootSpeed");
-                    itemInfo[id].knockback = reader.Get<float>("Knockback");
-                    itemInfo[id].defense = reader.Get<int>("Defense");
-                    itemInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
-                    itemInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));
+                    return reader.Get<T>(column);
                 }
             }
 
-            using (var reader = QueryReader("SELECT * FROM Projectiles")) {
-                while (reader.Read()) {
-                    int id = reader.Get<int>("ID");
-                    projectileInfo[id] = new ItemInfo();
-                    projectileInfo[id].id = id;
-                    projectileInfo[id].name = reader.Get<string>("Name");
-                    projectileInfo[id].damage = reader.Get<int>("Damage");
-                    projectileInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
-                    projectileInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));
-                }
-            }
+            return default(T);
+        }
 
-            using (var reader = QueryReader("SELECT * FROM Buffs")) {
-                while (reader.Read()) {
-                    var id = reader.Get<int>("ID");
-                    buffInfo[id] = new ItemInfo();
-                    buffInfo[id].id = id;
-                    buffInfo[id].name = reader.Get<string>("Name");
-                    buffInfo[id].debuff = new BuffDuration(reader.Get<int>("InflictBuffID"), reader.Get<int>("InflictBuffDuration"));
-                    buffInfo[id].selfBuff = new BuffDuration(reader.Get<int>("ReceiveBuffID"), reader.Get<int>("ReceiveBuffDuration"));
+        /// <summary>
+        /// Gets the type of the sql column.
+        /// </summary>
+        public static Type GetType(string table, string column) {
+            try {
+                using (var reader = QueryReader(string.Format("SELECT {0} FROM {1}", column, table))) {
+                    while (reader.Read()) {
+                        return reader.Reader.GetFieldType(0);
+                    }
                 }
+            } catch { }
+
+            return default(Type);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="BuffInfo"/> of an item, projectile, or buff.
+        /// </summary>
+        public static BuffInfo GetBuffInfo(string table, int id, bool isInflictDebuff) =>
+            isInflictDebuff ? new BuffInfo(GetData<int>(table, id, InflictBuffId), GetData<int>(table, id, InflictBuffDuration))
+                : new BuffInfo(GetData<int>(table, id, ReceiveBuffId), GetData<int>(table, id, ReceiveBuffDuration));
+
+        /// <summary>
+        /// Gets the default values of an item, projectile, or buff and
+        /// puts it into an sql query form.
+        /// </summary>
+        /// <returns>The default values in an sql statement</returns>
+        public static string GetDefaultValueSqlString(string table, int id) {
+            string name;
+            int damage;
+            int inflictBuff;
+            int inflictBuffDuration;
+
+            switch (table) {
+                case "Items":
+                    Item item = new Item();
+                    item.SetDefaults(id);
+
+                    name = item.Name;
+                    damage = item.damage;
+                    int defense = item.defense;
+                    float knockback = item.knockBack;
+                    int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
+
+                    return "INSERT INTO {0} ({1}) VALUES ({2})"
+                        .SFormat(DbConsts.ItemTable,
+                            string.Join(", ", Id, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0));
+
+                case "Projectiles":
+                    name = Lang.GetProjectileName(id).Value;
+                    damage = 0;
+                    inflictBuff = 0;
+                    inflictBuffDuration = 0;
+
+                    if (PresetData.PresetProjDamage.ContainsKey(id)) {
+                        damage = PresetData.PresetProjDamage[id];
+                    }
+                    if (PresetData.ProjectileDebuffs.ContainsKey(id)) {
+                        inflictBuff = PresetData.ProjectileDebuffs[id].BuffId;
+                        inflictBuffDuration = PresetData.ProjectileDebuffs[id].BuffDuration;
+                    }
+
+                    return "INSERT INTO {0} ({1}) VALUES ({2})"
+                        .SFormat(DbConsts.ProjectileTable,
+                            string.Join(", ", Id, Name, Damage, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), damage, inflictBuff, inflictBuffDuration, 0, 0));
+
+                case "Buffs":
+                    name = Lang.GetBuffName(id);
+                    inflictBuff = 0;
+                    inflictBuffDuration = 0;
+                    if (PresetData.FlaskDebuffs.ContainsKey(id)) {
+                        inflictBuff = PresetData.FlaskDebuffs[id].BuffId;
+                        inflictBuffDuration = PresetData.FlaskDebuffs[id].BuffDuration;
+                    }
+
+                    return "INSERT INTO {0} ({1}) VALUES ({2})"
+                        .SFormat(DbConsts.BuffTable,
+                            string.Join(", ", Id, Name, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), inflictBuff, inflictBuffDuration, 0, 0));
+
+                default:
+                    return "";
             }
         }
+    }
+
+    /// <summary>
+    /// Mapped database table/column names into constants.
+    /// </summary>
+    public static class DbConsts {
+        public const string ItemTable = "Items";
+        public const string ProjectileTable = "Projectiles";
+        public const string BuffTable = "Buffs";
+
+        public const string Id = "ID";
+        public const string Name = "Name";
+        public const string Damage = "Damage";
+        public const string Shoot = "Shoot";
+        public const string IsShootModded = "IsShootModded";
+        public const string ShootSpeed = "ShootSpeed";
+        public const string Knockback = "Knockback";
+        public const string Defense = "Defense";
+        public const string InflictBuffId = "InflictBuffID";
+        public const string InflictBuffDuration = "InflictBuffDuration";
+        public const string ReceiveBuffId = "ReceiveBuffID";
+        public const string ReceiveBuffDuration = "ReceiveBuffDuration";
     }
 }
