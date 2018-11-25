@@ -15,7 +15,7 @@ namespace PvPController {
         public bool EnableDamageChanges { get; set; }
         public bool EnableCriticals { get; set; }
         public bool EnableKnockback { get; set; }
-        public bool EnableMinions { get; set; }
+        public bool EnableTooltip { get; set; }
 
         public bool EnableProjectileDebuffs { get; set; }
         public bool EnableProjectileSelfBuffs { get; set; }
@@ -56,7 +56,6 @@ namespace PvPController {
         public string DeathItemTag { get; set; }
 
         public List<string> NormalDeathMessages { get; set; } = new List<string>();
-
         public List<string> ReflectedDeathMessages { get; set; } = new List<string>();
 
         public bool FirstConfigGeneration { get; set; } = true;
@@ -88,7 +87,7 @@ namespace PvPController {
                 EnableDamageChanges = true;
                 EnableCriticals = false;
                 EnableKnockback = false;
-                EnableMinions = false;
+                EnableTooltip = true;
 
                 EnableProjectileDebuffs = true;
                 EnableProjectileSelfBuffs = true;

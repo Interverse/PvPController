@@ -82,7 +82,6 @@
     <Compile Include="Utilities\ProjectileUtils.cs" />
     <Compile Include="Utilities\PvPUtils.cs" />
     <Compile Include="Variables\BuffInfo.cs" />
-    <Compile Include="Variables\MinionProjectile.cs" />
     <Compile Include="Variables\PvPItem.cs" />
     <Compile Include="Variables\PvPPlayer.cs" />
     <Compile Include="Variables\PvPProjectile.cs" />

@@ -16,7 +16,7 @@ namespace PvPController {
         private static readonly string ModAllParameters = "Parameters: {0} {1} <value>".SFormat(TableList, StatList);
 
         private const string ConfigHelp = "<main/pvp/buff/armor/misc>";
-        private const string MainConfig = "enableplugin, enabledamagechanges, enablecriticals, deathitemtag, enableknockback, enableminions";
+        private const string MainConfig = "enableplugin, enabledamagechanges, enablecriticals, deathitemtag, enableknockback, enabletooltip";
         private const string PvPConfig = "knockbackmimimum, iframetime, lowerdamagevariation, upperdamagevariation, lowermagicdamagepercentage, uppermagicdamagepercentage";
         private const string BuffConfig = "enableprojdebuffs, enableprojselfbuffs, enablewepdebuffs, enablewepselfbuffs, enablebuffdebuff, enablebuffselfbuff, healthbasedbuffduration";
         private const string ArmorConfig = "enableturtle, turtlemultiplier, enablenebula, nebulatier(1/2/3)duration, enablefrost, frostduration";
@@ -32,12 +32,12 @@ namespace PvPController {
 
             Commands.ChatCommands.Add(new Command("pvpcontroller.stats", ModStat, "modstat", "ms") { HelpText = "Modifies item/projectile/buff stats. " + ModStatParameters });
             Commands.ChatCommands.Add(new Command("pvpcontroller.all", ModAll, "modall", "ma") { HelpText = "Modifies a setting for all items. " + ModAllParameters });
+            Commands.ChatCommands.Add(new Command("pvpcontroller.all", DPSify, "dpsify") { HelpText = "Changes all weapon's damage to be around the same dps."});
 
             Commands.ChatCommands.Add(new Command(ToggleTooltip, "toggletooltip", "tt") { HelpText = "Toggles damage/defense tooltip popups." });
             Commands.ChatCommands.Add(new Command(CheckStat, "checkstat", "cs") { HelpText = "Checks a stat of an item." });
 
             Commands.ChatCommands.Add(new Command("pvpcontroller.dev", SqlInject, "sqlinject") { HelpText = "Allows you to run a SQL command" });
-            Commands.ChatCommands.Add(new Command("pvpcontroller.dev", DPSify, "dpsify"));
         }
 
         private static void DPSify(CommandArgs args) {
@@ -488,6 +488,10 @@ namespace PvPController {
                 case "em":
                 case "m":
                     return "EnableMinions";
+                    
+                case "enabletooltip":
+                case "et":
+                    return "EnableTooltip";
 
                 case "enableprojectiledebuffs":
                 case "epd":

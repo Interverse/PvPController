@@ -304,6 +304,7 @@ namespace PvPController {
                         ? PresetData.BuffEndurance[id]
                         : 0;
 
+                    //Striking Moment
                     if (id == 198)
                         wrath = 5f;
 

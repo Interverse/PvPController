@@ -31,17 +31,17 @@ namespace PvPController.Network.PacketArgs {
             int targetId = data.ReadByte();
             if (targetId > -1) {
                 Target = PvPController.PvPers[targetId];
+                if (Target == null || !Target.ConnectionAlive || !Target.Active) {
+                    IsPvPDamage = false;
+                    return;
+                }
             } else {
                 IsPvPDamage = false;
                 return;
             }
 
             PlayerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
-            if (Target == null || !Target.ConnectionAlive || !Target.Active) {
-                IsPvPDamage = false;
-                return;
-            }
-
+            
             if (PlayerHitReason.SourcePlayerIndex == -1) {
                 IsPvPDamage = false;
                 Target.LastHitBy = null;
