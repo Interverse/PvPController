@@ -28,43 +28,54 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets damage based off server config.
         /// </summary>
-        /// <returns></returns>
         public int GetConfigDamage => Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.Damage);
 
         /// <summary>
         /// Gets raw damage based off Terraria damage calculations.
         /// </summary>
-        /// <param Name="owner"></param>
-        /// <returns></returns>
         public int GetPvPDamage(PvPPlayer owner) => TerrariaUtils.GetWeaponDamage(owner, this);
 
         /// <summary>
         /// Gets the projectile shot by an item.
         /// </summary>
-        /// <returns></returns>
-        public PvPProjectile GetItemShoot => new PvPProjectile(Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.Shoot));
+        public PvPProjectile Shoot => new PvPProjectile(Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.Shoot));
 
         /// <summary>
         /// Gets the knockback of an item.
         /// </summary>
-        /// <param Name="owner"></param>
-        /// <returns></returns>
-        public float GetKnockback(PvPPlayer owner) =>
-            owner.TPlayer.GetWeaponKnockback(this, Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Knockback));
+        public float GetKnockback(PvPPlayer owner) => owner.TPlayer.GetWeaponKnockback(this, Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Knockback));
+
+        /// <summary>
+        /// Gets whether the weapon's projectile has been changed.
+        /// </summary>
+        public bool IsShootModded => Database.GetData<bool>(DbConsts.ItemTable, type, DbConsts.IsShootModded);
+
+        /// <summary>
+        /// Gets the weapon's shoot speed.
+        /// </summary>
+        public float ShootSpeed => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.ShootSpeed);
+
+        /// <summary>
+        /// Gets the wrath (%dmg increase) of an item.
+        /// </summary>
+        public float GetWrath => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Wrath);
+
+        /// <summary>
+        /// Gets the wrath (%dmg increase) of an item.
+        /// </summary>
+        public float GetTitan => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Titan);
 
         /// <summary>
         /// Returns information about an item's debuff.
         /// </summary>
-        /// <returns></returns>
-        public BuffInfo GetDebuffInfo =>
+        public BuffInfo Debuff =>
             new BuffInfo(Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.InflictBuffId),
                 Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.InflictBuffDuration));
 
         /// <summary>
         /// Returns information about an item's self buff.
         /// </summary>
-        /// <returns></returns>
-        public BuffInfo GetSelfBuffInfo =>
+        public BuffInfo SelfBuff =>
             new BuffInfo(Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.ReceiveBuffId),
                 Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.ReceiveBuffDuration));
     }

@@ -15,7 +15,7 @@ namespace PvPController {
         public static Config Config;
         public static PvPPlayer[] PvPers = new PvPPlayer[Main.maxPlayers];
         public static PvPHandler PvPHandler = new PvPHandler();
-        public static Timer PvPTimer = new Timer(500) { Enabled = true };
+        public static Timer PvPTimer = new Timer(1000) { Enabled = true };
         
         public override string Name => "PvP Controller";
         public override string Author => "Johuan";
@@ -59,11 +59,11 @@ namespace PvPController {
 
                 PlayerHooks.PlayerPostLogin -= OnPlayerPostLogin;
 
-                PvPTimer.Dispose();
-
                 PvPHandler.Unsubscribe();
 
                 PvPTimer.Elapsed -= PvPTimerElapsed;
+                PvPTimer.Enabled = false;
+                PvPTimer.Dispose();
 
                 Config.Write(Config.ConfigPath);
             }

@@ -28,6 +28,20 @@ namespace PvPController.Utilities {
         public static string SqlString(this string s) => "'" + SanitizeString(s) + "'";
 
         /// <summary>
+        /// Determines whether a bit is a 1 or a 0 in an integer in a specified index, 
+        /// where the index starts at 0 from the left.
+        /// </summary>
+        /// <param name="bitIndex">Index of the bit, starting from 0 on the left</param>
+        /// <returns>True if the bit in the specified index is 1</returns>
+        public static bool GetBit(this int x, int bitIndex) => (x & (1 << bitIndex)) != 0;
+
+        /// <summary>
+        /// Restricts a number between a minimum and maximum value.
+        /// </summary>
+        public static T Clamp <T>(this T num, T min, T max) where T : IComparable =>
+            num.CompareTo(min) < 0 ? min : num.CompareTo(max) > 0 ? max : num;  
+
+        /// <summary>
         /// Generates a string with a specified amount of line breaks.
         /// </summary>
         /// <param Name="amount">The amount of line breaks.</param>
@@ -126,9 +140,24 @@ namespace PvPController.Utilities {
         /// Converts a string to the reference value type,
         /// and sets the string to the given reference value.
         /// </summary>
-        public static bool SetValueWithString<T>(ref T value, string str) {
+        public static bool SetValueWithString<T>(ref T value, string val) {
             try {
-                value = (T)Convert.ChangeType(str, value.GetType());
+                value = (T)Convert.ChangeType(val, value.GetType());
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Takes in a name of a variable in a class, finds the variable in an object, and
+        /// tries to set a string value to the variable for the object.
+        /// </summary>
+        public static bool SetValueWithString(object obj, string propertyName, string val) {
+            try {
+                var property = obj.GetType().GetProperty(propertyName);
+                if (property == null) return false;
+                property.SetValue(obj, Convert.ChangeType(val, property.GetValue(obj).GetType()));
                 return true;
             } catch {
                 return false;

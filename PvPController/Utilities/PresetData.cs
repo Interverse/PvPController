@@ -3,6 +3,85 @@ using PvPController.Variables;
 
 namespace PvPController.Utilities {
     class PresetData {
+        public static List<int> Debuffs = new List<int> {
+            20, //Poisoned
+            21, //Potion Sickness
+            22, //Darkness
+            23, //Cursed
+            24, //On Fire!
+            25, //Tipsy
+            30, //Bleeding
+            31, //Confused
+            32, //Slow
+            33, //Weak
+            35, //Silenced
+            36, //Broken Armor
+            37, //Horrified
+            38, //The Tongue
+            39, //Cursed Inferno
+            46, //Chilled
+            47, //Frozen
+            67, //Burning
+            68, //Suffocation
+            69, //Ichor
+            70, //Venom
+            72, //Midas
+            80, //Blackout
+            86, //Water Candle
+            88, //Chaos State
+            94, //Mana Sickness
+            120, //Stinky
+            137, //Slime
+            144, //Electrified
+            145, //Moon Bite
+            148, //Feral Bite
+            149, //Webbed
+            153, //Shadowflame
+            156, //Stoned
+            160, //Dazed
+            163, //Obstructed
+            164, //Distorted
+            169, //Penetrated
+            192, //Sugar Rush
+            194, //Mighty Wind
+            195, //Withered Armor
+            196, //Withered Weapon
+            197, //Oozed
+            199 //Creative Shock
+        };
+
+        //Labels a buff id to a %dmg reduction (Buff ID, % damage reduction)
+        public static Dictionary<int, float> BuffEndurance = new Dictionary<int, float> {
+            //Paladin's Shield
+            { 43, 0.25f },
+
+            //Ice Barrier (Frozen Turtle Shell)
+            { 62, 0.25f },
+
+            //Beetle Endurance Stage 1-3
+            { 95, 0.15f },
+            { 96, 0.30f },
+            { 97, 0.45f },
+
+            //Endurance Potion
+            { 114, 0.10f },
+
+            //Solar Flare Shield Stages 1-3
+            { 170, 0.30f },
+            { 171, 0.30f },
+            { 172, 0.30f }
+        };
+
+        //List of all projectile IDs that are projectiles of its weapons
+        //Ex. Phantom Phoenix spawns in a projectile of itself to show the animation of shooting
+        public static List<int> ProjectileDummy = new List<int> {
+            705, //Phantom Phoenix
+            460, //Charged Blaster Cannon
+            630, //Phantasm
+            439, //Laser Machinegun
+            615, //Vortex Beater
+        };
+
         //Sets a debuff and its duration to a flask buff
         public static Dictionary<int, BuffInfo> FlaskDebuffs = new Dictionary<int, BuffInfo> {
             //Weapon Imbue Venom
@@ -27,7 +106,7 @@ namespace PvPController.Utilities {
             { 79, new BuffInfo(20, 300) },
         };
 
-        //Minion IDs
+        //Minion IDs (Projectile ID, Item ID)
         public static Dictionary<int, int> MinionItem = new Dictionary<int, int> {
             { 373, 2364 }, //Hornet Staff
             { 375, 2365 }, //Imp Staff

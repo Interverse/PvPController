@@ -8,52 +8,58 @@ using TShockAPI;
 namespace PvPController {
     public class Config {
         public static string ConfigPath = Path.Combine(TShock.SavePath, "pvpcontroller.json");
-        public static string DocumentationPath = Path.Combine(TShock.SavePath, "pvpdocs.txt");
+        public static string LogPath = Path.Combine(TShock.SavePath, "pvplog.txt");
 
-        public bool EnablePlugin;
+        public bool EnablePlugin { get; set; }
 
-        public bool EnableDamageChanges;
-        public bool EnableCriticals;
-        public bool EnableKnockback;
-        public bool EnableMinions;
+        public bool EnableDamageChanges { get; set; }
+        public bool EnableCriticals { get; set; }
+        public bool EnableKnockback { get; set; }
+        public bool EnableMinions { get; set; }
 
-        public bool EnableProjectileDebuffs;
-        public bool EnableProjectileSelfBuffs;
-        public bool EnableWeaponDebuffs;
-        public bool EnableWeaponSelfBuffs;
-
-        public bool EnableTurtle;
-        public double TurtleMultiplier;
-        public bool EnableThorns;
-        public double ThornMultiplier;
-
-        public bool EnableNebula;
-        public double NebulaTier3Duration;
-        public double NebulaTier2Duration;
-        public double NebulaTier1Duration;
-
-        public bool EnableFrost;
-        public double FrostDuration;
-
-        public double VortexMultiplier;
-
-        public bool EnableBuffDebuff;
-        public bool EnableBuffSelfBuff;
-
-        public double KnockbackMinimum;
-
-        public double IframeTime;
-
-        public int LowerDamageVariance;
-        public int UpperDamageVariance;
-
-        public string DeathItemTag;
+        public bool EnableProjectileDebuffs { get; set; }
+        public bool EnableProjectileSelfBuffs { get; set; }
+        public bool EnableWeaponDebuffs { get; set; }
+        public bool EnableWeaponSelfBuffs { get; set; }
+        public bool HealthBasedBuffDuration { get; set; }
         
-        public List<string> NormalDeathMessages = new List<string>();
-        
-        public List<string> ReflectedDeathMessages = new List<string>();
+        public int ParryTime { get; set; }
 
-        public bool FirstConfigGeneration = true;
+        public bool EnableTurtle { get; set; }
+        public double TurtleMultiplier { get; set; }
+        public bool EnableThorns { get; set; }
+        public double ThornMultiplier { get; set; }
+
+        public bool EnableNebula { get; set; }
+        public double NebulaTier3Duration { get; set; }
+        public double NebulaTier2Duration { get; set; }
+        public double NebulaTier1Duration { get; set; }
+
+        public bool EnableFrost { get; set; }
+        public double FrostDuration { get; set; }
+
+        public double VortexMultiplier { get; set; }
+
+        public bool EnableBuffDebuff { get; set; }
+        public bool EnableBuffSelfBuff { get; set; }
+
+        public double KnockbackMinimum { get; set; }
+
+        public double IframeTime { get; set; }
+
+        public int LowerDamageVariance { get; set; }
+        public int UpperDamageVariance { get; set; }
+
+        public double LowerMagicDamagePercentage { get; set; }
+        public double UpperMagicDamagePercentage { get; set; }
+
+        public string DeathItemTag { get; set; }
+
+        public List<string> NormalDeathMessages { get; set; } = new List<string>();
+
+        public List<string> ReflectedDeathMessages { get; set; } = new List<string>();
+
+        public bool FirstConfigGeneration { get; set; } = true;
 
         /// <summary>
         /// Writes the current internal server config to the external .json file
@@ -73,177 +79,6 @@ namespace PvPController {
         }
 
         /// <summary>
-        /// Parses all item, projectile, and buff changes and puts it into a .txt file in the tshock folder.
-        /// </summary>
-        public void WriteDocumentation() {
-            StreamWriter sw = new StreamWriter(DocumentationPath, false);
-
-            sw.WriteLine("Melee Weapons");
-            sw.WriteLine("--------------------");
-
-            for(int x = 0; x < Main.maxItemTypes; x++) {
-                Item item = new Item();
-                item.SetDefaults(x);
-
-                if (item.melee && Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) > 0)
-                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
-                        .SFormat(Lang.GetItemName(x).Value,
-                        x,
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) + " damage",
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot) > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot)),
-                                Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed) > 0
-                                    ? " with {0} shootspeed".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed))
-                                    : "")
-                            : "",
-                        ", knockback: {0}".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Knockback))));
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Ranged Weapons");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxItemTypes; x++) {
-                Item item = new Item();
-                item.SetDefaults(x);
-
-                if (item.ranged && Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) > 0)
-                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
-                        .SFormat(Lang.GetItemName(x).Value,
-                        x,
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) + " damage",
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot) > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot)),
-                                Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed) > 0
-                                    ? " with {0} shootspeed".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed))
-                                    : "")
-                            : "",
-                        ", knockback: {0}".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Knockback))));
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Magic Weapons");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxItemTypes; x++) {
-                Item item = new Item();
-                item.SetDefaults(x);
-
-                if (item.magic && Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) > 0)
-                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
-                        .SFormat(Lang.GetItemName(x).Value,
-                        x,
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) + " damage",
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot) > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot)),
-                                Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed) > 0
-                                    ? " with {0} shootspeed".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed))
-                                    : "")
-                            : "",
-                        ", knockback: {0}".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Knockback))));
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Throwing Weapons");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxItemTypes; x++) {
-                Item item = new Item();
-                item.SetDefaults(x);
-
-                if (item.thrown && Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) > 0)
-                    sw.WriteLine("{0} ({1}): {2}{3}{4}"
-                        .SFormat(Lang.GetItemName(x).Value,
-                        x,
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Damage) + " damage",
-                        Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot) > 0
-                            ? ", shoots {0}{1}".SFormat(Lang.GetProjectileName(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Shoot)),
-                                Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed) > 0
-                                    ? " with {0} shootspeed".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.ShootSpeed))
-                                    : "")
-                            : "",
-                        ", knockback: {0}".SFormat(Database.GetData<int>(DbConsts.ItemTable, item.type, DbConsts.Knockback))));
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Projectile Damage Changes");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                if (Database.GetData<int>(DbConsts.ProjectileTable, x, DbConsts.Damage) > 0)
-                    sw.WriteLine("{0} ({1}): {2} damage".SFormat(Lang.GetProjectileName(x).Value, x, Database.GetData<int>(DbConsts.ProjectileTable, x, DbConsts.Damage)));
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Projectile Debuffs");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                if (Database.GetData<int>(DbConsts.ProjectileTable, x, DbConsts.InflictBuffId) != 0) {
-                    var projectileBuff = Database.GetBuffInfo(DbConsts.ProjectileTable, x, true);
-                    sw.WriteLine("{0} ({1}) inflicts the {2} debuff for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(projectileBuff.BuffId), projectileBuff.BuffDuration / 60));
-                }
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Projectile Self Buff");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxProjectileTypes; x++) {
-                if (Database.GetData<int>(DbConsts.ProjectileTable, x, DbConsts.ReceiveBuffId) != 0) {
-                    var projectileBuff = Database.GetBuffInfo(DbConsts.ProjectileTable, x, false);
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetProjectileName(x).Value, x, Lang.GetBuffName(projectileBuff.BuffId), projectileBuff.BuffDuration / 60));
-                }
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Weapon Debuffs");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxItemTypes; x++) {
-                if (Database.GetData<int>(DbConsts.ItemTable, x, DbConsts.InflictBuffId) != 0) {
-                    var weaponBuff = Database.GetBuffInfo(DbConsts.ItemTable, x, true);
-                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(weaponBuff.BuffId), weaponBuff.BuffDuration / 60));
-                }
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Weapon Self Buff");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxItemTypes; x++) {
-                if (Database.GetData<int>(DbConsts.ItemTable, x, DbConsts.ReceiveBuffId) != 0) {
-                    var weaponBuff = Database.GetBuffInfo(DbConsts.ItemTable, x, false);
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetItemName(x).Value, x, Lang.GetBuffName(weaponBuff.BuffId), weaponBuff.BuffDuration / 60));
-                }
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Buff Debuff");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxBuffTypes; x++) {
-                if (Database.GetData<int>(DbConsts.BuffTable, x, DbConsts.InflictBuffId) != 0) {
-                    var buffBuff = Database.GetBuffInfo(DbConsts.BuffTable, x, true);
-                    sw.WriteLine("{0} ({1}) inflicts {2} debuff for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(buffBuff.BuffId), buffBuff.BuffDuration / 60));
-                }
-            }
-
-            sw.WriteLine("");
-            sw.WriteLine("Buff Self Buff");
-            sw.WriteLine("--------------------");
-
-            for (int x = 0; x < Main.maxBuffTypes; x++) {
-                if (Database.GetData<int>(DbConsts.BuffTable, x, DbConsts.ReceiveBuffId) != 0) {
-                    var buffBuff = Database.GetBuffInfo(DbConsts.BuffTable, x, false);
-                    sw.WriteLine("{0} ({1}) inflicts {2} buff to self for {3} seconds".SFormat(Lang.GetBuffName(x), x, Lang.GetBuffName(buffBuff.BuffId), buffBuff.BuffDuration / 60));
-                }
-            }
-
-            sw.Close();
-        }
-
-        /// <summary>
         /// Sets all default values in the config and the sql(ite) database.
         /// </summary>
         public bool SetDefaultValues() {
@@ -259,6 +94,9 @@ namespace PvPController {
                 EnableProjectileSelfBuffs = true;
                 EnableWeaponDebuffs = true;
                 EnableWeaponSelfBuffs = true;
+                HealthBasedBuffDuration = false;
+
+                ParryTime = 1000;
 
                 EnableTurtle = true;
                 TurtleMultiplier = 1.0;
@@ -285,6 +123,9 @@ namespace PvPController {
                 LowerDamageVariance = 0;
                 UpperDamageVariance = 0;
 
+                LowerMagicDamagePercentage = 1;
+                UpperMagicDamagePercentage = 1;
+
                 DeathItemTag = "";
 
                 NormalDeathMessages = PresetData.NormalDeathMessages;
@@ -304,6 +145,15 @@ namespace PvPController {
         public void ResetConfigValues() {
             FirstConfigGeneration = true;
             SetDefaultValues();
+        }
+
+        /// <summary>
+        /// Parses all item, projectile, and buff changes and puts it into a .txt file in the tshock folder.
+        /// </summary>
+        public void LogChange(string log) {
+            StreamWriter sw = new StreamWriter(LogPath, true);
+            sw.WriteLine(log);
+            sw.Close();
         }
     }
 }

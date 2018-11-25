@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.IO;
+using System.Reflection;
 using PvPController.Utilities;
 using Terraria;
 using Terraria.ID;
@@ -58,6 +59,9 @@ namespace PvPController {
                 new SqlColumn(ShootSpeed, MySqlDbType.Float),
                 new SqlColumn(Knockback, MySqlDbType.Float),
                 new SqlColumn(Defense, MySqlDbType.Int32),
+                new SqlColumn(Wrath, MySqlDbType.Float),
+                new SqlColumn(Endurance, MySqlDbType.Float),
+                new SqlColumn(Titan, MySqlDbType.Float),
                 new SqlColumn(InflictBuffId, MySqlDbType.Int32),
                 new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
@@ -67,19 +71,25 @@ namespace PvPController {
                 new SqlColumn(Id, MySqlDbType.Int32) { Primary = true },
                 new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
                 new SqlColumn(Damage, MySqlDbType.Int32),
+                new SqlColumn(Wrath, MySqlDbType.Float),
                 new SqlColumn(InflictBuffId, MySqlDbType.Int32),
                 new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32)));
 
-            SqlTable table3 = new SqlTable(DbConsts.BuffTable,
+           sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.BuffTable,
                 new SqlColumn(Id, MySqlDbType.Int32) { Primary = true },
                 new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
+                new SqlColumn(Damage, MySqlDbType.Int32),
+                new SqlColumn(Knockback, MySqlDbType.Float),
+                new SqlColumn(Defense, MySqlDbType.Int32),
+                new SqlColumn(Wrath, MySqlDbType.Float),
+                new SqlColumn(Endurance, MySqlDbType.Float),
+                new SqlColumn(Titan, MySqlDbType.Float),
                 new SqlColumn(InflictBuffId, MySqlDbType.Int32),
                 new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
-                new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32));
-            sqlCreator.EnsureTableStructure(table3);
+                new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32)));
         }
 
         public static QueryResult QueryReader(string query, params object[] args) {
@@ -199,6 +209,15 @@ namespace PvPController {
         }
 
         /// <summary>
+        /// Gets the value of an item, projectile, or buff based off id.
+        /// </summary>
+        public static object GetDataWithType(string table, int id, string column, Type type) {
+            MethodInfo getDataMethod = typeof(Database).GetMethod("GetData")?.MakeGenericMethod(type);
+
+            return getDataMethod?.Invoke(null, new object[] { table, id, column } );
+        }
+
+        /// <summary>
         /// Gets the type of the sql column.
         /// </summary>
         public static Type GetType(string table, string column) {
@@ -228,8 +247,13 @@ namespace PvPController {
         public static string GetDefaultValueSqlString(string table, int id) {
             string name;
             int damage;
-            int inflictBuff;
-            int inflictBuffDuration;
+            var inflictBuff = new BuffInfo();
+            var selfBuff = new BuffInfo();
+            int defense;
+            float knockback;
+            float wrath = 0;
+            float endurance = 0;
+            float titan = 0;
 
             switch (table) {
                 case "Items":
@@ -237,48 +261,56 @@ namespace PvPController {
                     item.SetDefaults(id);
 
                     name = item.Name;
-                    damage = item.damage;
-                    int defense = item.defense;
-                    float knockback = item.knockBack;
+                    damage = item.damage > 0 ? item.damage : 0;
+                    defense = item.defense;
+                    knockback = item.knockBack;
                     int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
+                    wrath = (damage > 0).ToInt();
+
+                    //Brand of the Inferno's buff: Striking Moment
+                    if (id == 3823)
+                        selfBuff = new BuffInfo(198, 5 * 60);
+
+                    //Worm Scarf
+                    if (id == 3224)
+                        endurance = 0.17f;
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbConsts.ItemTable,
-                            string.Join(", ", Id, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
-                            string.Join(", ", id, name.SqlString(), damage, shoot, 0, -1, knockback, defense, 0, 0, 0, 0));
+                            string.Join(", ", Id, Name, Damage, Shoot, IsShootModded, ShootSpeed, Knockback, Defense, Wrath, Endurance, Titan, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), damage, shoot, 0, -1, knockback, defense, wrath, endurance, titan, inflictBuff.BuffId, inflictBuff.BuffDuration, selfBuff.BuffId, selfBuff.BuffDuration));
 
                 case "Projectiles":
                     name = Lang.GetProjectileName(id).Value;
-                    damage = 0;
-                    inflictBuff = 0;
-                    inflictBuffDuration = 0;
-
-                    if (PresetData.PresetProjDamage.ContainsKey(id)) {
-                        damage = PresetData.PresetProjDamage[id];
-                    }
-                    if (PresetData.ProjectileDebuffs.ContainsKey(id)) {
-                        inflictBuff = PresetData.ProjectileDebuffs[id].BuffId;
-                        inflictBuffDuration = PresetData.ProjectileDebuffs[id].BuffDuration;
-                    }
+                    damage = PresetData.PresetProjDamage.ContainsKey(id) ? PresetData.PresetProjDamage[id] : 0;
+                    inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
+                        ? PresetData.ProjectileDebuffs[id] 
+                        : new BuffInfo();
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbConsts.ProjectileTable,
-                            string.Join(", ", Id, Name, Damage, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
-                            string.Join(", ", id, name.SqlString(), damage, inflictBuff, inflictBuffDuration, 0, 0));
+                            string.Join(", ", Id, Name, Damage, Wrath, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), damage, wrath, inflictBuff.BuffId, inflictBuff.BuffDuration, selfBuff.BuffId, selfBuff.BuffDuration));
 
                 case "Buffs":
                     name = Lang.GetBuffName(id);
-                    inflictBuff = 0;
-                    inflictBuffDuration = 0;
-                    if (PresetData.FlaskDebuffs.ContainsKey(id)) {
-                        inflictBuff = PresetData.FlaskDebuffs[id].BuffId;
-                        inflictBuffDuration = PresetData.FlaskDebuffs[id].BuffDuration;
-                    }
+                    damage = 0;
+                    defense = 0;
+                    knockback = 0;
+                    inflictBuff = PresetData.FlaskDebuffs.ContainsKey(id)
+                        ? PresetData.FlaskDebuffs[id]
+                        : new BuffInfo();
+                    endurance = PresetData.BuffEndurance.ContainsKey(id)
+                        ? PresetData.BuffEndurance[id]
+                        : 0;
+
+                    if (id == 198)
+                        wrath = 5f;
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbConsts.BuffTable,
-                            string.Join(", ", Id, Name, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
-                            string.Join(", ", id, name.SqlString(), inflictBuff, inflictBuffDuration, 0, 0));
+                            string.Join(", ", Id, Name, Damage, Knockback, Defense, Wrath, Endurance, Titan, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), damage, knockback, defense, wrath, endurance, titan, inflictBuff.BuffId, inflictBuff.BuffDuration, selfBuff.BuffId, selfBuff.BuffDuration));
 
                 default:
                     return "";
@@ -306,5 +338,8 @@ namespace PvPController {
         public const string InflictBuffDuration = "InflictBuffDuration";
         public const string ReceiveBuffId = "ReceiveBuffID";
         public const string ReceiveBuffDuration = "ReceiveBuffDuration";
+        public const string Wrath = "Wrath"; //%damage multiplier
+        public const string Endurance = "Endurance"; //%damage reduction multiplier
+        public const string Titan = "Titan"; //%knockback multiplier
     }
 }

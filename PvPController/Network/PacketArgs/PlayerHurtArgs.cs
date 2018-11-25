@@ -13,7 +13,6 @@ namespace PvPController.Network.PacketArgs {
         public PvPPlayer Target { get; set; }
 
         public PvPItem Weapon { get; set; }
-
         public PvPProjectile Projectile { get; set; }
 
         public PlayerDeathReason PlayerHitReason { get; set; }
@@ -28,38 +27,42 @@ namespace PvPController.Network.PacketArgs {
         public PlayerHurtArgs(GetDataEventArgs args, MemoryStream data, PvPPlayer attacker) {
             Args = args;
             
-            var target = PvPController.PvPers[data.ReadByte()];
-            var playerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
-            if (target == null || !target.ConnectionAlive || !target.Active) {
+            Attacker = attacker;
+            int targetId = data.ReadByte();
+            if (targetId > -1) {
+                Target = PvPController.PvPers[targetId];
+            } else {
                 IsPvPDamage = false;
                 return;
             }
 
-            if (playerHitReason.SourcePlayerIndex == -1) {
+            PlayerHitReason = PlayerDeathReason.FromReader(new BinaryReader(data));
+            if (Target == null || !Target.ConnectionAlive || !Target.Active) {
                 IsPvPDamage = false;
-                target.LastHitBy = null;
                 return;
             }
 
-            Projectile = playerHitReason.SourceProjectileIndex == -1 ?
-                null : attacker.ProjTracker.Projectiles[playerHitReason.SourceProjectileType];
+            if (PlayerHitReason.SourcePlayerIndex == -1) {
+                IsPvPDamage = false;
+                Target.LastHitBy = null;
+                return;
+            }
+
+            Projectile = PlayerHitReason.SourceProjectileIndex == -1 ?
+                null : Attacker.ProjTracker.Projectiles[PlayerHitReason.SourceProjectileType];
 
             int int1 = data.ReadInt16(); //damage
             int int2 = data.ReadByte(); //knockback
 
-            target.LastHitBy = attacker;
-            target.LastHitWeapon = Weapon;
-            target.LastHitProjectile = Projectile;
+            Target.LastHitBy = Attacker;
+            Target.LastHitWeapon = Weapon;
+            Target.LastHitProjectile = Projectile;
 
-            Attacker = attacker;
-            Target = target;
-
-            Weapon = Projectile == null ? attacker.GetPlayerItem : Projectile.ItemOriginated;
-            InflictedDamage = PvPController.Config.EnableDamageChanges ? target.GetDamageDealt(attacker, Weapon, Projectile) : int1;
-            DamageReceived = target.GetDamageReceived(InflictedDamage);
+            Weapon = Projectile?.ItemOriginated ?? Attacker.HeldItem;
+            InflictedDamage = PvPController.Config.EnableDamageChanges ? Target.GetDamageDealt(Attacker, Weapon, Projectile) : int1;
+            DamageReceived = Target.DamageReceived(InflictedDamage);
             HitDirection = int2 - 1;
-            Crit = attacker.GetCrit(Weapon);
-            PlayerHitReason = playerHitReason;
+            Crit = Attacker.GetCrit(Weapon);
             IsPvPDamage = true;
         }
     }

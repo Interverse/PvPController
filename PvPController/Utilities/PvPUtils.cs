@@ -5,15 +5,10 @@ using TShockAPI;
 
 namespace PvPController.Utilities {
     public class PvPUtils {
-
         /// <summary>
         /// Generates a death message for a person based off the weapon and type of death.
         /// </summary>
-        /// <param Name="attacker">The person inflicting the hit.</param>
-        /// <param Name="deadplayer">The target receiving the death message.</param>
-        /// <param Name="weapon">The weapon used to hit the target.</param>
         /// <param Name="type">1 for normal hits, 2 for reflection hits such as thorns and turtle.</param>
-        /// <returns>A string of the death message.</returns>
         public static string GetPvPDeathMessage(PvPPlayer attacker, PvPPlayer deadplayer, PvPItem weapon, int type = 1) {
             Random random = new Random();
             string deathmessage = "";
@@ -33,39 +28,56 @@ namespace PvPController.Utilities {
         /// <summary>
         /// Generates a boolean for a critical based off the percentage.
         /// </summary>
-        /// <param Name="percentage"></param>
-        /// <returns></returns>
         public static bool IsCrit(int percentage) => percentage > Main.rand.Next(0, 101);
 
         /// <summary>
         /// Converts a regular Terraria <see cref="Item"/> into a <see cref="PvPItem"/>.
         /// </summary>
-        /// <param Name="item"></param>
-        /// <returns></returns>
         public static PvPItem ConvertToPvPItem(Item item) => new PvPItem(item);
 
         /// <summary>
         /// Generates a random int between the lower and upper bounds of damage variance.
         /// </summary>
-        /// <returns></returns>
         public static int GenerateDamageVariance() =>
-            Main.rand.Next(PvPController.Config.LowerDamageVariance, PvPController.Config.UpperDamageVariance + 1);
+            new Random().Next(PvPController.Config.LowerDamageVariance, PvPController.Config.UpperDamageVariance + 1);
+
+        /// <summary>
+        /// Gets the pvp damage value with modifications from the current database.
+        /// </summary>
+        public static int GetPvPDamage(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
+            int damage = (projectile == null || projectile.GetConfigDamage < 1)
+                ? weapon.GetPvPDamage(attacker)
+                : projectile.ModdedDamage;
+
+            damage += GetAmmoDamage(attacker, weapon);
+            damage += GetVortexDamage(attacker, weapon, damage);
+            damage += attacker.GetIntBuffArmorIncrease(DbConsts.Damage);
+            damage = (int)(damage * weapon.GetWrath);
+            damage = (int)(damage * attacker.GetFloatBuffArmorIncrease(DbConsts.Wrath));
+            damage = (int)(damage * GetManaDamagePercentage(attacker, weapon));
+            return damage;
+        }
 
         /// <summary>
         /// Gets the damage dealt from the ammo based off the attacker's stats.
         /// </summary>
-        /// <param Name="attacker">The person to calculate the ammo damage for.</param>
-        /// <param Name="weapon">The weapon the ammo is used for.</param>
-        /// <returns></returns>
         public static int GetAmmoDamage(PvPPlayer attacker, PvPItem weapon) {
             int ammoDamage = TerrariaUtils.GetWeaponDamage(attacker, attacker.GetFirstAvailableAmmo(weapon));
             return ammoDamage > 0 ? ammoDamage : 0;
         }
 
         /// <summary>
+        /// Gets a percentage multiplier based off the percentage of mana the player 
+        /// currently has and the configuration's lower and upper magic percentage values.
+        /// </summary>
+        public static double GetManaDamagePercentage(PvPPlayer player, PvPItem weapon) =>
+            weapon.magic ? (PvPController.Config.UpperMagicDamagePercentage - PvPController.Config.LowerMagicDamagePercentage) *
+                            player.ManaPercentage + PvPController.Config.LowerMagicDamagePercentage
+                         : 1.0;
+
+        /// <summary>
         /// Gets the vortex damage multiplier for a player.
         /// </summary>
-        /// <returns></returns>
         public static int GetVortexDamage(PvPPlayer attacker, PvPItem weapon, int damage) {
             double vanillaVortexMultiplier = 1.36;
 

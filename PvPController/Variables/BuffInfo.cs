@@ -7,5 +7,14 @@
             BuffId = buffId;
             BuffDuration = buffDuration;
         }
+
+        public BuffInfo() {
+            BuffId = 0;
+            BuffDuration = 0;
+        }
+
+        public override string ToString() {
+            return $"ID: {BuffId}, Duration: {BuffDuration}";
+        }
     }
 }

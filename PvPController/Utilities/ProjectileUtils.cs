@@ -27,7 +27,7 @@ namespace PvPController.Utilities {
             } else if (PresetData.MinionItem.ContainsKey(type)) {
                 weapon = owner.FindPlayerItem(PresetData.MinionItem[type]);
             } else {
-                weapon = owner.GetPlayerItem;
+                weapon = owner.HeldItem;
             }
             return weapon;
         }

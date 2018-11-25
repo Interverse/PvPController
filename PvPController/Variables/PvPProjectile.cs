@@ -26,34 +26,35 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the projectile damage based off the database.
         /// </summary>
-        /// <returns></returns>
-        public int GetConfigDamage() {
-            return Database.GetData<int>(DbConsts.ProjectileTable, type, DbConsts.Damage);
-        }
+        public int GetConfigDamage => Database.GetData<int>(DbConsts.ProjectileTable, type, DbConsts.Damage);
+
+        /// <summary>
+        /// Gets the wrath (%damage increase) of a projectile
+        /// </summary>
+        public float Wrath => Database.GetData<float>(DbConsts.ProjectileTable, type, DbConsts.Wrath);
+
+        /// <summary>
+        /// Gets the damage from both raw damage and wrath
+        /// </summary>
+        public int ModdedDamage => (int)(GetConfigDamage * Wrath);
 
         /// <summary>
         /// Gets the debuff information from the database.
         /// </summary>
         /// <returns></returns>
-        public BuffInfo GetDebuffInfo() {
-            return Database.GetBuffInfo(DbConsts.ProjectileTable, type, true);
-        }
+        public BuffInfo Debuff => Database.GetBuffInfo(DbConsts.ProjectileTable, type, true);
 
         /// <summary>
         /// Gets the self buff information from the database.
         /// </summary>
         /// <returns></returns>
-        public BuffInfo GetSelfBuffInfo() {
-            return Database.GetBuffInfo(DbConsts.ProjectileTable, type, false);
-        }
+        public BuffInfo SelfBuff => Database.GetBuffInfo(DbConsts.ProjectileTable, type, false);
 
         /// <summary>
         /// Gets the position of the projectile.
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetPosition() {
-            return ProjectileUtils.GetMainProjectile(this.identity, this.type, this.OwnerProjectile.Index).position;
-        }
+        public Vector2 Position => ProjectileUtils.GetMainProjectile(this.identity, this.type, this.OwnerProjectile.Index).position;
 
         /// <summary>
         /// Performs additional actions for projectiles.

@@ -19,10 +19,12 @@ namespace PvPController.Variables {
         public int PreviousSelectedItem = 0;
 
         private int _medusaHitCount;
+        public DateTime ShieldRaised;
 
         public bool SeeTooltip = true;
 
         public PvPPlayer(int index) : base(index) {
+            ShieldRaised = DateTime.Now;
             _lastHit = DateTime.Now;
             User = TShock.Players[index].User;
         }
@@ -35,24 +37,22 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the item the player is currently holding.
         /// </summary>
-        public PvPItem GetPlayerItem => PvPUtils.ConvertToPvPItem(SelectedItem);
+        public PvPItem HeldItem => PvPUtils.ConvertToPvPItem(SelectedItem);
 
         /// <summary>
         /// Finds the player's item from its inventory.
         /// </summary>
-        /// <param Name="type">Type of item being found</param>
-        /// <returns>The item in the player's inventory</returns>
         public PvPItem FindPlayerItem(int type) => PvPUtils.ConvertToPvPItem(TPlayer.inventory[TPlayer.FindItem(type)]);
 
         /// <summary>
         /// Gets the damage received from an attack.
         /// </summary>
-        public int GetDamageReceived(int damage) => (int)TerrariaUtils.GetHurtDamage(this, damage);
+        public int DamageReceived(int damage) => (int)TerrariaUtils.GetHurtDamage(this, damage);
 
         /// <summary>
         /// Gets the angle that a target is from the player in radians.
         /// </summary>
-        public double GetAngleFrom(Vector2 target) => Math.Atan2(target.Y - this.Y, target.X - this.X);
+        public double AngleFrom(Vector2 target) => Math.Atan2(target.Y - this.Y, target.X - this.X);
         
         /// <summary>
         /// Checks whether a target is left from a player
@@ -61,18 +61,59 @@ namespace PvPController.Variables {
         public bool IsLeftFrom(Vector2 target) => target.X > this.X;
 
         /// <summary>
+        /// Gets the percentage of mana remaining on the player
+        /// </summary>
+        public double ManaPercentage => (double)TPlayer.statMana / TPlayer.statManaMax;
+        
+        /// <summary>
+        /// Gets the percentage of health remaining on the player
+        /// </summary>
+        public double HealthPercentage => (double)TPlayer.statLife / TPlayer.statLifeMax2;
+
+        /// <summary>
+        /// Gets the %damage reduction for the player
+        /// </summary>
+        public float DamageReduction => GetFloatBuffArmorIncrease(DbConsts.Endurance) - 1f;
+
+        public float VanillaDamageReduction {
+            get {
+                float endurance = 0;
+
+                endurance += TPlayer.endurance;
+
+                for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
+                    var buffType = TPlayer.buffType[x];
+                    if (PresetData.BuffEndurance.ContainsKey(buffType) && buffType != 62 && buffType != 114)
+                        endurance *= PresetData.BuffEndurance[TPlayer.buffType[x]];
+                }
+
+                return endurance;
+            }
+        }
+
+        public float GetHeldWeaponKnockback =>
+            (HeldItem.GetKnockback(this) + GetFloatBuffArmorIncrease(DbConsts.Knockback)) * 
+            (HeldItem.GetTitan + GetFloatBuffArmorIncrease(DbConsts.Titan));
+
+        /// <summary>
+        /// Gets a player's nebula level/tier based on the level of the Damage Booster buff
+        ///
+        /// In this plugin, all three buffs are applied simultaneously, so there's no point
+        /// in detecting all three.
+        /// </summary>
+        public int NebulaTier => TPlayer.FindBuffIndex(179) == -1 ? 
+            TPlayer.FindBuffIndex(180) == -1 ? TPlayer.FindBuffIndex(181) == -1 ?
+                0 : 3 : 2 : 1;
+
+        /// <summary>
         /// Gets the damage dealt to a person with server side calculations.
         /// </summary>
         public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || projectile.GetConfigDamage() < 1) 
-                ? weapon.GetPvPDamage(attacker) 
-                : projectile.GetConfigDamage();
+            int damage = PvPUtils.GetPvPDamage(attacker, weapon, projectile);
 
-            damage += PvPUtils.GetAmmoDamage(attacker, weapon);
             damage += PvPUtils.GenerateDamageVariance();
-            damage += PvPUtils.GetVortexDamage(attacker, weapon, damage);
-
-            damage -= (int)(GetDefenseDifferenceFromModded() * 0.5);
+            damage -= (int)(GetDefenseDifferenceFromModded * 0.5);
+            damage = (int)(damage / (1 - VanillaDamageReduction) * (1 - DamageReduction));
 
             return damage;
         }
@@ -80,16 +121,57 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the defense of a player. Includes both vanilla and modded defense values.
         /// </summary>
-        public int GetPlayerDefense() {
-            int vanillaArmorDefense = 0;
-            int moddedArmorDefense = 0;
+        public int Defense => this.TPlayer.statDefense + GetDefenseDifferenceFromModded;
+
+        /// <summary>
+        /// Returns the difference from normal defense values from the modded defense values.
+        /// </summary>
+        public int GetDefenseDifferenceFromModded {
+            get {
+                int vanillaArmorDefense = 0;
+                int moddedArmorDefense = 0;
+
+                for (int x = 0; x < 9; x++) {
+                    vanillaArmorDefense += this.TPlayer.armor[x].defense;
+                    moddedArmorDefense += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, DbConsts.Defense);
+                }
+
+                return moddedArmorDefense - vanillaArmorDefense;
+            }
+        }
+
+        /// <summary>
+        /// Gets the bonus raw stats from Buffs/Armor/Accessories
+        /// </summary>
+        public int GetIntBuffArmorIncrease(string stat) {
+            int damage = 0;
 
             for (int x = 0; x < 9; x++) {
-                vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, DbConsts.Defense);
+                damage += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, stat);
             }
-            
-            return this.TPlayer.statDefense - vanillaArmorDefense + moddedArmorDefense;
+
+            for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
+                damage += Database.GetData<int>(DbConsts.BuffTable, this.TPlayer.buffType[x], stat);
+            }
+
+            return damage;
+        }
+
+        /// <summary>
+        /// Gets the bonus percent multiplier stats from Buffs/Armor/Accessories
+        /// </summary>
+        public float GetFloatBuffArmorIncrease(string stat) {
+            float damage = 0;
+
+            for (int x = 0; x < 9; x++) {
+                damage += Database.GetData<float>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, stat);
+            }
+
+            for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
+                damage += Database.GetData<float>(DbConsts.BuffTable, this.TPlayer.buffType[x], stat);
+            }
+
+            return 1f + damage;
         }
 
         /// <summary>
@@ -108,31 +190,26 @@ namespace PvPController.Variables {
         }
 
         /// <summary>
-        /// Returns the difference from normal defense values from the modded defense values.
-        /// </summary>
-        public int GetDefenseDifferenceFromModded() {
-            int vanillaArmorDefense = 0;
-            int moddedArmorDefense = 0;
-
-            for (int x = 0; x < 9; x++) {
-                vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                moddedArmorDefense += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, DbConsts.Defense);
-            }
-
-            return moddedArmorDefense - vanillaArmorDefense;
-        }
-
-        /// <summary>
         /// Damages players. Criticals and custom knockback will apply if enabled.
         /// </summary>
         public void DamagePlayer(PvPPlayer attacker, PvPItem weapon, int damage, int hitDirection, bool isCrit) {
             damage *= isCrit ? 2 : 1;
-            string star = isCrit ? "!!" : "*";
-            var color = isCrit ? Color.SlateBlue : Color.DarkTurquoise;
 
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon)),
                 damage, hitDirection, false, true, 5);
-            Interface.PlayerTextPopup(attacker, this, star + TerrariaUtils.GetHurtDamage(this, damage) + star, color);
+        }
+
+        /// <summary>
+        /// Shows a coloured popup indicating how much damage has been done to a player.
+        /// </summary>
+        /// <param name="target">The player to show the popup for</param>
+        /// <param name="isCrit">Changes the message depending on whether it is a crit</param>
+        /// <param name="damage">The numerical damage displayed</param>
+        public void ShowDamageHit(PvPPlayer target, bool isCrit, int damage) {
+            string star = isCrit ? "!!" : "*";
+            var color = isCrit ? Color.SlateBlue : Color.DarkTurquoise;
+
+            Interface.PlayerTextPopup(target, this, star + damage + star, color);
         }
 
         /// <summary>
@@ -212,33 +289,21 @@ namespace PvPController.Variables {
             if (weapon.magic
                 && attacker.TPlayer.armor[0].netID == 2760 && attacker.TPlayer.armor[1].netID == 2761 && attacker.TPlayer.armor[2].netID == 2762
                 && PvPController.Config.EnableNebula) {
+                
+                int nebulaState = attacker.NebulaTier.Clamp(0, 2);
+                double[] tierDuration = { PvPController.Config.NebulaTier1Duration,
+                                        PvPController.Config.NebulaTier2Duration,
+                                        PvPController.Config.NebulaTier3Duration };
 
-                if (attacker.TPlayer.FindBuffIndex(181) != -1 && PvPController.Config.NebulaTier3Duration != 0) {
-                    attacker.SetBuff(175, (int)(PvPController.Config.NebulaTier3Duration * 60));
-                    attacker.SetBuff(178, (int)(PvPController.Config.NebulaTier3Duration * 60));
-                    attacker.SetBuff(181, (int)(PvPController.Config.NebulaTier3Duration * 60));
-                } else if (attacker.TPlayer.FindBuffIndex(180) != -1 && PvPController.Config.NebulaTier3Duration != 0) {
-                    attacker.SetBuff(175, 1);
-                    attacker.SetBuff(178, 1);
-                    attacker.SetBuff(181, 1);
+                if (tierDuration[nebulaState] > 0) {
+                    attacker.SetBuff(173 + nebulaState, 1);
+                    attacker.SetBuff(176 + nebulaState, 1);
+                    attacker.SetBuff(179 + nebulaState, 1);
                     Task.Delay(100).ContinueWith(t => {
-                        attacker.SetBuff(175, (int)(PvPController.Config.NebulaTier3Duration * 60));
-                        attacker.SetBuff(178, (int)(PvPController.Config.NebulaTier3Duration * 60));
-                        attacker.SetBuff(181, (int)(PvPController.Config.NebulaTier3Duration * 60));
+                        attacker.SetBuff(173 + nebulaState, (int)(tierDuration[nebulaState] * 60));
+                        attacker.SetBuff(176 + nebulaState, (int)(tierDuration[nebulaState] * 60));
+                        attacker.SetBuff(179 + nebulaState, (int)(tierDuration[nebulaState] * 60));
                     });
-                } else if (attacker.TPlayer.FindBuffIndex(179) != -1 && PvPController.Config.NebulaTier2Duration != 0) {
-                    attacker.SetBuff(174, 1);
-                    attacker.SetBuff(177, 1);
-                    attacker.SetBuff(180, 1);
-                    Task.Delay(100).ContinueWith(t => {
-                        attacker.SetBuff(174, (int)(PvPController.Config.NebulaTier2Duration * 60));
-                        attacker.SetBuff(177, (int)(PvPController.Config.NebulaTier2Duration * 60));
-                        attacker.SetBuff(180, (int)(PvPController.Config.NebulaTier2Duration * 60));
-                    });
-                } else {
-                    attacker.SetBuff(173, (int)(PvPController.Config.NebulaTier1Duration * 60));
-                    attacker.SetBuff(176, (int)(PvPController.Config.NebulaTier1Duration * 60));
-                    attacker.SetBuff(179, (int)(PvPController.Config.NebulaTier1Duration * 60));
                 }
             }
 
@@ -312,7 +377,22 @@ namespace PvPController.Variables {
             return false;
         }
 
+        /// <summary>
+        /// Sets a buff to the player based off <see cref="PvPController.Variables.BuffInfo"/>
+        /// </summary>
         public void SetBuff(BuffInfo buffInfo) => SetBuff(buffInfo.BuffId, buffInfo.BuffDuration);
+
+        /// <summary>
+        /// Sets a buff on a player, where the duration of the buff is calculated by the
+        /// duration of the buff multiplied by the percentage of the player's health from maximum.
+        /// </summary>
+        public override void SetBuff(int type, int time = 3600, bool bypass = false) {
+            if (PvPController.Config.HealthBasedBuffDuration && PresetData.Debuffs.Contains(type)) {
+                time = (int)(time * HealthPercentage);
+            }
+
+            base.SetBuff(type, time, bypass);
+        }
         
         /// <summary>
         /// Determines whether a person can be hit with Medusa Head.
@@ -328,6 +408,18 @@ namespace PvPController.Variables {
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Applies the Striking Moment buff to a player when they parry an attack
+        /// with the Brand of the Inferno.
+        ///
+        /// Note: The Striking Moment is the default buff. This can be changed through commands.
+        /// </summary>
+        public void CheckShieldParry() {
+            if ((DateTime.Now - ShieldRaised).TotalMilliseconds <= PvPController.Config.ParryTime) {
+                SetBuff(Database.GetBuffInfo(DbConsts.ItemTable, 3823, false));
+            }
         }
     }
 
