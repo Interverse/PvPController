@@ -29,7 +29,7 @@ namespace PvPController.Utilities {
 
         /// <summary>
         /// Determines whether a bit is a 1 or a 0 in an integer in a specified index, 
-        /// where the index starts at 0 from the left.
+        /// where the index starts at 0 from the right.
         /// </summary>
         /// <param name="bitIndex">Index of the bit, starting from 0 on the left</param>
         /// <returns>True if the bit in the specified index is 1</returns>
