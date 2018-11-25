@@ -42,7 +42,16 @@ namespace PvPController.Variables {
         /// <summary>
         /// Finds the player's item from its inventory.
         /// </summary>
-        public PvPItem FindPlayerItem(int type) => PvPUtils.ConvertToPvPItem(TPlayer.inventory[TPlayer.FindItem(type)]);
+        public PvPItem FindPlayerItem(int type) => TPlayer.FindItem(type) != -1
+            ? PvPUtils.ConvertToPvPItem(TPlayer.inventory[TPlayer.FindItem(type)])
+            : new PvPItem(type) { owner = Index };
+        
+        /// <summary>
+        /// Gets the knockback of a weapon with its raw knockback and percentage knockback increases.
+        /// </summary>
+        public float GetHeldWeaponKnockback =>
+            (HeldItem.GetKnockback(this) + GetFloatBuffArmorIncrease(DbConsts.Knockback)) *
+            (HeldItem.GetTitan + GetFloatBuffArmorIncrease(DbConsts.Titan));
 
         /// <summary>
         /// Gets the damage received from an attack.
@@ -75,25 +84,22 @@ namespace PvPController.Variables {
         /// </summary>
         public float DamageReduction => GetFloatBuffArmorIncrease(DbConsts.Endurance) - 1f;
 
+        /// <summary>
+        /// Gets the vanilla damage multiplier for %damage reduction.
+        /// </summary>
         public float VanillaDamageReduction {
             get {
-                float endurance = 0;
-
-                endurance += TPlayer.endurance;
+                float endurance = TPlayer.endurance == 0 ? 1 : 1 - TPlayer.endurance;
 
                 for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
                     var buffType = TPlayer.buffType[x];
                     if (PresetData.BuffEndurance.ContainsKey(buffType) && buffType != 62 && buffType != 114)
-                        endurance *= PresetData.BuffEndurance[TPlayer.buffType[x]];
+                        endurance *=  1 - PresetData.BuffEndurance[buffType];
                 }
 
                 return endurance;
             }
         }
-
-        public float GetHeldWeaponKnockback =>
-            (HeldItem.GetKnockback(this) + GetFloatBuffArmorIncrease(DbConsts.Knockback)) * 
-            (HeldItem.GetTitan + GetFloatBuffArmorIncrease(DbConsts.Titan));
 
         /// <summary>
         /// Gets a player's nebula level/tier based on the level of the Damage Booster buff
@@ -113,7 +119,7 @@ namespace PvPController.Variables {
 
             damage += PvPUtils.GenerateDamageVariance();
             damage -= (int)(GetDefenseDifferenceFromModded * 0.5);
-            damage = (int)(damage / (1 - VanillaDamageReduction) * (1 - DamageReduction));
+            damage = (int)(damage / (VanillaDamageReduction == 0 ? 1 : VanillaDamageReduction) * (1 - DamageReduction));
 
             return damage;
         }
@@ -129,14 +135,12 @@ namespace PvPController.Variables {
         public int GetDefenseDifferenceFromModded {
             get {
                 int vanillaArmorDefense = 0;
-                int moddedArmorDefense = 0;
 
                 for (int x = 0; x < 9; x++) {
                     vanillaArmorDefense += this.TPlayer.armor[x].defense;
-                    moddedArmorDefense += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, DbConsts.Defense);
                 }
 
-                return moddedArmorDefense - vanillaArmorDefense;
+                return GetIntBuffArmorIncrease(DbConsts.Defense) - vanillaArmorDefense;
             }
         }
 

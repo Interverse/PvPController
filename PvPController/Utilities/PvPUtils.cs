@@ -47,7 +47,9 @@ namespace PvPController.Utilities {
         public static int GetPvPDamage(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
             int damage = (projectile == null || projectile.GetConfigDamage < 1)
                 ? weapon.GetPvPDamage(attacker)
-                : projectile.ModdedDamage;
+                : projectile.GetConfigDamage;
+
+            if (projectile != null && projectile.Wrath > 0) damage = (int)(damage * projectile.Wrath);
 
             damage += GetAmmoDamage(attacker, weapon);
             damage += GetVortexDamage(attacker, weapon, damage);
