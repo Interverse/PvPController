@@ -17,7 +17,6 @@ namespace PvPController.Utilities {
             PvPItem weapon;
             if (PresetData.PresetProjDamage.ContainsKey(type)) {
                 weapon = new PvPItem {
-                    Damage = PresetData.PresetProjDamage[type],
                     SpecialName = Lang.GetProjectileName(type).ToString()
                 };
             } else if (PresetData.ProjHooks.ContainsKey(type)) {

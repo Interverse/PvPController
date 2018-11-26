@@ -2,7 +2,6 @@
 using PvPController.Network;
 using System;
 using System.IO;
-using System.Reflection;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI.Hooks;
@@ -20,7 +19,7 @@ namespace PvPController {
         public override string Name => "PvP Controller";
         public override string Author => "Johuan";
         public override string Description => "Adds customizability to pvp";
-        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+        public override Version Version => new Version(2, 1, 0);
 
         public PvPController(Main game) : base(game) { }
         

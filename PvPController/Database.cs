@@ -267,10 +267,6 @@ namespace PvPController {
                     int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
                     wrath = (damage > 0 && !item.accessory).ToInt();
 
-                    //Brand of the Inferno's buff: Striking Moment
-                    if (id == 3823)
-                        selfBuff = new BuffInfo(198, 5 * 60);
-
                     //Worm Scarf
                     if (id == 3224)
                         endurance = 0.17f;
@@ -283,6 +279,7 @@ namespace PvPController {
                 case "Projectiles":
                     name = Lang.GetProjectileName(id).Value;
                     damage = PresetData.PresetProjDamage.ContainsKey(id) ? PresetData.PresetProjDamage[id] : 0;
+                    wrath = 1;
                     inflictBuff = PresetData.ProjectileDebuffs.ContainsKey(id)
                         ? PresetData.ProjectileDebuffs[id] 
                         : new BuffInfo();

@@ -45,16 +45,14 @@ namespace PvPController.Utilities {
         /// Gets the pvp damage value with modifications from the current database.
         /// </summary>
         public static int GetPvPDamage(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = (projectile == null || projectile.GetConfigDamage < 1)
+            int damage = (projectile == null || projectile.ModdedDamage < 1)
                 ? weapon.GetPvPDamage(attacker)
-                : projectile.GetConfigDamage;
-
-            if (projectile != null && projectile.Wrath > 0) damage = (int)(damage * projectile.Wrath);
+                : projectile.ModdedDamage;
 
             damage += GetAmmoDamage(attacker, weapon);
             damage += GetVortexDamage(attacker, weapon, damage);
             damage += attacker.GetIntBuffArmorIncrease(DbConsts.Damage);
-            damage = (int)(damage * weapon.GetWrath);
+            damage = (int)(damage * (projectile?.Wrath ?? 1 * weapon.Wrath).Replace(0, 1));
             damage = (int)(damage * attacker.GetFloatBuffArmorIncrease(DbConsts.Wrath));
             damage = (int)(damage * GetManaDamagePercentage(attacker, weapon));
             return damage;

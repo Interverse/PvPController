@@ -29,11 +29,6 @@ namespace PvPController.Variables {
             User = TShock.Players[index].User;
         }
 
-        public bool TryGetUser() {
-            User = TShock.Players[Index].User;
-            return User != null;
-        }
-
         /// <summary>
         /// Gets the item the player is currently holding.
         /// </summary>
@@ -147,35 +142,35 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the bonus raw stats from Buffs/Armor/Accessories
         /// </summary>
-        public int GetIntBuffArmorIncrease(string stat) {
-            int damage = 0;
+        public int GetIntBuffArmorIncrease(string statType) {
+            int stat = 0;
 
             for (int x = 0; x < 9; x++) {
-                damage += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, stat);
+                stat += Database.GetData<int>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, statType);
             }
 
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
-                damage += Database.GetData<int>(DbConsts.BuffTable, this.TPlayer.buffType[x], stat);
+                stat += Database.GetData<int>(DbConsts.BuffTable, this.TPlayer.buffType[x], statType);
             }
 
-            return damage;
+            return stat;
         }
 
         /// <summary>
         /// Gets the bonus percent multiplier stats from Buffs/Armor/Accessories
         /// </summary>
-        public float GetFloatBuffArmorIncrease(string stat) {
-            float damage = 0;
+        public float GetFloatBuffArmorIncrease(string statType) {
+            float stat = 0;
 
             for (int x = 0; x < 9; x++) {
-                damage += Database.GetData<float>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, stat);
+                stat += Database.GetData<float>(DbConsts.ItemTable, this.TPlayer.armor[x].netID, statType);
             }
 
             for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
-                damage += Database.GetData<float>(DbConsts.BuffTable, this.TPlayer.buffType[x], stat);
+                stat += Database.GetData<float>(DbConsts.BuffTable, this.TPlayer.buffType[x], statType);
             }
 
-            return 1f + damage;
+            return 1f + stat;
         }
 
         /// <summary>
@@ -422,7 +417,7 @@ namespace PvPController.Variables {
         /// </summary>
         public void CheckShieldParry() {
             if ((DateTime.Now - ShieldRaised).TotalMilliseconds <= PvPController.Config.ParryTime) {
-                SetBuff(Database.GetBuffInfo(DbConsts.ItemTable, 3823, false));
+                SetBuff(new BuffInfo(198, 5 * 60));
             }
         }
     }

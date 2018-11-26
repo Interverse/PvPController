@@ -39,7 +39,13 @@ namespace PvPController.Utilities {
         /// Restricts a number between a minimum and maximum value.
         /// </summary>
         public static T Clamp <T>(this T num, T min, T max) where T : IComparable =>
-            num.CompareTo(min) < 0 ? min : num.CompareTo(max) > 0 ? max : num;  
+            num.CompareTo(min) < 0 ? min : num.CompareTo(max) > 0 ? max : num;
+
+        /// <summary>
+        /// Replaces a value with another.
+        /// </summary>
+        public static T Replace<T>(this T num, T value, T replace) where T : IComparable =>
+            num.CompareTo(value) == 0 ? replace : num;
 
         /// <summary>
         /// Generates a string with a specified amount of line breaks.

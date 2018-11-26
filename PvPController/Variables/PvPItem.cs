@@ -48,7 +48,7 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets whether the weapon's projectile has been changed.
         /// </summary>
-        public bool IsShootModded => Database.GetData<bool>(DbConsts.ItemTable, type, DbConsts.IsShootModded);
+        public bool IsShootModded => Database.GetData<int>(DbConsts.ItemTable, type, DbConsts.IsShootModded) == 1;
 
         /// <summary>
         /// Gets the weapon's shoot speed.
@@ -58,10 +58,10 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the wrath (%dmg increase) of an item.
         /// </summary>
-        public float GetWrath => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Wrath);
+        public float Wrath => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Wrath);
 
         /// <summary>
-        /// Gets the wrath (%dmg increase) of an item.
+        /// Gets the titan (%dmg increase) of an item.
         /// </summary>
         public float GetTitan => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Titan);
 
