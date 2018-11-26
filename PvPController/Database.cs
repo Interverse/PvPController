@@ -261,11 +261,11 @@ namespace PvPController {
                     item.SetDefaults(id);
 
                     name = item.Name;
-                    damage = item.damage > 0 ? item.damage : 0;
+                    damage = item.damage > 0 && !item.accessory ? item.damage : 0;
                     defense = item.defense;
                     knockback = item.knockBack;
                     int shoot = item.useAmmo == AmmoID.None ? item.shoot : -1;
-                    wrath = (damage > 0).ToInt();
+                    wrath = (damage > 0 && !item.accessory).ToInt();
 
                     //Brand of the Inferno's buff: Striking Moment
                     if (id == 3823)
