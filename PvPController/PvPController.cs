@@ -103,6 +103,7 @@ namespace PvPController {
         /// projectiles, knockback, criticals, et cetera.
         /// </summary>
         private void PvPTimerElapsed(object sender, ElapsedEventArgs e) {
+            if (!Config.EnableTooltip) return;
             foreach (var player in PvPers) {
                 if (player.ConnectionAlive && player.TPlayer.hostile && player.SeeTooltip) {
                     Interface.DisplayInterface(player);

@@ -35,7 +35,9 @@ namespace PvPController.Network {
 
             if (e.Attacker == null || !e.Attacker.TPlayer.hostile) return;
 
-            if (e.Weapon.Shoot.type > 0 && e.Weapon.IsShootModded) {
+            if (e.Weapon.Shoot.type > -1 && e.Weapon.IsShootModded) {
+                //In case the player lags, it tracks the yet-to-be modified projectile to the current weapon weapon
+                e.Attacker.ProjTracker.InsertProjectile(e.Identity, e.Type, e.Owner, e.Weapon);
                 e.Type = e.Weapon.Shoot.type;
                 isModified = true;
             }
