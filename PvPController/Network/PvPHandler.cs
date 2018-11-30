@@ -28,12 +28,11 @@ namespace PvPController.Network {
         /// <param Name="args"></param>
         private void OnNewProjectile(object sender, ProjectileNewArgs e) {
             if (!PvPController.Config.EnablePlugin) return;
+            if (e.Attacker == null || !e.Attacker.TPlayer.hostile || !e.Attacker.ConnectionAlive) return;
             if (PresetData.ProjectileDummy.Contains(e.Type)) return;
             if (Main.projectile[e.Identity].active && Main.projectile[e.Identity].type == e.Type) return;
 
             var isModified = false;
-
-            if (e.Attacker == null || !e.Attacker.TPlayer.hostile) return;
 
             if (e.Weapon.Shoot.type > -1 && e.Weapon.IsShootModded) {
                 //In case the player lags, it tracks the yet-to-be modified projectile to the current weapon weapon
@@ -42,8 +41,19 @@ namespace PvPController.Network {
                 isModified = true;
             }
 
+            //If the player is dead and attempts to throw a projectile, the projectile is deleted
+            if (e.Attacker.Dead) {
+                e.Type = 0;
+                isModified = true;
+            }
+
             if (e.Weapon.ShootSpeed > 0) {
                 e.Velocity = Vector2.Normalize(e.Velocity) * e.Weapon.ShootSpeed;
+                isModified = true;
+            }
+
+            if (e.Weapon.VelocityMultiplier != 1 || e.Proj.VelocityMultiplier != 1) {
+                e.Velocity = e.Velocity * e.Weapon.VelocityMultiplier * e.Proj.VelocityMultiplier;
                 isModified = true;
             }
 
@@ -77,8 +87,8 @@ namespace PvPController.Network {
             if (!e.IsPvPDamage) return;
 
             e.Args.Handled = true;
-
-            if (!e.Target.CanBeHit()) return;
+            
+            if (e.Attacker.TPlayer.immune || !e.Target.CanBeHit()) return;
 
             if (PvPController.Config.EnableKnockback) {
                 float knockback = e.Weapon.GetKnockback(e.Attacker);

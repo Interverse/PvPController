@@ -13,6 +13,7 @@ namespace PvPController.Network.PacketArgs {
         public GetDataEventArgs Args;
         public PvPPlayer Attacker;
         public PvPItem Weapon;
+        public PvPProjectile Proj;
 
         public int Identity;
         public Vector2 Position;
@@ -48,6 +49,7 @@ namespace PvPController.Network.PacketArgs {
             }
             Ai = new float[Projectile.maxAI];
             
+            Proj = new PvPProjectile(Type, Identity);
             Weapon = ProjectileUtils.GetProjectileWeapon(attacker, Type);
         }
     }

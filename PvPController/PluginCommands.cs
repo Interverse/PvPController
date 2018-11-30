@@ -9,7 +9,7 @@ namespace PvPController {
     public class PluginCommands {
         private static readonly string TableList = "<{0}>".SFormat(string.Join("/", DbConsts.ItemTable, DbConsts.ProjectileTable, DbConsts.BuffTable));
         private const string ItemIdParam = "<\"item Name\"/id>";
-        private static readonly string StatList = "<{0}>".SFormat(string.Join("/", DbConsts.Name, DbConsts.Shoot, DbConsts.IsShootModded, DbConsts.ShootSpeed, DbConsts.Knockback, DbConsts.Defense, DbConsts.Wrath, DbConsts.Titan, DbConsts.Endurance, DbConsts.InflictBuffId, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffId, DbConsts.ReceiveBuffDuration).SeparateToLines(60, "/"));
+        private static readonly string StatList = "<{0}>".SFormat(string.Join("/", DbConsts.Name, DbConsts.Shoot, DbConsts.IsShootModded, DbConsts.ShootSpeed, DbConsts.VelocityMultiplier, DbConsts.Knockback, DbConsts.Defense, DbConsts.Wrath, DbConsts.Titan, DbConsts.Endurance, DbConsts.InflictBuffId, DbConsts.InflictBuffDuration, DbConsts.ReceiveBuffId, DbConsts.ReceiveBuffDuration).SeparateToLines(60, "/"));
         private static readonly string ModStatParameters = "Parameters: {0} {1}\r\n{2} <value>".SFormat(TableList, ItemIdParam, StatList);
         private static readonly string CheckStatParameters = "Parameters: {0} {1}\r\n{2}".SFormat(TableList, ItemIdParam, StatList);
 
@@ -75,7 +75,7 @@ namespace PvPController {
                 return;
             }
 
-            if (!TryGetTableFromString(input[0], out string type)) {
+            if (!StringConsts.TryGetTableFromString(input[0], out string type)) {
                 player.SendErrorMessage($"Invalid Type. Possible values are: {TableList}. You typed {input[1]}.");
                 return;
             }
@@ -98,7 +98,7 @@ namespace PvPController {
                 }
             }
 
-            if (!TryGetAttributeFromString(input[2], out string stat)) {
+            if (!StringConsts.TryGetAttributeFromString(input[2], out string stat)) {
                 player.SendErrorMessage("Invalid stat of " + input[2] + ". Parameters: " + StatList);
                 return;
             }
@@ -160,7 +160,7 @@ namespace PvPController {
                 return;
             }
 
-            var configParam = GetConfigAttributeFromString(args.Parameters[0].ToLower());
+            var configParam = StringConsts.GetConfigAttributeFromString(args.Parameters[0].ToLower());
             var value = args.Parameters[1];
 
             if (configParam == default(string)) {
@@ -195,7 +195,7 @@ namespace PvPController {
                 return;
             }
 
-            if (!TryGetTableFromString(input[0], out string type)) {
+            if (!StringConsts.TryGetTableFromString(input[0], out string type)) {
                 player.SendErrorMessage($"Invalid Type. Possible values are: {TableList}. You typed {input[0]}.");
                 return;
             }
@@ -218,7 +218,7 @@ namespace PvPController {
                 }
             }
 
-            if (!TryGetAttributeFromString(input[2], out string stat)) {
+            if (!StringConsts.TryGetAttributeFromString(input[2], out string stat)) {
                 player.SendErrorMessage("Invalid stat of " + input[2] + ". Parameters: " + StatList);
                 return;
             }
@@ -240,12 +240,12 @@ namespace PvPController {
                 return;
             }
 
-            if (!TryGetTableFromString(input[0], out string table)) {
+            if (!StringConsts.TryGetTableFromString(input[0], out string table)) {
                 args.Player.SendErrorMessage($"Invalid Type. Possible values are: {TableList}. You typed {input[1]}.");
                 return;
             }
 
-            if (!TryGetAttributeFromString(input[1], out string attribute)) {
+            if (!StringConsts.TryGetAttributeFromString(input[1], out string attribute)) {
                 args.Player.SendErrorMessage("Invalid stat of " + input[1] + ". Parameters: " + StatList);
                 return;
             }
@@ -337,285 +337,6 @@ namespace PvPController {
                 args.Player.SendErrorMessage("SQL statement failed.");
             else
                 args.Player.SendSuccessMessage("SQL statement was successful.");
-        }
-
-        /// <summary>
-        /// Gets the table name from a string.
-        /// </summary>
-        private static bool TryGetTableFromString(string input, out string table) {
-            switch (input.ToLower()) {
-                case "items":
-                case "item":
-                case "i":
-                    table = DbConsts.ItemTable;
-                    break;
-
-                case "projectiles":
-                case "projectile":
-                case "proj":
-                case "p":
-                    table = DbConsts.ProjectileTable;
-                    break;
-
-                case "buffs":
-                case "buff":
-                case "b":
-                    table = DbConsts.BuffTable;
-                    break;
-
-                default:
-                    table = input;
-                    return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Gets an attribute's sql column name from a string.
-        /// </summary>
-        private static bool TryGetAttributeFromString(string input, out string attribute) {
-            switch (input.ToLower()) {
-                case "name":
-                case "n":
-                    attribute = DbConsts.Name;
-                    break;
-
-                case "damage":
-                case "dmg":
-                case "d":
-                    attribute = DbConsts.Damage;
-                    break;
-
-                case "shoot":
-                case "s":
-                    attribute = DbConsts.Shoot;
-                    break;
-
-                case "isshootmodded":
-                case "ism":
-                    attribute = DbConsts.IsShootModded;
-                    break;
-
-                case "shootspeed":
-                case "ss":
-                    attribute = DbConsts.ShootSpeed;
-                    break;
-
-                case "knockback":
-                case "kb":
-                    attribute = DbConsts.Knockback;
-                    break;
-
-                case "defense":
-                case "def":
-                    attribute = DbConsts.Defense;
-                    break;
-
-                case "inflictbuffid":
-                case "ibid":
-                case "ibi":
-                    attribute = DbConsts.InflictBuffId;
-                    break;
-
-                case "inflictbuffduration":
-                case "ibd":
-                    attribute = DbConsts.InflictBuffDuration;
-                    break;
-
-                case "receivebuffid":
-                case "rbid":
-                case "rbi":
-                    attribute = DbConsts.ReceiveBuffId;
-                    break;
-
-                case "receivebuffduration":
-                case "rbd":
-                    attribute = DbConsts.ReceiveBuffDuration;
-                    break;
-
-                case "titan":
-                case "t":
-                    attribute = DbConsts.Titan;
-                    break;
-
-                case "endurance":
-                case "e":
-                    attribute = DbConsts.Endurance;
-                    break;
-
-                case "wrath":
-                case "w":
-                    attribute = DbConsts.Wrath;
-                    break;
-
-                default:
-                    attribute = input;
-                    return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Get's a config value's name from an input
-        /// </summary>
-        /// <param name="val"></param>
-        /// <returns></returns>
-        private static string GetConfigAttributeFromString(string val) {
-            switch (val) {
-                case "enableplugin":
-                case "ep":
-                    return "EnablePlugin";
-
-                case "enabledamagechanges":
-                case "edc":
-                case "ed":
-                case "d":
-                    return "EnableDamageChanges";
-
-                case "enablecriticals":
-                case "ec":
-                case "c":
-                    return "EnableCriticals";
-
-                case "enableknockback":
-                case "ek":
-                case "k":
-                    return "EnableKnockback";
-
-                case "enableminions":
-                case "em":
-                case "m":
-                    return "EnableMinions";
-                    
-                case "enabletooltip":
-                case "et":
-                    return "EnableTooltip";
-
-                case "enableprojectiledebuffs":
-                case "epd":
-                case "pd":
-                    return "EnableProjectileDebuffs";
-
-                case "enableprojectileselfbuffs":
-                case "epsb":
-                case "psb":
-                    return "EnableProjectileSelfBuffs";
-
-                case "enableweapondebuffs":
-                case "ewd":
-                case "wd":
-                    return "EnableWeaponDebuffs";
-
-                case "enableweaponselfbuffs":
-                case "ewsb":
-                case "wsb":
-                    return "EnableWeaponSelfBuffs";
-
-                case "healthbasedbuffduration":
-                case "hbbd":
-                case "hbd":
-                    return "HealthBasedBuffDuration";
-
-                case "enableturtle":
-                case "eturtle":
-                case "turtle":
-                    return "EnableTurtle";
-
-                case "turtlemultiplier":
-                case "turtlem":
-                    return "TurtleMultiplier";
-
-                case "enablethorns":
-                case "ethorns":
-                case "thorns":
-                    return "EnableThorns";
-
-                case "thornmultiplier":
-                case "thornm":
-                    return "ThornMultiplier";
-
-                case "enablenebula":
-                case "nebula":
-                case "en":
-                case "n":
-                    return "EnableNebula";
-
-                case "nebulatier3duration":
-                case "nt3d":
-                case "n3":
-                    return "NebulaTier3Duration";
-
-                case "nebulatier2duration":
-                case "nt2d":
-                case "n2":
-                    return "NebulaTier2Duration";
-
-                case "nebulatier1duration":
-                case "nt1d":
-                case "n1":
-                    return "NebulaTier1Duration";
-
-                case "enablefrost":
-                case "efrost":
-                case "frost":
-                case "f":
-                    return "EnableFrost";
-
-                case "frostduration":
-                case "fd":
-                    return "FrostDuration";
-
-                case "vortexmultiplier":
-                case "vm":
-                    return "VortexMultiplier";
-
-                case "enablebuffdebuff":
-                case "ebd":
-                    return "EnableBuffDebuff";
-
-                case "enablebuffselfbuff":
-                case "ebsb":
-                    return "EnableBuffSelfBuff";
-
-                case "knockbackminimum":
-                case "km":
-                    return "KnockbackMinimum";
-
-                case "iframetime":
-                case "ift":
-                    return "IframeTime";
-
-                case "lowerdamagevariance":
-                case "ldv":
-                    return "LowerDamageVariance";
-
-                case "upperdamagevariance":
-                case "udv":
-                    return "UpperDamageVariance";
-
-                case "deathitemtag":
-                case "dit":
-                    return "DeathItemTag";
-
-                case "parrytime":
-                case "pt":
-                    return "ParryTime";
-
-                case "lowermagicdamagepercentage":
-                case "lmdp":
-                case "lm":
-                    return "LowerMagicDamagePercentage";
-
-                case "uppermagicdamagepercentage":
-                case "umdp":
-                case "um":
-                    return "UpperMagicDamagePercentage";
-
-                default:
-                    return val;
-            }
         }
     }
 }

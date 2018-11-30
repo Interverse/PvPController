@@ -234,22 +234,23 @@ namespace PvPController.Utilities {
 
         //Accessory and Armor created projectiles
         public static Dictionary<int, int> PresetProjDamage = new Dictionary<int, int> {
-            { 566, 15 },
-            { 567, 30 },
-            { 568, 30 },
-            { 569, 30 },
-            { 570, 30 },
-            { 571, 30 },
-            { 221, 30 },
-            { 227, 100 },
-            { 608, 50 },
-            { 656, 20 },
-            { 556, 60 },
-            { 557, 60 },
-            { 559, 60 },
-            { 560, 60 },
-            { 561, 60 },
-            { 624, 70 }
+            { 566, 15 }, //Hive Pack
+            { 567, 30 }, //Spore Sac
+            { 568, 30 }, //Spore Sac
+            { 569, 30 }, //Spore Sac
+            { 570, 30 }, //Spore Sac
+            { 571, 30 }, //Spore Sac
+            { 221, 30 }, //Flower Petal
+            { 227, 100 }, //Crystal Leaf
+            { 608, 50 }, //Solar Radiance
+            { 656, 20 }, //Ancient Storm
+            { 556, 60 }, //Black Counterweight
+            { 557, 60 }, //Blue Counterweight
+            { 558, 60 }, //Green Counterweight
+            { 559, 60 }, //Purple Counterweight
+            { 560, 60 }, //Red Counterweight
+            { 561, 60 }, //Yellow Counterweight
+            { 624, 70 } //Starburst
         };
 
         //Sets a debuff and its duration to a projectile id

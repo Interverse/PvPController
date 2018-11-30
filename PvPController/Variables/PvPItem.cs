@@ -56,6 +56,12 @@ namespace PvPController.Variables {
         public float ShootSpeed => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.ShootSpeed);
 
         /// <summary>
+        /// Gets the velocity multiplier of the item
+        /// </summary>
+        public float VelocityMultiplier =>
+            Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.VelocityMultiplier);
+
+        /// <summary>
         /// Gets the wrath (%dmg increase) of an item.
         /// </summary>
         public float Wrath => Database.GetData<float>(DbConsts.ItemTable, type, DbConsts.Wrath);

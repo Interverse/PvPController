@@ -39,6 +39,12 @@ namespace PvPController.Variables {
         public int ModdedDamage => (int)(GetConfigDamage * Wrath);
 
         /// <summary>
+        /// Gets the velocity multiplier of the projectile
+        /// </summary>
+        public float VelocityMultiplier =>
+            Database.GetData<float>(DbConsts.ProjectileTable, type, DbConsts.VelocityMultiplier);
+
+        /// <summary>
         /// Gets the debuff information from the database.
         /// </summary>
         /// <returns></returns>

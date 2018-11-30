@@ -67,7 +67,7 @@ namespace PvPController.Variables {
         /// <summary>
         /// Gets the percentage of mana remaining on the player
         /// </summary>
-        public double ManaPercentage => (double)TPlayer.statMana / TPlayer.statManaMax;
+        public double ManaPercentage => (double)TPlayer.statMana / TPlayer.statManaMax2;
         
         /// <summary>
         /// Gets the percentage of health remaining on the player
@@ -80,23 +80,6 @@ namespace PvPController.Variables {
         public float DamageReduction => GetFloatBuffArmorIncrease(DbConsts.Endurance) - 1f;
 
         /// <summary>
-        /// Gets the vanilla damage multiplier for %damage reduction.
-        /// </summary>
-        public float VanillaDamageReduction {
-            get {
-                float endurance = TPlayer.endurance == 0 ? 1 : 1 - TPlayer.endurance;
-
-                for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
-                    var buffType = TPlayer.buffType[x];
-                    if (PresetData.BuffEndurance.ContainsKey(buffType) && buffType != 62 && buffType != 114)
-                        endurance *=  1 - PresetData.BuffEndurance[buffType];
-                }
-
-                return endurance;
-            }
-        }
-
-        /// <summary>
         /// Gets a player's nebula level/tier based on the level of the Damage Booster buff
         ///
         /// In this plugin, all three buffs are applied simultaneously, so there's no point
@@ -107,22 +90,26 @@ namespace PvPController.Variables {
                 0 : 3 : 2 : 1;
 
         /// <summary>
-        /// Gets the damage dealt to a person with server side calculations.
-        /// </summary>
-        public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
-            int damage = PvPUtils.GetPvPDamage(attacker, weapon, projectile);
-
-            damage += PvPUtils.GenerateDamageVariance();
-            damage -= (int)(GetDefenseDifferenceFromModded * 0.5);
-            damage = (int)(damage / (VanillaDamageReduction == 0 ? 1 : VanillaDamageReduction) * (1 - DamageReduction));
-
-            return damage;
-        }
-
-        /// <summary>
         /// Gets the defense of a player. Includes both vanilla and modded defense values.
         /// </summary>
         public int Defense => this.TPlayer.statDefense + GetDefenseDifferenceFromModded;
+        
+        /// <summary>
+        /// Gets the vanilla damage multiplier for %damage reduction.
+        /// </summary>
+        public float VanillaDamageReduction {
+            get {
+                float endurance = TPlayer.endurance == 0 ? 1 : 1 - TPlayer.endurance;
+
+                for (int x = 0; x < Terraria.Player.maxBuffs; x++) {
+                    var buffType = TPlayer.buffType[x];
+                    if (PresetData.BuffEndurance.ContainsKey(buffType) && buffType != 62 && buffType != 114)
+                        endurance *= 1 - PresetData.BuffEndurance[buffType];
+                }
+
+                return endurance;
+            }
+        }
 
         /// <summary>
         /// Returns the difference from normal defense values from the modded defense values.
@@ -196,6 +183,19 @@ namespace PvPController.Variables {
 
             NetMessage.SendPlayerHurt(this.Index, PlayerDeathReason.ByCustomReason(PvPUtils.GetPvPDeathMessage(attacker, this, weapon)),
                 damage, hitDirection, false, true, 5);
+        }
+        
+        /// <summary>
+        /// Gets the damage dealt to a person with server side calculations.
+        /// </summary>
+        public int GetDamageDealt(PvPPlayer attacker, PvPItem weapon, PvPProjectile projectile = null) {
+            int damage = PvPUtils.GetPvPDamage(attacker, weapon, projectile);
+
+            damage += PvPUtils.GenerateDamageVariance();
+            damage -= (int)(GetDefenseDifferenceFromModded * 0.5);
+            damage = (int)(damage / (VanillaDamageReduction == 0 ? 1 : VanillaDamageReduction) * (1 - DamageReduction));
+
+            return damage;
         }
 
         /// <summary>
