@@ -68,10 +68,11 @@ namespace PvPController {
                 new SqlColumn(InflictBuffDuration, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffId, MySqlDbType.Int32),
                 new SqlColumn(ReceiveBuffDuration, MySqlDbType.Int32)));
-            
+
             sqlCreator.EnsureTableStructure(new SqlTable(DbConsts.ProjectileTable,
-                new SqlColumn(Id, MySqlDbType.Int32) { Primary = true },
-                new SqlColumn(Name, MySqlDbType.Text) { Length = 255 },
+                new SqlColumn(Id, MySqlDbType.Int32) {Primary = true},
+                new SqlColumn(Name, MySqlDbType.Text) {Length = 255},
+                new SqlColumn(Shoot, MySqlDbType.Int32),
                 new SqlColumn(Damage, MySqlDbType.Int32),
                 new SqlColumn(Wrath, MySqlDbType.Float),
                 new SqlColumn(VelocityMultiplier, MySqlDbType.Float),
@@ -292,8 +293,8 @@ namespace PvPController {
 
                     return "INSERT INTO {0} ({1}) VALUES ({2})"
                         .SFormat(DbConsts.ProjectileTable,
-                            string.Join(", ", Id, Name, Damage, Wrath, VelocityMultiplier, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
-                            string.Join(", ", id, name.SqlString(), damage, wrath, 1, inflictBuff.BuffId, inflictBuff.BuffDuration, selfBuff.BuffId, selfBuff.BuffDuration));
+                            string.Join(", ", Id, Name, Shoot, Damage, Wrath, VelocityMultiplier, InflictBuffId, InflictBuffDuration, ReceiveBuffId, ReceiveBuffDuration),
+                            string.Join(", ", id, name.SqlString(), id, damage, wrath, 1, inflictBuff.BuffId, inflictBuff.BuffDuration, selfBuff.BuffId, selfBuff.BuffDuration));
 
                 case "Buffs":
                     name = Lang.GetBuffName(id);

@@ -29,6 +29,14 @@ namespace PvPController.Variables {
         public int GetConfigDamage => Database.GetData<int>(DbConsts.ProjectileTable, type, DbConsts.Damage);
 
         /// <summary>
+        /// Gets the shoot projectile for this projectile.
+        /// Normally, the shoot would be the same as the ID.
+        /// If the database shoot is changed so it is different from the ID, the
+        /// projectile will use the database type.
+        /// </summary>
+        public int Shoot => Database.GetData<int>(DbConsts.ProjectileTable, type, DbConsts.Shoot);
+
+        /// <summary>
         /// Gets the wrath (%damage increase) of a projectile
         /// </summary>
         public float Wrath => Database.GetData<float>(DbConsts.ProjectileTable, type, DbConsts.Wrath);
