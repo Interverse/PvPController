@@ -20,7 +20,7 @@ namespace PvPController.Utilities {
                     SpecialName = Lang.GetProjectileName(type).ToString()
                 };
             } else if (PresetData.ProjHooks.ContainsKey(type)) {
-                weapon = new PvPItem(type);
+                weapon = owner.FindPlayerItem(PresetData.ProjHooks[type]);
             } else if (PresetData.FromWhatItem.ContainsKey(type)) {
                 weapon = owner.FindPlayerItem(PresetData.FromWhatItem[type]);
             } else if (PresetData.MinionItem.ContainsKey(type)) {

@@ -52,6 +52,11 @@ namespace PvPController.Network {
                 isModified = true;
             }
 
+            if (e.Proj.GetConfigDamage > 0) {
+                e.Damage = 1;
+                isModified = true;
+            }
+
             if (e.Weapon.ShootSpeed > 0) {
                 e.Velocity = Vector2.Normalize(e.Velocity) * e.Weapon.ShootSpeed;
                 isModified = true;
