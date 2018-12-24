@@ -239,7 +239,7 @@ namespace PvPController.Variables {
                 }
             }
 
-            NetMessage.SendData(13, -1, -1, null, this.Index);
+            NetMessage.SendData(13, -1, -1, null, this.Index, 0, 4);
                 
             if (!isSSC) {
                 Main.ServerSideCharacter = false;
